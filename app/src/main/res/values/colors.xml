@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fd_surface">#FFF7F9FC</color>
+    <color name="fd_primary">#FF1E6FFF</color>
+    <color name="fd_accent">#FF00C6A7</color>
+    <color name="fd_icon_background">#FF0C1C3A</color>
+</resources>

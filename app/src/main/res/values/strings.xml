@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FileDrop</string>
+    <string name="share_target_label">Envoyer avec FileDrop</string>
+
+    <string name="channel_requests_name">Demandes de transfert</string>
+    <string name="channel_requests_description">Notification lorsqu\'un appareil souhaite vous envoyer des fichiers</string>
+    <string name="channel_progress_name">Transferts en cours</string>
+    <string name="channel_progress_description">Progression des envois et réceptions</string>
+
+    <string name="action_accept">Accepter</string>
+    <string name="action_refuse">Refuser</string>
+</resources>
