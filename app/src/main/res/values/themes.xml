@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Thème minimal : toute l'interface est en Compose (Material 3).
+      Ce thème XML ne sert qu'à la fenêtre elle-même, avant le premier rendu.
+    -->
+    <style name="Theme.FileDrop" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/fd_surface</item>
+        <item name="android:statusBarColor">@color/fd_surface</item>
+        <item name="android:navigationBarColor">@color/fd_surface</item>
+    </style>
+</resources>

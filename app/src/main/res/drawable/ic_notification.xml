@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icône de notification : silhouette blanche unie, comme l'exige Android. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+
+    <path
+        android:pathData="M5.64,10.64 A9,9 0 0 1 18.36,10.64"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+
+    <path
+        android:pathData="M8.11,13.11 A5.5,5.5 0 0 1 15.89,13.11"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+
+    <path
+        android:pathData="M12,14 L15,17.4 L13.2,17.4 L13.2,21 L10.8,21 L10.8,17.4 L9,17.4 Z"
+        android:fillColor="#FFFFFF" />
+</vector>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Permissions volontairement réduites au strict nécessaire pour la V1.
+
+      Ce qui N'EST PAS demandé, et pourquoi :
+        - ACCESS_FINE_LOCATION : la découverte se fait via NsdManager (mDNS),
+          qui ne l'exige pas. Elle ne deviendra nécessaire que si le Wi-Fi Direct
+          ou le scan BLE sont ajoutés (V3).
+        - BLUETOOTH_* : aucun transport Bluetooth n'est actif en V1.
+        - READ_EXTERNAL_STORAGE / READ_MEDIA_* : les fichiers arrivent sous forme
+          d'URI via le sélecteur système ou le menu Partager, ce qui accorde déjà
+          l'accès en lecture. Demander ces permissions serait inutile.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Android 13+ : sans cette permission, aucune notification de réception. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Un transfert doit survivre au passage de l'app en arrière-plan. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!--
+      Android 9 et moins : écrire dans un dossier public exige cette permission.
+      À partir d'Android 10, MediaStore la rend inutile, d'où le maxSdkVersion.
+    -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:name=".FileDropApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FileDrop">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.FileDrop"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              Cible du menu Partager d'Android, un seul fichier.
+              Les types sont listés explicitement en plus de */* : certaines
+              applications filtrent sur le type exact et ignorent le joker.
+            -->
+            <intent-filter android:label="@string/share_target_label">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <!-- Menu Partager, plusieurs fichiers à la fois. -->
+            <intent-filter android:label="@string/share_target_label">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          Service de premier plan : héberge le serveur de réception et les
+          transferts en cours. Type dataSync, obligatoire depuis Android 14.
+        -->
+        <service
+            android:name=".transfer.FileDropService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Boutons Accepter / Refuser des notifications. -->
+        <receiver
+            android:name=".notifications.TransferActionReceiver"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
