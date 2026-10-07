@@ -68,6 +68,16 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-open", action="store_true", help="ne pas ouvrir de fenêtre ni de navigateur"
     )
+    parser.add_argument(
+        "--widget",
+        action="store_true",
+        help="lance uniquement le widget overlay (FPS, CPU, RAM...) sans le serveur",
+    )
+    parser.add_argument(
+        "--wait-game",
+        action="store_true",
+        help="avec --widget : démarre caché et ne s'affiche que lorsqu'un jeu est détecté",
+    )
     return parser.parse_args(argv)
 
 
@@ -167,6 +177,12 @@ def main() -> None:
     """Lance Overdrive (fenêtre native, navigateur ou mode serveur)."""
     args = _parse_args()
     _setup_logging()
+    if args.widget:
+        # Mode widget : aucune fenêtre principale ni serveur HTTP.
+        from .widget import run_widget
+
+        run_widget(wait_game=args.wait_game)
+        return
     # Boucle locale par défaut, même en --server : l'exposition réseau exige
     # un --host explicite et active alors un jeton d'accès obligatoire.
     host = args.host or "127.0.0.1"

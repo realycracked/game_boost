@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overdrive Widget</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #191919;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+  body {
+    --op: 0.92;
+    --label: 10px;
+    --value: 13px;
+    --fps: 21px;
+    --padx: 14px;
+    --pady: 9px;
+    --gap: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  body[data-scale="s"] { --label: 9px;  --value: 11px; --fps: 17px; --padx: 11px; --pady: 7px;  --gap: 10px; }
+  body[data-scale="l"] { --label: 11px; --value: 15px; --fps: 26px; --padx: 17px; --pady: 11px; --gap: 17px; }
+
+  #card {
+    display: inline-block;
+    background: rgba(25, 25, 25, var(--op));
+    border: 1px solid #2f2f2f;
+    border-radius: 10px;
+    min-width: 96px;
+  }
+
+  /* ---- rangée d'éléments ---- */
+  #row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: var(--pady) calc(var(--padx) + 16px) var(--pady) var(--padx);
+    min-height: calc(var(--fps) + var(--label) + 8px);
+  }
+  .el {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .el[hidden] { display: none; }
+  .el:not([hidden]) ~ .el:not([hidden]) {
+    margin-left: var(--gap);
+    padding-left: var(--gap);
+    border-left: 1px solid #272727;
+  }
+  .label {
+    font-size: var(--label);
+    font-weight: 500;
+    line-height: 1.2;
+    color: #9b9b9b;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+  .value {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: var(--value);
+    font-weight: 500;
+    line-height: 1.3;
+    color: #d4d4d4;
+    white-space: nowrap;
+  }
+  #v-fps {
+    font-size: var(--fps);
+    font-weight: 600;
+    line-height: 1.1;
+    color: #ececec;
+    font-variant-numeric: tabular-nums;
+  }
+  #v-game {
+    max-width: 17ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---- bouton réglages (visible au survol) ---- */
+  #gear {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: #808080;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  #card:hover #gear, #gear.active, #gear:focus-visible { opacity: 1; }
+  #gear:hover { color: #d4d4d4; background: #262626; }
+  #gear.active { color: #d4d4d4; background: #2a2a2a; }
+  #gear svg { display: block; }
+
+  /* ---- volet réglages ---- */
+  #panel {
+    border-top: 1px solid #2a2a2a;
+    padding: 11px 13px 13px;
+    min-width: 212px;
+    font-size: 12px;
+    color: #c9c9c9;
+  }
+  #panel[hidden] { display: none; }
+  .p-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 12px 0 7px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #9b9b9b;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .p-title:first-child { margin-top: 0; }
+  .p-title .p-val {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #8f8f8f;
+  }
+  .p-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px 12px;
+  }
+  .chk {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.3;
+    color: #c9c9c9;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chk input {
+    width: 13px;
+    height: 13px;
+    margin: 0;
+    accent-color: #529cca;
+    cursor: pointer;
+  }
+  #op-range {
+    display: block;
+    width: 100%;
+    margin: 2px 0 0;
+    accent-color: #529cca;
+    cursor: pointer;
+  }
+  .seg {
+    display: inline-flex;
+    border: 1px solid #2f2f2f;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .seg button {
+    padding: 4px 16px;
+    border: 0;
+    background: transparent;
+    color: #9b9b9b;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.1s ease, color 0.1s ease;
+  }
+  .seg button + button { border-left: 1px solid #2f2f2f; }
+  .seg button:hover { color: #d4d4d4; }
+  .seg button.active { background: #2a2a2a; color: #e6e6e6; }
+  #quit {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 5px 0;
+    border: 1px solid #3a2b2a;
+    border-radius: 6px;
+    background: transparent;
+    color: #cf6a64;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.1s ease, border-color 0.1s ease;
+  }
+  #quit:hover { background: rgba(212, 76, 71, 0.08); border-color: #4a3331; }
+</style>
+</head>
+<body data-scale="m">
+  <div id="card">
+    <div id="row">
+      <div class="el" id="el-fps">
+        <span class="label">FPS</span>
+        <span class="value" id="v-fps">&#8212;</span>
+      </div>
+      <div class="el" id="el-game">
+        <span class="label">Jeu</span>
+        <span class="value" id="v-game">&#8212;</span>
+      </div>
+      <div class="el" id="el-cpu">
+        <span class="label">CPU</span>
+        <span class="value" id="v-cpu">&#8212;</span>
+      </div>
+      <div class="el" id="el-ram">
+        <span class="label">RAM</span>
+        <span class="value" id="v-ram">&#8212;</span>
+      </div>
+      <div class="el" id="el-net" title="Mo/s — r&#233;ception / envoi">
+        <span class="label">R&#233;seau</span>
+        <span class="value" id="v-net">&#8212;</span>
+      </div>
+      <div class="el" id="el-clock">
+        <span class="label">Heure</span>
+        <span class="value" id="v-clock">&#8212;</span>
+      </div>
+      <button id="gear" type="button" title="R&#233;glages" aria-label="R&#233;glages">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+    <div id="panel" hidden>
+      <div class="p-title">&#201;l&#233;ments affich&#233;s</div>
+      <div class="p-grid">
+        <label class="chk"><input type="checkbox" data-el="fps"><span>FPS</span></label>
+        <label class="chk"><input type="checkbox" data-el="game"><span>Jeu</span></label>
+        <label class="chk"><input type="checkbox" data-el="cpu"><span>CPU</span></label>
+        <label class="chk"><input type="checkbox" data-el="ram"><span>RAM</span></label>
+        <label class="chk"><input type="checkbox" data-el="net"><span>R&#233;seau</span></label>
+        <label class="chk"><input type="checkbox" data-el="clock"><span>Heure</span></label>
+      </div>
+      <div class="p-title">Opacit&#233; <span class="p-val" id="op-val">92 %</span></div>
+      <input type="range" id="op-range" min="10" max="100" step="1" value="92"
+             aria-label="Opacit&#233; du widget">
+      <div class="p-title">Taille</div>
+      <div class="seg" id="seg-scale" role="group" aria-label="Taille du widget">
+        <button type="button" data-scale="s">S</button>
+        <button type="button" data-scale="m" class="active">M</button>
+        <button type="button" data-scale="l">L</button>
+      </div>
+      <button id="quit" type="button">Quitter le widget</button>
+    </div>
+  </div>
+<script>
+(function () {
+  "use strict";
+
+  var ELEMENTS = ["fps", "game", "cpu", "ram", "net", "clock"];
+  var state = { cfgJson: null, started: false, opacityDrag: false };
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ---- pont pywebview (toujours tolérant : la page ne casse jamais) ---- */
+  function bridge() {
+    return (window.pywebview && window.pywebview.api) ? window.pywebview.api : null;
+  }
+  function call(name) {
+    var api = bridge();
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (!api || typeof api[name] !== "function") {
+      return Promise.resolve(null);
+    }
+    try {
+      return Promise.resolve(api[name].apply(api, args)).catch(function () { return null; });
+    } catch (err) {
+      return Promise.resolve(null);
+    }
+  }
+
+  /* ---- formatage ---- */
+  function fmtRate(value) {
+    if (value === null || value === undefined || isNaN(value)) { return "0.0"; }
+    return Number(value).toFixed(1);
+  }
+  function shorten(text, max) {
+    if (!text) { return "—"; }
+    return text.length > max ? text.slice(0, max - 1) + "…" : text;
+  }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+  /* ---- rendu des valeurs ---- */
+  function updateClock() {
+    var now = new Date();
+    $("v-clock").textContent = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+  }
+
+  function render(stats, game) {
+    var fps = stats.fps;
+    $("v-fps").textContent = (fps === null || fps === undefined) ? "—" : String(Math.round(fps));
+    var gameName = game && game.name ? String(game.name) : "";
+    $("v-game").textContent = gameName ? shorten(gameName, 18) : "—";
+    $("v-game").title = gameName;
+    var cpu = stats.cpu_percent;
+    $("v-cpu").textContent = (cpu === null || cpu === undefined) ? "—" : Math.round(cpu) + "%";
+    var ram = stats.ram || {};
+    $("v-ram").textContent = (ram.percent === null || ram.percent === undefined)
+      ? "—" : Math.round(ram.percent) + "%";
+    if (ram.used_gb !== null && ram.used_gb !== undefined) {
+      $("el-ram").title = ram.used_gb + " Go utilisés";
+    }
+    var net = stats.net || {};
+    if (net.down_mbps === null && net.up_mbps === null) {
+      $("v-net").textContent = "—";
+    } else {
+      $("v-net").textContent = "↓" + fmtRate(net.down_mbps) + " ↑" + fmtRate(net.up_mbps);
+    }
+  }
+
+  /* ---- application de la configuration ---- */
+  function applyConfig(cfg) {
+    if (!cfg) { return; }
+    document.body.dataset.scale = cfg.scale || "m";
+    var op = (typeof cfg.opacity === "number") ? cfg.opacity : 0.92;
+    document.body.style.setProperty("--op", String(op));
+    ELEMENTS.forEach(function (name) {
+      var visible = !!(cfg.elements && cfg.elements[name]);
+      var el = $("el-" + name);
+      if (el) {
+        if (visible) { el.removeAttribute("hidden"); } else { el.setAttribute("hidden", ""); }
+      }
+      var box = document.querySelector('input[data-el="' + name + '"]');
+      if (box) { box.checked = visible; }
+    });
+    if (!state.opacityDrag) {
+      $("op-range").value = String(Math.round(op * 100));
+      $("op-val").textContent = Math.round(op * 100) + " %";
+    }
+    var buttons = $("seg-scale").querySelectorAll("button");
+    Array.prototype.forEach.call(buttons, function (btn) {
+      btn.classList.toggle("active", btn.dataset.scale === (cfg.scale || "m"));
+    });
+    state.cfgJson = JSON.stringify(cfg);
+    fitSoon();
+  }
+
+  function handleResult(result) {
+    if (result && result.config) { applyConfig(result.config); } else { fitSoon(); }
+  }
+
+  /* ---- ajustement de la fenêtre au contenu ---- */
+  var fitTimer = null;
+  function fitSoon() {
+    if (fitTimer) { clearTimeout(fitTimer); }
+    fitTimer = setTimeout(function () {
+      fitTimer = null;
+      var rect = $("card").getBoundingClientRect();
+      call("fit", Math.ceil(rect.width) + 2, Math.ceil(rect.height) + 2);
+    }, 70);
+  }
+
+  /* ---- rafraîchissement périodique ---- */
+  function refresh() {
+    updateClock();
+    call("get_state").then(function (res) {
+      if (!res) { return; }
+      if (res.config) {
+        var json = JSON.stringify(res.config);
+        if (json !== state.cfgJson) { applyConfig(res.config); }
+      }
+      render(res.stats || {}, res.game || null);
+    });
+  }
+
+  function start() {
+    if (state.started) { return; }
+    state.started = true;
+    refresh();
+    setInterval(refresh, 1000);
+    fitSoon();
+  }
+
+  /* ---- volet réglages ---- */
+  function togglePanel(open) {
+    var panel = $("panel");
+    var show = (open === undefined) ? panel.hasAttribute("hidden") : open;
+    if (show) { panel.removeAttribute("hidden"); } else { panel.setAttribute("hidden", ""); }
+    $("gear").classList.toggle("active", show);
+    fitSoon();
+  }
+
+  $("gear").addEventListener("click", function () { togglePanel(); });
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('#panel input[type="checkbox"]'),
+    function (box) {
+      box.addEventListener("change", function () {
+        var name = box.dataset.el;
+        var el = $("el-" + name);
+        if (el) {
+          if (box.checked) { el.removeAttribute("hidden"); } else { el.setAttribute("hidden", ""); }
+        }
+        fitSoon();
+        call("set_element", name, box.checked).then(handleResult);
+      });
+    }
+  );
+
+  var opRange = $("op-range");
+  opRange.addEventListener("input", function () {
+    state.opacityDrag = true;
+    var pct = Number(opRange.value);
+    document.body.style.setProperty("--op", String(pct / 100));
+    $("op-val").textContent = pct + " %";
+  });
+  opRange.addEventListener("change", function () {
+    state.opacityDrag = false;
+    call("set_opacity", Number(opRange.value) / 100).then(handleResult);
+  });
+
+  Array.prototype.forEach.call($("seg-scale").querySelectorAll("button"), function (btn) {
+    btn.addEventListener("click", function () {
+      var scale = btn.dataset.scale;
+      document.body.dataset.scale = scale;
+      Array.prototype.forEach.call($("seg-scale").querySelectorAll("button"), function (other) {
+        other.classList.toggle("active", other === btn);
+      });
+      fitSoon();
+      call("set_scale", scale).then(handleResult);
+    });
+  });
+
+  $("quit").addEventListener("click", function () { call("quit_widget"); });
+
+  /* ---- zones cliquables : pas de drag easy_drag dessus ---- */
+  ["mousedown", "touchstart", "pointerdown"].forEach(function (eventName) {
+    [$("panel"), $("gear")].forEach(function (el) {
+      el.addEventListener(eventName, function (evt) { evt.stopPropagation(); });
+    });
+  });
+
+  /* ---- démarrage : attendre que le pont pywebview soit prêt ---- */
+  updateClock();
+  if (bridge()) {
+    start();
+  } else {
+    window.addEventListener("pywebviewready", start);
+    document.addEventListener("pywebviewready", start);
+    var tries = 0;
+    var poll = setInterval(function () {
+      if (bridge()) { clearInterval(poll); start(); }
+      else if (++tries > 50) { clearInterval(poll); start(); }
+    }, 200);
+  }
+})();
+</script>
+</body>
+</html>
