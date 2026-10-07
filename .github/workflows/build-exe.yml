@@ -1,0 +1,86 @@
+name: Build Overdrive.exe
+
+on:
+  push:
+    branches: ["claude/pc-game-optimizer-l5g56x", "main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  smoke:
+    name: Test de fumée (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Import du serveur
+        run: python -c "import overdrive.server"
+
+      - name: Démarrage et vérification de l'API
+        run: |
+          python run.py --server --no-open --port 8787 &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8787/api/status > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:8787/api/status
+          curl -sf http://127.0.0.1:8787/api/tweaks > /dev/null
+          curl -sf http://127.0.0.1:8787/api/quiz > /dev/null
+          kill "$SERVER_PID"
+
+  windows:
+    name: Construction Windows + Release
+    needs: smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Construction de l'exécutable
+        run: python build_exe.py
+
+      - name: Publication de l'artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Overdrive-exe
+          path: dist/Overdrive.exe
+
+      - name: Publication de la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-build.${{ github.run_number }}
+          name: Overdrive build ${{ github.run_number }}
+          files: dist/Overdrive.exe
+          body: |
+            Exécutable Windows d'Overdrive, optimiseur PC gaming.
+
+            Installation : téléchargez `Overdrive.exe` ci-dessous et lancez-le.
+
+            - Windows demande l'élévation administrateur (UAC) au lancement :
+              c'est attendu, les optimisations modifient des réglages système.
+            - Si SmartScreen affiche « Windows a protégé votre ordinateur »,
+              cliquez sur « Informations complémentaires » puis
+              « Exécuter quand même » (exécutable non signé).
+            - Mode serveur sans fenêtre : `Overdrive.exe --server`.
+
+            Les optimisations appliquées sont réversibles depuis l'application.
+            Pensez à créer un point de restauration avant d'appliquer des
+            optimisations avancées.
