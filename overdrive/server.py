@@ -1,6 +1,7 @@
 """Serveur FastAPI d'Overdrive : API REST locale + interface web statique."""
 
 import ctypes
+import logging
 import os
 import sys
 from typing import Any
@@ -8,6 +9,27 @@ from typing import Any
 from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+
+log = logging.getLogger("overdrive.server")
+
+#: Hôtes acceptés dans l'en-tête Host (anti DNS rebinding). Complétés par
+#: `configure_security()` quand l'écoute sort de la boucle locale.
+_ALLOWED_HOSTS: set[str] = {"127.0.0.1", "localhost", "::1"}
+
+#: Jeton d'accès exigé sur toutes les routes quand il est défini (mode réseau).
+_ACCESS_TOKEN: str | None = None
+
+_TOKEN_COOKIE = "overdrive_token"
+
+
+def configure_security(token: str | None = None,
+                       extra_hosts: list[str] | None = None) -> None:
+    """Active le jeton d'accès et/ou élargit les hôtes autorisés (mode réseau)."""
+    global _ACCESS_TOKEN
+    _ACCESS_TOKEN = token
+    for host in extra_hosts or []:
+        if host:
+            _ALLOWED_HOSTS.add(host.lower())
 
 from . import APP_NAME, VERSION
 from .core.ai.chat import ask
@@ -72,8 +94,37 @@ def create_app() -> FastAPI:
 
     @application.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
-        """Erreur imprévue → HTTP 500 avec un détail JSON."""
-        return JSONResponse(status_code=500, content={"detail": str(exc)})
+        """Erreur imprévue → HTTP 500 générique (détail journalisé côté serveur)."""
+        log.exception("Erreur non gérée sur %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=500, content={"detail": "Erreur interne du serveur."}
+        )
+
+    @application.middleware("http")
+    async def _security(request: Request, call_next):
+        """Valide l'en-tête Host et, en mode réseau, le jeton d'accès."""
+        hostname = (request.url.hostname or "").lower()
+        if hostname and hostname not in _ALLOWED_HOSTS:
+            return JSONResponse(status_code=400, content={"detail": "Hôte non autorisé."})
+        if _ACCESS_TOKEN is not None:
+            supplied = (
+                request.cookies.get(_TOKEN_COOKIE)
+                or request.headers.get("X-Overdrive-Token")
+                or request.query_params.get("token")
+            )
+            if supplied != _ACCESS_TOKEN:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Jeton d'accès requis : ouvrez l'URL "
+                                       "complète affichée au démarrage du serveur."},
+                )
+            response = await call_next(request)
+            if request.cookies.get(_TOKEN_COOKIE) != _ACCESS_TOKEN:
+                response.set_cookie(
+                    _TOKEN_COOKIE, _ACCESS_TOKEN, httponly=True, samesite="strict"
+                )
+            return response
+        return await call_next(request)
 
     # ----------------------------------------------------------------- static
 
@@ -117,16 +168,14 @@ def create_app() -> FastAPI:
 
     @application.post("/api/settings")
     async def api_post_settings(payload: Any = Body(...)) -> dict:
-        """Met à jour des réglages simples (thème, etc.)."""
+        """Met à jour des réglages simples (liste blanche : thème)."""
         data = _require_dict(payload)
         theme = data.get("theme")
         if theme is not None and theme not in ("light", "dark"):
             raise HTTPException(status_code=400, detail="Thème invalide : 'light' ou 'dark'.")
-        updates = {
-            key: value
-            for key, value in data.items()
-            if isinstance(key, str) and isinstance(value, _SIMPLE_TYPES)
-        }
+        # Liste blanche stricte : les clés typées (profile, quiz_answers,
+        # ai_provider, first_run) ont leurs propres routes validées.
+        updates = {key: data[key] for key in ("theme",) if data.get(key) is not None}
         if not updates:
             return get_settings()
         return update_settings(**updates)
@@ -134,46 +183,46 @@ def create_app() -> FastAPI:
     # --------------------------------------------------------------- hardware
 
     @application.get("/api/hardware")
-    async def api_hardware(refresh: int = 0) -> dict:
+    def api_hardware(refresh: int = 0) -> dict:
         """Détection du matériel (?refresh=1 force une nouvelle analyse)."""
         return detect_hardware(refresh=bool(refresh))
 
     # ----------------------------------------------------------------- tweaks
 
     @application.get("/api/tweaks")
-    async def api_tweaks() -> dict:
+    def api_tweaks() -> dict:
         """Catalogue des optimisations avec leur état."""
         return {"categories": CATEGORIES, "tweaks": list_tweaks()}
 
     @application.post("/api/tweaks/apply")
-    async def api_tweaks_apply(payload: Any = Body(...)) -> dict:
+    def api_tweaks_apply(payload: Any = Body(...)) -> dict:
         """Applique les optimisations demandées."""
         return {"results": apply_tweaks(_require_ids(payload))}
 
     @application.post("/api/tweaks/revert")
-    async def api_tweaks_revert(payload: Any = Body(...)) -> dict:
+    def api_tweaks_revert(payload: Any = Body(...)) -> dict:
         """Annule les optimisations demandées."""
         return {"results": revert_tweaks(_require_ids(payload))}
 
     @application.post("/api/restore-point")
-    async def api_restore_point() -> dict:
+    def api_restore_point() -> dict:
         """Crée un point de restauration Windows."""
         return create_restore_point()
 
     # ------------------------------------------------------------------ games
 
     @application.get("/api/games")
-    async def api_games() -> dict:
+    def api_games() -> dict:
         """Catalogue des jeux avec détection d'installation."""
         return {"games": detect_games()}
 
     @application.get("/api/games/cs2")
-    async def api_games_cs2() -> dict:
+    def api_games_cs2() -> dict:
         """Informations détaillées Counter-Strike 2."""
         return cs2_info()
 
     @application.post("/api/games/cs2/autoexec")
-    async def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
+    def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
         """Écrit l'autoexec recommandé pour CS2."""
         data = payload if isinstance(payload, dict) else {}
         user_id = data.get("user_id")
@@ -184,12 +233,12 @@ def create_app() -> FastAPI:
     # --------------------------------------------------------------- programs
 
     @application.get("/api/programs")
-    async def api_programs() -> dict:
+    def api_programs() -> dict:
         """Programmes recommandés et disponibilité de winget."""
         return {"programs": PROGRAMS, "winget": winget_available()}
 
     @application.post("/api/programs/install")
-    async def api_programs_install(payload: Any = Body(...)) -> dict:
+    def api_programs_install(payload: Any = Body(...)) -> dict:
         """Installe un programme recommandé via winget."""
         data = _require_dict(payload)
         program_id = data.get("id")
@@ -200,12 +249,12 @@ def create_app() -> FastAPI:
     # ---------------------------------------------------------------- cleaner
 
     @application.get("/api/clean/scan")
-    async def api_clean_scan() -> dict:
+    def api_clean_scan() -> dict:
         """Analyse des cibles de nettoyage."""
         return {"targets": scan()}
 
     @application.post("/api/clean")
-    async def api_clean(payload: Any = Body(...)) -> dict:
+    def api_clean(payload: Any = Body(...)) -> dict:
         """Nettoie les cibles sélectionnées."""
         return {"results": clean(_require_ids(payload))}
 
@@ -217,7 +266,7 @@ def create_app() -> FastAPI:
         return {"questions": QUESTIONS}
 
     @application.post("/api/quiz")
-    async def api_quiz_submit(payload: Any = Body(...)) -> dict:
+    def api_quiz_submit(payload: Any = Body(...)) -> dict:
         """Calcule le profil, le sauvegarde et le retourne."""
         data = _require_dict(payload)
         answers = data.get("answers")
@@ -230,7 +279,7 @@ def create_app() -> FastAPI:
     # --------------------------------------------------------------------- IA
 
     @application.get("/api/ai/keys")
-    async def api_ai_keys() -> dict:
+    def api_ai_keys() -> dict:
         """Clés API configurées (masquées) et fournisseur par défaut."""
         return {
             "keys": list_keys(),
@@ -238,7 +287,7 @@ def create_app() -> FastAPI:
         }
 
     @application.post("/api/ai/keys")
-    async def api_ai_set_key(payload: Any = Body(...)) -> dict:
+    def api_ai_set_key(payload: Any = Body(...)) -> dict:
         """Enregistre une clé API ; la première devient le fournisseur par défaut."""
         data = _require_dict(payload)
         provider = data.get("provider")
@@ -254,7 +303,7 @@ def create_app() -> FastAPI:
         return result
 
     @application.delete("/api/ai/keys/{provider}")
-    async def api_ai_delete_key(provider: str) -> dict:
+    def api_ai_delete_key(provider: str) -> dict:
         """Supprime la clé API d'un fournisseur."""
         return delete_key(provider)
 

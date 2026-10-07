@@ -89,8 +89,10 @@ def _build_request(
         payload["systemInstruction"] = {"parts": [{"text": system}]}
     return (
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        {"Content-Type": "application/json"},
-        {"key": api_key},
+        # Clé en en-tête (jamais en query string : les URL finissent dans les
+        # journaux des proxys intermédiaires).
+        {"Content-Type": "application/json", "x-goog-api-key": api_key},
+        None,
         payload,
     )
 

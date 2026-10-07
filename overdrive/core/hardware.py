@@ -6,12 +6,14 @@ import json
 import platform
 import socket
 import subprocess
+import threading
 
 import psutil
 
 from overdrive.paths import is_windows
 
 _CACHE: dict | None = None
+_CACHE_LOCK = threading.Lock()
 
 _POWERSHELL_GPU_COMMAND = (
     "Get-CimInstance Win32_VideoController | "
@@ -196,6 +198,16 @@ def detect_hardware(refresh: bool = False) -> dict:
     global _CACHE
     if _CACHE is not None and not refresh:
         return _CACHE
+    with _CACHE_LOCK:
+        # Double vérification : une détection concurrente a pu remplir le cache.
+        if _CACHE is not None and not refresh:
+            return _CACHE
+        return _detect_locked()
+
+
+def _detect_locked() -> dict:
+    """Détection effective (appelée sous _CACHE_LOCK)."""
+    global _CACHE
 
     cpu = _cpu_info()
     ram = _ram_info()

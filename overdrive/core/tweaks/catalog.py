@@ -106,12 +106,19 @@ TWEAKS: list[dict] = [
        "Active le plan d'alimentation « Performances ultimes » caché de Windows. "
        "Supprime les économies d'énergie agressives qui limitent CPU et GPU en jeu.",
        "alimentation", "eleve", "sur",
-       apply=[_cmd("powercfg", "/duplicatescheme",
-                   "e9a42b02-d5df-448d-aa00-03f14749eb61"),
-              _cmd("powercfg", "/setactive",
-                   "e9a42b02-d5df-448d-aa00-03f14749eb61")],
-       revert=[_cmd("powercfg", "/setactive",
-                    "381b4222-f694-41f0-9685-ff5bb260df2e")],
+       # Duplique le schéma caché vers un GUID fixe (Overdrive) puis l'active :
+       # sans GUID de destination, powercfg crée une copie au GUID aléatoire et
+       # le setactive sur le schéma source échoue sur la plupart des éditions.
+       apply=[_ps("powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e | "
+                  "Out-Null; powercfg /delete "
+                  "0d0d0d0d-0d0d-0d0d-0d0d-0d0d0d0d0d0d 2>$null | Out-Null; "
+                  "powercfg /duplicatescheme "
+                  "e9a42b02-d5df-448d-aa00-03f14749eb61 "
+                  "0d0d0d0d-0d0d-0d0d-0d0d-0d0d0d0d0d0d | Out-Null; "
+                  "powercfg /setactive 0d0d0d0d-0d0d-0d0d-0d0d-0d0d0d0d0d0d")],
+       revert=[_ps("powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e | "
+                   "Out-Null; powercfg /delete "
+                   "0d0d0d0d-0d0d-0d0d-0d0d-0d0d0d0d0d0d 2>$null | Out-Null")],
        check=None, default_for=["fps", "latence", "equilibre", "stream"]),
 
     _t("hibernation_off", "Désactiver l'hibernation",
@@ -293,7 +300,7 @@ TWEAKS: list[dict] = [
        apply=[_reg("HKCU", _DESKTOP, "UserPreferencesMask", "binary",
                    "9012038010000000")],
        revert=[_reg("HKCU", _DESKTOP, "UserPreferencesMask", "binary",
-                    "9e1e078012000000")],
+                    "9e3e078012000000")],
        check=_chk_reg("HKCU", _DESKTOP, "UserPreferencesMask",
                       "9012038010000000"),
        default_for=["fps"]),
@@ -374,7 +381,9 @@ TWEAKS: list[dict] = [
        "Réduit la latence de file GPU sur les cartes et pilotes récents. Redémarrage requis.",
        "jeux", "moyen", "modere",
        apply=[_reg("HKLM", _GFX, "HwSchMode", "dword", 2)],
-       revert=[_reg("HKLM", _GFX, "HwSchMode", "dword", 1)],
+       # La valeur est absente d'usine (choix OS/pilote) : la suppression rend
+       # la main au défaut au lieu de forcer HAGS off sur Windows 11 récent.
+       revert=[_reg_del("HKLM", _GFX, "HwSchMode")],
        check=_chk_reg("HKLM", _GFX, "HwSchMode", 2),
        default_for=["fps", "latence"]),
 
@@ -558,8 +567,9 @@ TWEAKS: list[dict] = [
        check=None, default_for=["latence"]),
 
     _t("qos_reserve_0", "Réserve de bande passante QoS à 0 %",
-       "NonBestEffortLimit=0 : aucune bande passante n'est réservée au trafic "
-       "QoS prioritaire de Windows. Tout le débit reste disponible pour le jeu.",
+       "Supprime la part de débit que le planificateur QoS peut réserver quand "
+       "une application émet des flux QoS. Sans effet dans la plupart des cas "
+       "(Windows ne réserve rien par défaut) ; inoffensif.",
        "reseau", "faible", "sur",
        apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Psched",
                    "NonBestEffortLimit", "dword", 0)],
@@ -567,7 +577,7 @@ TWEAKS: list[dict] = [
                         "NonBestEffortLimit")],
        check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Psched",
                       "NonBestEffortLimit", 0),
-       default_for=["latence", "equilibre", "stream"]),
+       default_for=[]),
 
     _t("dns_cloudflare", "DNS Cloudflare (1.1.1.1)",
        "Bascule les DNS des cartes actives vers Cloudflare (1.1.1.1 / 1.0.0.1), "
@@ -605,16 +615,15 @@ TWEAKS: list[dict] = [
     # ------------------------------------------------------------------ #
     # GPU                                                                 #
     # ------------------------------------------------------------------ #
-    _t("games_task_gpu_priority", "Priorité GPU/CPU des jeux (profil MMCSS)",
-       "Relève le profil « Games » du planificateur multimédia : GPU Priority=8, "
-       "Priority=6, catégories High. Les threads du jeu passent devant le reste.",
+    _t("games_task_gpu_priority", "Priorité CPU/IO des jeux (profil MMCSS)",
+       "Relève le profil « Games » du planificateur multimédia : Priority 2→6, "
+       "catégories High (GPU Priority garde sa valeur d'usine 8). Les threads "
+       "du jeu passent devant le reste.",
        "gpu", "moyen", "modere",
-       apply=[_reg("HKLM", _GAMES_TASK, "GPU Priority", "dword", 8),
-              _reg("HKLM", _GAMES_TASK, "Priority", "dword", 6),
+       apply=[_reg("HKLM", _GAMES_TASK, "Priority", "dword", 6),
               _reg("HKLM", _GAMES_TASK, "Scheduling Category", "string", "High"),
               _reg("HKLM", _GAMES_TASK, "SFIO Priority", "string", "High")],
-       revert=[_reg("HKLM", _GAMES_TASK, "GPU Priority", "dword", 8),
-               _reg("HKLM", _GAMES_TASK, "Priority", "dword", 2),
+       revert=[_reg("HKLM", _GAMES_TASK, "Priority", "dword", 2),
                _reg("HKLM", _GAMES_TASK, "Scheduling Category", "string",
                     "Medium"),
                _reg("HKLM", _GAMES_TASK, "SFIO Priority", "string", "Normal")],
@@ -646,14 +655,30 @@ TWEAKS: list[dict] = [
        "Active les optimisations des jeux en mode fenêtré et du taux de "
        "rafraîchissement variable dans les préférences graphiques DirectX.",
        "gpu", "faible", "modere",
-       apply=[_reg("HKCU", r"Software\Microsoft\DirectX\UserGpuPreferences",
-                   "DirectXUserGlobalSettings", "string",
-                   "SwapEffectUpgradeEnable=1;VRROptimizeEnable=1;")],
-       revert=[_reg_del("HKCU", r"Software\Microsoft\DirectX\UserGpuPreferences",
-                        "DirectXUserGlobalSettings")],
-       check=_chk_reg("HKCU", r"Software\Microsoft\DirectX\UserGpuPreferences",
-                      "DirectXUserGlobalSettings",
-                      "SwapEffectUpgradeEnable=1;VRROptimizeEnable=1;"),
+       # Lecture-modification-écriture : DirectXUserGlobalSettings est une
+       # chaîne composite (Auto HDR y cohabite) — on ne touche que nos tokens.
+       apply=[_ps("$p='HKCU:\\Software\\Microsoft\\DirectX\\UserGpuPreferences';"
+                  " New-Item -Path $p -Force | Out-Null;"
+                  " $v=(Get-ItemProperty -Path $p -Name DirectXUserGlobalSettings"
+                  " -ErrorAction SilentlyContinue).DirectXUserGlobalSettings;"
+                  " $parts=@(); if($v){$parts=@($v.Split(';') | Where-Object"
+                  " {$_ -and $_ -notmatch"
+                  " '^(SwapEffectUpgradeEnable|VRROptimizeEnable)='})};"
+                  " $parts+='SwapEffectUpgradeEnable=1','VRROptimizeEnable=1';"
+                  " Set-ItemProperty -Path $p -Name DirectXUserGlobalSettings"
+                  " -Value (($parts -join ';')+';')")],
+       revert=[_ps("$p='HKCU:\\Software\\Microsoft\\DirectX\\UserGpuPreferences';"
+                   " $v=(Get-ItemProperty -Path $p -Name"
+                   " DirectXUserGlobalSettings -ErrorAction SilentlyContinue"
+                   ").DirectXUserGlobalSettings;"
+                   " if($v){$parts=@($v.Split(';') | Where-Object"
+                   " {$_ -and $_ -notmatch"
+                   " '^(SwapEffectUpgradeEnable|VRROptimizeEnable)='});"
+                   " if($parts.Count -gt 0){Set-ItemProperty -Path $p -Name"
+                   " DirectXUserGlobalSettings -Value (($parts -join ';')+';')}"
+                   " else {Remove-ItemProperty -Path $p -Name"
+                   " DirectXUserGlobalSettings -ErrorAction SilentlyContinue}}")],
+       check=None,
        default_for=["fps", "equilibre"]),
 
     # ------------------------------------------------------------------ #
@@ -683,13 +708,11 @@ TWEAKS: list[dict] = [
        "Coupe le préchargement Prefetch/Superfetch au niveau registre. Sur SSD "
        "NVMe, ce préchargement n'apporte rien et génère des accès disque inutiles.",
        "stockage", "faible", "avance",
+       # EnableSuperfetch n'est plus lu par Windows 10/11 (SysMain pilote tout)
+       # et n'existe pas d'usine : on ne touche que EnablePrefetcher.
        apply=[_reg("HKLM", _MEMMGMT + r"\PrefetchParameters", "EnablePrefetcher",
-                   "dword", 0),
-              _reg("HKLM", _MEMMGMT + r"\PrefetchParameters", "EnableSuperfetch",
                    "dword", 0)],
        revert=[_reg("HKLM", _MEMMGMT + r"\PrefetchParameters", "EnablePrefetcher",
-                    "dword", 3),
-               _reg("HKLM", _MEMMGMT + r"\PrefetchParameters", "EnableSuperfetch",
                     "dword", 3)],
        check=_chk_reg("HKLM", _MEMMGMT + r"\PrefetchParameters",
                       "EnablePrefetcher", 0),
@@ -888,7 +911,7 @@ TWEAKS: list[dict] = [
        "devient plus lente, mais le disque et le CPU respirent pendant le jeu.",
        "services", "moyen", "modere",
        apply=[_svc("WSearch", "disabled", stop=True)],
-       revert=[_svc("WSearch", "auto")],
+       revert=[_svc("WSearch", "delayed-auto")],
        check=_chk_svc("WSearch", "disabled"),
        default_for=["fps"]),
 
@@ -910,18 +933,18 @@ TWEAKS: list[dict] = [
        "jeu. Libère un service à démarrage automatique.",
        "services", "faible", "sur",
        apply=[_svc("MapsBroker", "disabled", stop=True)],
-       revert=[_svc("MapsBroker", "auto")],
+       revert=[_svc("MapsBroker", "delayed-auto")],
        check=_chk_svc("MapsBroker", "disabled"),
        default_for=["fps", "equilibre"]),
 
     _t("svc_remote_registry_off", "Registre à distance désactivé",
-       "Verrouille RemoteRegistry sur Désactivé : personne ne peut modifier "
-       "votre registre à distance. Durcissement sans impact en jeu.",
+       "Garantit que RemoteRegistry reste sur Désactivé (c'est déjà le réglage "
+       "d'usine de Windows 10/11). Durcissement sans impact en jeu.",
        "services", "faible", "sur",
        apply=[_svc("RemoteRegistry", "disabled", stop=True)],
-       revert=[_svc("RemoteRegistry", "manual")],
+       revert=[_svc("RemoteRegistry", "disabled")],
        check=_chk_svc("RemoteRegistry", "disabled"),
-       default_for=["equilibre"]),
+       default_for=[]),
 
     _t("svc_wersvc_off", "Rapport d'erreurs Windows désactivé",
        "Désactive WerSvc : plus de collecte ni d'envoi de rapports de plantage. "

@@ -68,8 +68,19 @@ def _salt() -> bytes:
     except OSError:
         pass
     salt = os.urandom(_SALT_SIZE)
-    path.write_bytes(salt)
+    _write_private(path, salt)
     return salt
+
+
+def _write_private(path, data: bytes) -> None:
+    """Écriture atomique avec permissions restreintes au propriétaire (0600)."""
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_bytes(data)
+    try:
+        os.chmod(tmp, 0o600)
+    except OSError:
+        pass
+    os.replace(tmp, path)
 
 
 def _fernet() -> Fernet:
@@ -110,7 +121,7 @@ def _load_keys() -> dict[str, str]:
 def _save_keys(keys: dict[str, str]) -> None:
     """Chiffre l'ensemble des clés d'un seul bloc JSON dans keys.enc."""
     payload = json.dumps(keys, ensure_ascii=False).encode("utf-8")
-    _keys_path().write_bytes(_fernet().encrypt(payload))
+    _write_private(_keys_path(), _fernet().encrypt(payload))
 
 
 def _mask(api_key: str) -> str:

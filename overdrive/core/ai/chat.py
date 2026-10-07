@@ -49,7 +49,8 @@ def _context_lines() -> list[str]:
         from ..tweaks.engine import list_tweaks
 
         tweaks = list_tweaks()
-        applied = sum(1 for t in tweaks if t.get("tracked") or t.get("applied"))
+        # tracked = appliqué via Overdrive et non annulé (sémantique engine).
+        applied = sum(1 for t in tweaks if t.get("tracked"))
         lines.append(f"Tweaks appliqués via Overdrive : {applied} sur {len(tweaks)} disponibles")
     except Exception:
         try:
@@ -138,7 +139,11 @@ async def ask(messages: list[dict], provider: str | None = None) -> dict:
             "message": f"Aucune clé API enregistrée pour {chosen}. Ajoutez-la dans Réglages.",
         }
     try:
-        system = build_system_prompt()
+        # Le contexte (matériel, tweaks, jeux) fait des appels bloquants :
+        # on le construit dans un thread pour ne pas geler l'event loop.
+        import anyio
+
+        system = await anyio.to_thread.run_sync(build_system_prompt)
     except Exception:
         system = _SYSTEM_BASE
     try:

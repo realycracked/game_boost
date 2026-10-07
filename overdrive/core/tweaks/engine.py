@@ -10,8 +10,10 @@ sont refusés proprement, sans exception.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,7 +23,13 @@ from overdrive.paths import data_dir, is_windows
 from .catalog import CATEGORIES, TWEAKS
 
 _SUBPROCESS_TIMEOUT = 90  # secondes, par action
-_SC_START_MAP = {"disabled": "disabled", "manual": "demand", "auto": "auto"}
+_SC_START_MAP = {
+    "disabled": "disabled",
+    "manual": "demand",
+    "auto": "auto",
+    # « Automatique (début différé) », défaut d'usine de WSearch/MapsBroker.
+    "delayed-auto": "delayed-auto",
+}
 # Codes START_TYPE de `sc qc` : 2=AUTO_START, 3=DEMAND_START, 4=DISABLED.
 _SC_QC_CODES = {"auto": "2", "manual": "3", "disabled": "4"}
 
@@ -49,12 +57,19 @@ def _load_state() -> dict[str, dict]:
 
 
 def _save_state(state: dict[str, dict]) -> None:
-    """Écrit l'état persistant (best effort, jamais d'exception)."""
+    """Écrit l'état persistant de façon atomique (best effort)."""
     try:
-        _state_path().write_text(
+        target = _state_path()
+        tmp = target.with_suffix(".json.tmp")
+        tmp.write_text(
             json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, target)
     except OSError:
         pass
+
+
+#: Sérialise les cycles lecture-modification-écriture de l'état.
+_STATE_LOCK = threading.Lock()
 
 
 # ---------------------------------------------------------------------------
@@ -261,7 +276,11 @@ def list_tweaks() -> list[dict]:
         entry = dict(tweak)
         entry["supported"] = supported
         entry["applied"] = _run_check(tweak.get("check")) if supported else None
-        entry["tracked"] = tweak["id"] in state
+        state_entry = state.get(tweak["id"])
+        # tracked = appliqué via Overdrive et pas encore annulé.
+        entry["tracked"] = (
+            isinstance(state_entry, dict) and not state_entry.get("reverted")
+        )
         out.append(entry)
     return out
 
@@ -286,39 +305,43 @@ def _run_actions(tweak_id: str, kind: str) -> dict:
 
 def apply_tweaks(ids: list[str]) -> list[dict]:
     """Applique les tweaks demandés ; enregistre les succès dans l'état."""
-    state = _load_state()
     results: list[dict] = []
-    changed = False
-    for tweak_id in ids:
-        result = _run_actions(str(tweak_id), "apply")
-        if result["ok"]:
-            state[result["id"]] = {
-                "applied_at": datetime.now(timezone.utc).isoformat(),
-                "reverted": False,
-            }
-            changed = True
-        results.append(result)
-    if changed:
-        _save_state(state)
+    with _STATE_LOCK:
+        state = _load_state()
+        changed = False
+        for tweak_id in ids:
+            result = _run_actions(str(tweak_id), "apply")
+            if result["ok"]:
+                state[result["id"]] = {
+                    "applied_at": datetime.now(timezone.utc).isoformat(),
+                    "reverted": False,
+                }
+                changed = True
+            results.append(result)
+        if changed:
+            _save_state(state)
     return results
 
 
 def revert_tweaks(ids: list[str]) -> list[dict]:
     """Rétablit les tweaks demandés ; marque l'état comme réverti."""
-    state = _load_state()
     results: list[dict] = []
-    changed = False
-    for tweak_id in ids:
-        result = _run_actions(str(tweak_id), "revert")
-        if result["ok"]:
-            entry = state.get(result["id"]) or {"applied_at": None}
-            entry["reverted"] = True
-            entry["reverted_at"] = datetime.now(timezone.utc).isoformat()
-            state[result["id"]] = entry
-            changed = True
-        results.append(result)
-    if changed:
-        _save_state(state)
+    with _STATE_LOCK:
+        state = _load_state()
+        changed = False
+        for tweak_id in ids:
+            result = _run_actions(str(tweak_id), "revert")
+            if result["ok"]:
+                # Ne trace que les tweaks réellement passés par Overdrive :
+                # annuler un tweak jamais appliqué ne crée pas d'entrée.
+                entry = state.get(result["id"])
+                if isinstance(entry, dict):
+                    entry["reverted"] = True
+                    entry["reverted_at"] = datetime.now(timezone.utc).isoformat()
+                    changed = True
+            results.append(result)
+        if changed:
+            _save_state(state)
     return results
 
 

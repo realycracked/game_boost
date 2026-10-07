@@ -80,7 +80,7 @@
   function fmtMb(mb) {
     if (mb === null || mb === undefined) { return "—"; }
     if (mb >= 1024) { return (mb / 1024).toFixed(1).replace(".", ",") + " Go"; }
-    return Math.round(mb * 10) / 10 + " Mo";
+    return String(Math.round(mb * 10) / 10).replace(".", ",") + " Mo";
   }
 
   function fmtGb(gb) {
@@ -809,7 +809,7 @@
     var btn = byId("btn-restore");
     setBusy(btn, "Création…");
     try {
-      var res = await api("/api/restore-point");
+      var res = await api("/api/restore-point", { method: "POST" });
       showBanner(res.message || (res.ok ? "Point de restauration créé." : "Création impossible."), res.ok ? "ok" : "error");
     } catch (e) { /* bandeau déjà affiché */ }
     clearBusy(btn);
@@ -1402,7 +1402,12 @@
         }
         setBusy(btn, "Enregistrement…");
         try {
-          await api("/api/ai/keys", { body: { provider: provider, key: key } });
+          var saveRes = await api("/api/ai/keys", { body: { provider: provider, key: key } });
+          if (!saveRes || saveRes.ok === false) {
+            showBanner((saveRes && saveRes.message) || "Échec de l'enregistrement de la clé.", "error");
+            clearBusy(btn);
+            return;
+          }
           showBanner("Clé " + providerName(provider) + " enregistrée.", "ok");
           state.aiKeys = await api("/api/ai/keys");
           if (currentRoute() === "/settings") { buildSettingsArea(seq); return; }
@@ -1421,8 +1426,12 @@
           danger: true,
           onConfirm: async function () {
             try {
-              await api("/api/ai/keys/" + encodeURIComponent(provider), { method: "DELETE" });
-              showBanner("Clé " + providerName(provider) + " supprimée.", "ok");
+              var delRes = await api("/api/ai/keys/" + encodeURIComponent(provider), { method: "DELETE" });
+              if (!delRes || delRes.ok === false) {
+                showBanner((delRes && delRes.message) || "Échec de la suppression de la clé.", "error");
+              } else {
+                showBanner("Clé " + providerName(provider) + " supprimée.", "ok");
+              }
               state.aiKeys = await api("/api/ai/keys");
             } catch (e) { /* bandeau déjà affiché */ }
             if (currentRoute() === "/settings") { buildSettingsArea(seq); }

@@ -1,7 +1,9 @@
 """Point d'entrée d'Overdrive : serveur local + fenêtre native (ou navigateur)."""
 
 import argparse
+import ipaddress
 import logging
+import secrets
 import socket
 import sys
 import threading
@@ -11,7 +13,7 @@ import uvicorn
 
 from . import APP_NAME, VERSION
 from .paths import data_dir
-from .server import app
+from .server import app, configure_security
 
 DEFAULT_PORT = 8787
 
@@ -50,7 +52,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--server",
         action="store_true",
-        help="mode serveur : pas de fenêtre, écoute réseau (host par défaut 0.0.0.0)",
+        help="mode serveur : pas de fenêtre, accès par navigateur "
+             "(127.0.0.1 par défaut ; --host 0.0.0.0 pour exposer sur le "
+             "réseau local, protégé par un jeton affiché au démarrage)",
     )
     parser.add_argument(
         "--browser",
@@ -98,24 +102,36 @@ def _local_network_ip() -> str | None:
         return None
 
 
-def _print_banner(host: str, port: int) -> None:
+def _is_loopback(host: str) -> bool:
+    """Vrai si l'adresse d'écoute reste sur la machine locale."""
+    if host in ("localhost",):
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def _print_banner(host: str, port: int, token: str | None) -> None:
     """Bannière sobre du mode serveur."""
+    suffix = f"/?token={token}" if token else ""
     lines = [
         f"{APP_NAME} {VERSION} — mode serveur",
-        f"Local  : http://127.0.0.1:{port}",
+        f"Local  : http://127.0.0.1:{port}{suffix}",
     ]
     network_ip = _local_network_ip()
-    if network_ip and host in ("0.0.0.0", "::", network_ip):
-        lines.append(f"Réseau : http://{network_ip}:{port}")
+    if token and network_ip and host in ("0.0.0.0", "::", network_ip):
+        lines.append(f"Réseau : http://{network_ip}:{port}{suffix}")
+        lines.append("Accès protégé : ouvrez l'URL complète (jeton inclus).")
     lines.append("Ctrl+C pour arrêter.")
     width = max(len(line) for line in lines) + 2
     banner = "\n".join(["-" * width] + [" " + line for line in lines] + ["-" * width])
     print(banner, flush=True)
 
 
-def _run_server_mode(host: str, port: int) -> None:
+def _run_server_mode(host: str, port: int, token: str | None) -> None:
     """Mode --server : boucle bloquante, arrêt propre sur Ctrl+C."""
-    _print_banner(host, port)
+    _print_banner(host, port, token)
     server = _make_server(host, port)
     try:
         server.run()
@@ -151,12 +167,20 @@ def main() -> None:
     """Lance Overdrive (fenêtre native, navigateur ou mode serveur)."""
     args = _parse_args()
     _setup_logging()
-    host = args.host or ("0.0.0.0" if args.server else "127.0.0.1")
+    # Boucle locale par défaut, même en --server : l'exposition réseau exige
+    # un --host explicite et active alors un jeton d'accès obligatoire.
+    host = args.host or "127.0.0.1"
     port = args.port
+    token: str | None = None
+    if not _is_loopback(host):
+        token = secrets.token_urlsafe(24)
+        extra = [h for h in (_local_network_ip(), host) if h and h not in ("0.0.0.0", "::")]
+        configure_security(token=token, extra_hosts=extra)
+        log.info("Écoute réseau activée : jeton d'accès requis.")
     log.info("%s %s — démarrage (host=%s, port=%s)", APP_NAME, VERSION, host, port)
 
     if args.server:
-        _run_server_mode(host, port)
+        _run_server_mode(host, port, token)
         return
 
     # Mode normal (double-clic) : serveur en thread daemon + interface.
@@ -168,17 +192,25 @@ def main() -> None:
         log.error("Le serveur ne répond pas sur le port %s après 15 s.", port)
 
     url = f"http://127.0.0.1:{port}"
+    if token:
+        url += f"/?token={token}"
     try:
         if args.no_open:
             log.info("Interface disponible sur %s (--no-open).", url)
             thread.join()
             return
         if _open_ui(url, force_browser=args.browser):
-            return  # fenêtre native fermée → fin de l'application
+            # Fenêtre native fermée : arrêt propre du serveur avant de quitter
+            # (une écriture d'état en cours peut se terminer).
+            server.should_exit = True
+            thread.join(timeout=10)
+            return
         log.info("Interface ouverte dans le navigateur : %s", url)
         thread.join()
     except KeyboardInterrupt:
         log.info("Arrêt demandé.")
+        server.should_exit = True
+        thread.join(timeout=10)
 
 
 if __name__ == "__main__":
