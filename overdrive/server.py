@@ -7,7 +7,7 @@ import sys
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 log = logging.getLogger("overdrive.server")
@@ -33,13 +33,18 @@ def configure_security(token: str | None = None,
 
 from . import APP_NAME, VERSION
 from .core.ai.chat import ask
+from .core.boost import run_boost
 from .core.cleaner import clean, scan
 from .core.games.cs2 import cs2_info, write_autoexec
 from .core.games.detect import detect_games
 from .core.hardware import detect_hardware
+from .core.latency import REGIONS, measure
+from .core.monitor import sample
 from .core.programs import PROGRAMS, install_program, winget_available
 from .core.quiz import QUESTIONS, compute_profile
+from .core.report import build_report, report_filename
 from .core.secure_store import PROVIDERS, delete_key, list_keys, set_key
+from .core.startup import list_startup, set_startup_enabled
 from .core.tweaks.catalog import CATEGORIES
 from .core.tweaks.engine import (
     apply_tweaks,
@@ -157,6 +162,7 @@ def create_app() -> FastAPI:
             "first_run": bool(settings.get("first_run", True)),
             "profile": settings.get("profile"),
             "theme": settings.get("theme", "light"),
+            "lang": settings.get("lang", "fr"),
         }
 
     # --------------------------------------------------------------- settings
@@ -168,14 +174,17 @@ def create_app() -> FastAPI:
 
     @application.post("/api/settings")
     async def api_post_settings(payload: Any = Body(...)) -> dict:
-        """Met à jour des réglages simples (liste blanche : thème)."""
+        """Met à jour des réglages simples (liste blanche : thème, langue)."""
         data = _require_dict(payload)
         theme = data.get("theme")
         if theme is not None and theme not in ("light", "dark"):
             raise HTTPException(status_code=400, detail="Thème invalide : 'light' ou 'dark'.")
+        lang = data.get("lang")
+        if lang is not None and lang not in ("fr", "en"):
+            raise HTTPException(status_code=400, detail="Langue invalide : 'fr' ou 'en'.")
         # Liste blanche stricte : les clés typées (profile, quiz_answers,
         # ai_provider, first_run) ont leurs propres routes validées.
-        updates = {key: data[key] for key in ("theme",) if data.get(key) is not None}
+        updates = {key: data[key] for key in ("theme", "lang") if data.get(key) is not None}
         if not updates:
             return get_settings()
         return update_settings(**updates)
@@ -257,6 +266,80 @@ def create_app() -> FastAPI:
     def api_clean(payload: Any = Body(...)) -> dict:
         """Nettoie les cibles sélectionnées."""
         return {"results": clean(_require_ids(payload))}
+
+    # ---------------------------------------------------------------- monitor
+
+    @application.get("/api/monitor")
+    def api_monitor() -> dict:
+        """Échantillon instantané du moniteur système (CPU, RAM, débits, top)."""
+        return sample()
+
+    # ---------------------------------------------------------------- startup
+
+    @application.get("/api/startup")
+    def api_startup() -> dict:
+        """Programmes lancés au démarrage de Windows."""
+        return {"items": list_startup()}
+
+    @application.post("/api/startup/toggle")
+    def api_startup_toggle(payload: Any = Body(...)) -> dict:
+        """Active ou désactive un programme au démarrage."""
+        data = _require_dict(payload)
+        item_id = data.get("id")
+        enabled = data.get("enabled")
+        if not isinstance(item_id, str) or not item_id:
+            raise HTTPException(status_code=400, detail="Le champ 'id' est requis.")
+        if not isinstance(enabled, bool):
+            raise HTTPException(status_code=400, detail="Le champ 'enabled' doit être un booléen.")
+        return set_startup_enabled(item_id, enabled)
+
+    # ---------------------------------------------------------------- latency
+
+    @application.get("/api/latency/regions")
+    async def api_latency_regions() -> dict:
+        """Régions disponibles pour l'estimation de latence."""
+        return {"regions": REGIONS}
+
+    @application.post("/api/latency")
+    def api_latency(payload: Any = Body(default=None)) -> dict:
+        """Mesure la latence TCP estimée vers les régions demandées (ou toutes)."""
+        ids: list[str] | None = None
+        if payload is not None:
+            data = _require_dict(payload)
+            raw_ids = data.get("ids")
+            if raw_ids is not None:
+                if not isinstance(raw_ids, list) or not all(isinstance(i, str) for i in raw_ids):
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Le champ 'ids' doit être une liste de chaînes.",
+                    )
+                ids = raw_ids
+        return {"results": measure(ids)}
+
+    # ----------------------------------------------------------------- report
+
+    @application.get("/api/report")
+    def api_report() -> PlainTextResponse:
+        """Rapport système complet, servi en pièce jointe texte."""
+        return PlainTextResponse(
+            build_report(),
+            headers={
+                "Content-Disposition": f'attachment; filename="{report_filename()}"'
+            },
+        )
+
+    # ------------------------------------------------------------------ boost
+
+    @application.post("/api/boost")
+    def api_boost(payload: Any = Body(default=None)) -> dict:
+        """Boost en un clic : restauration, tweaks du profil, nettoyage sûr."""
+        data = payload if isinstance(payload, dict) else {}
+        restore_point = data.get("restore_point", True)
+        if not isinstance(restore_point, bool):
+            raise HTTPException(
+                status_code=400, detail="Le champ 'restore_point' doit être un booléen."
+            )
+        return run_boost(create_restore=restore_point)
 
     # ------------------------------------------------------------------- quiz
 
