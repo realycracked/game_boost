@@ -14,6 +14,7 @@ GAMES: list[dict] = [
         "name": "Counter-Strike 2",
         "store": "steam",
         "steam_appid": 730,
+        "process_names": ["cs2.exe"],
         "install_hints": [
             "Steam/steamapps/common/Counter-Strike Global Offensive",
         ],
@@ -80,6 +81,7 @@ GAMES: list[dict] = [
         "name": "Valorant",
         "store": "riot",
         "steam_appid": None,
+        "process_names": ["VALORANT-Win64-Shipping.exe"],
         "install_hints": [
             "Riot Games/VALORANT/live",
             "Riot Games/VALORANT",
@@ -139,6 +141,7 @@ GAMES: list[dict] = [
         "name": "Fortnite",
         "store": "epic",
         "steam_appid": None,
+        "process_names": ["FortniteClient-Win64-Shipping.exe"],
         "install_hints": [
             "Epic Games/Fortnite",
             "Fortnite",
@@ -199,6 +202,7 @@ GAMES: list[dict] = [
         "name": "Apex Legends",
         "store": "multi",
         "steam_appid": 1172470,
+        "process_names": ["r5apex.exe", "r5apex_dx12.exe"],
         "install_hints": [
             "Steam/steamapps/common/Apex Legends",
             "EA Games/Apex",
@@ -260,6 +264,7 @@ GAMES: list[dict] = [
         "name": "League of Legends",
         "store": "riot",
         "steam_appid": None,
+        "process_names": ["League of Legends.exe"],
         "install_hints": [
             "Riot Games/League of Legends",
         ],
@@ -318,6 +323,7 @@ GAMES: list[dict] = [
         "name": "Call of Duty: Warzone",
         "store": "multi",
         "steam_appid": 1962663,
+        "process_names": ["cod.exe"],
         "install_hints": [
             "Call of Duty",
             "Battle.net/Call of Duty",
@@ -380,6 +386,7 @@ GAMES: list[dict] = [
         "name": "Overwatch 2",
         "store": "multi",
         "steam_appid": 2357570,
+        "process_names": ["Overwatch.exe"],
         "install_hints": [
             "Overwatch",
             "Battle.net/Overwatch",
@@ -440,6 +447,7 @@ GAMES: list[dict] = [
         "name": "Tom Clancy's Rainbow Six Siege",
         "store": "multi",
         "steam_appid": 359550,
+        "process_names": ["RainbowSix.exe", "RainbowSix_DX11.exe", "RainbowSix_Vulkan.exe"],
         "install_hints": [
             "Steam/steamapps/common/Tom Clancy's Rainbow Six Siege",
             "Ubisoft/Ubisoft Game Launcher/games/Tom Clancy's Rainbow Six Siege",
@@ -499,6 +507,7 @@ GAMES: list[dict] = [
         "name": "Rocket League",
         "store": "multi",
         "steam_appid": 252950,
+        "process_names": ["RocketLeague.exe"],
         "install_hints": [
             "Epic Games/rocketleague",
             "Steam/steamapps/common/rocketleague",
@@ -560,6 +569,7 @@ GAMES: list[dict] = [
         "name": "PUBG: Battlegrounds",
         "store": "steam",
         "steam_appid": 578080,
+        "process_names": ["TslGame.exe"],
         "install_hints": [
             "Steam/steamapps/common/PUBG",
         ],
@@ -619,6 +629,7 @@ GAMES: list[dict] = [
         "name": "Dota 2",
         "store": "steam",
         "steam_appid": 570,
+        "process_names": ["dota2.exe"],
         "install_hints": [
             "Steam/steamapps/common/dota 2 beta",
         ],
@@ -678,6 +689,7 @@ GAMES: list[dict] = [
         "name": "GTA Online (GTA V)",
         "store": "multi",
         "steam_appid": 271590,
+        "process_names": ["GTA5.exe", "GTA5_Enhanced.exe"],
         "install_hints": [
             "Steam/steamapps/common/Grand Theft Auto V",
             "Rockstar Games/Grand Theft Auto V",

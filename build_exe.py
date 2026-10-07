@@ -26,6 +26,11 @@ HIDDEN_IMPORTS = [
 ]
 
 
+#: Binaire PresentMon (capteur de FPS du widget), embarqué seulement s'il a été
+#: téléchargé par la CI avant la construction. Voir THIRD_PARTY.md (licence MIT).
+PRESENTMON_EXE = ROOT / "presentmon" / "PresentMon.exe"
+
+
 def build_command() -> list[str]:
     """Compose la commande PyInstaller selon la plateforme."""
     is_windows = sys.platform == "win32"
@@ -42,6 +47,16 @@ def build_command() -> list[str]:
         "--add-data",
         f"overdrive/web{add_data_sep}overdrive/web",
     ]
+    if PRESENTMON_EXE.is_file():
+        # Embarqué sous presentmon/ dans l'exe (voir overdrive/core/fps.py).
+        command += ["--add-binary", f"presentmon/PresentMon.exe{add_data_sep}presentmon"]
+        print("PresentMon.exe détecté : il sera embarqué dans l'exécutable.", flush=True)
+    else:
+        print(
+            "PresentMon.exe absent (presentmon/PresentMon.exe) : construction sans "
+            "capteur de FPS, le widget affichera — pour les FPS.",
+            flush=True,
+        )
     if is_windows:
         command += ["--windowed", "--uac-admin"]
     for hidden in HIDDEN_IMPORTS:

@@ -54,6 +54,33 @@ jobs:
       - name: Installation des dépendances
         run: pip install -r requirements.txt pyinstaller
 
+      # Capteur de FPS du widget : binaire console PresentMon (Intel, licence MIT,
+      # voir THIRD_PARTY.md), version épinglée. En cas d'échec de téléchargement,
+      # le build continue SANS PresentMon (le widget affichera — pour les FPS).
+      - name: Téléchargement de PresentMon (non bloquant)
+        shell: pwsh
+        env:
+          PRESENTMON_VERSION: "2.3.0"
+        run: |
+          $version = $env:PRESENTMON_VERSION
+          $url = "https://github.com/GameTechDev/PresentMon/releases/download/v$version/PresentMon-$version-x64.exe"
+          $dest = "presentmon/PresentMon.exe"
+          try {
+            New-Item -ItemType Directory -Force -Path "presentmon" | Out-Null
+            Invoke-WebRequest -Uri $url -OutFile $dest -MaximumRetryCount 2 -RetryIntervalSec 5
+            $size = (Get-Item $dest).Length
+            if ($size -gt 500KB) {
+              Write-Host "PresentMon $version téléchargé ($([math]::Round($size / 1KB)) Ko)."
+            } else {
+              Remove-Item -Force $dest
+              Write-Warning "Fichier PresentMon trop petit ($size octets) : build sans PresentMon."
+            }
+          } catch {
+            Write-Warning "Téléchargement de PresentMon impossible ($($_.Exception.Message)) : build sans PresentMon."
+            if (Test-Path $dest) { Remove-Item -Force $dest }
+          }
+          exit 0
+
       - name: Construction de l'exécutable
         run: python build_exe.py
 
