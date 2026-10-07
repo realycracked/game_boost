@@ -1,91 +1,146 @@
-# Overdrive
+# Overdrive — Game Booster
 
-Optimiseur PC gaming tout-en-un pour Windows 10/11 : optimisations système
-réversibles, détection de jeux, nettoyage, programmes recommandés et assistant
-IA — dans une interface locale claire, sans télémétrie.
+**Optimiseur PC gaming tout-en-un pour Windows 10/11.** Plus de 78 optimisations
+système réversibles, 12 jeux pris en charge (CS2, Valorant, …), nettoyage de
+caches, programmes recommandés, détection matériel et assistant IA — dans une
+interface claire inspirée de Notion, 100 % locale, sans télémétrie.
 
-L'application tourne entièrement sur votre machine : un petit serveur local
-(FastAPI) sert une interface web affichée dans une fenêtre native.
+[![Build](../../actions/workflows/build-exe.yml/badge.svg)](../../actions/workflows/build-exe.yml)
+[![Dernière version](https://img.shields.io/badge/t%C3%A9l%C3%A9charger-Overdrive.exe-2383e2)](../../releases/latest)
+[![Licence](https://img.shields.io/badge/licence-MIT-444)](LICENSE)
+
+![Accueil d'Overdrive (thème clair)](docs/accueil-clair.png)
+
+| Optimisations (thème sombre) | Jeux |
+| --- | --- |
+| ![Page Optimisations en thème sombre](docs/optimisations-sombre.png) | ![Page Jeux](docs/jeux-clair.png) |
+
+---
+
+## Téléchargement
+
+1. Récupérez `Overdrive.exe` dans la [dernière Release](../../releases/latest).
+2. Lancez-le. Windows demande l'élévation administrateur (UAC) : c'est attendu,
+   les optimisations modifient des réglages système.
+3. Si SmartScreen affiche « Windows a protégé votre ordinateur », cliquez sur
+   **Informations complémentaires** puis **Exécuter quand même** (exécutable
+   non signé, construit publiquement par GitHub Actions depuis ce dépôt).
+
+Au premier lancement, un questionnaire de 7 questions établit votre profil
+(FPS maximum, latence minimale, équilibré ou stream) et présélectionne les
+optimisations adaptées.
 
 ## Fonctionnalités
 
-- **Optimisations** : plus de 70 réglages Windows classés par catégorie
-  (alimentation, visuels, jeux, système, mémoire, réseau, GPU, stockage,
-  confidentialité, services, périphériques). Chaque optimisation affiche son
-  impact et son niveau de risque, et dispose d'une annulation réelle.
-  Création de point de restauration en un clic.
-- **Profil personnalisé** : un questionnaire au premier lancement (7 questions)
-  détermine votre profil (FPS maximum, latence minimale, équilibre ou stream)
-  et présélectionne les optimisations adaptées.
-- **Jeux** : détection de 12 jeux populaires (Steam et autres lanceurs),
-  options de lancement recommandées et réglages précis par jeu. Panneau dédié
-  Counter-Strike 2 : profils `userdata`, écriture d'un `autoexec.cfg`
-  recommandé (avec sauvegarde de l'existant), analyse des réglages vidéo.
-- **Nettoyage** : analyse puis suppression des fichiers temporaires, caches de
-  shaders (DirectX, NVIDIA), vignettes, cache Windows Update et corbeille.
-- **Programmes recommandés** : 12 outils utiles aux joueurs (monitoring,
-  pilotes, capture...), installables en un clic via winget.
-- **Assistant IA** (optionnel) : posez vos questions d'optimisation à un
-  assistant qui connaît votre matériel et votre profil. Fournisseurs pris en
-  charge : Groq (clé gratuite sur [console.groq.com](https://console.groq.com)),
-  OpenAI, Anthropic, Gemini. Il faut fournir votre propre clé API.
+### Optimisations — 78 réglages réversibles
+Classées en 11 catégories : alimentation, visuels & animations, jeux,
+système & CPU, mémoire, réseau & latence, GPU, stockage, confidentialité &
+télémétrie, services Windows, souris & périphériques. Chaque réglage affiche
+son **impact** (élevé / moyen / faible) et son **niveau de risque**
+(sûr / modéré / avancé, avec confirmation obligatoire pour les avancés).
+Chaque application est journalisée localement et dispose d'une **annulation
+réelle** vers les valeurs par défaut de Windows. Un bouton crée un **point de
+restauration** système avant toute modification.
 
-## Téléchargement (Windows)
+Parmi les réglages : plan d'alimentation Performances ultimes, planification
+GPU à accélération matérielle (HAGS), Game Mode, désactivation de Game DVR /
+Xbox Game Bar, animations et transparence de Windows, algorithme de Nagle,
+NetworkThrottlingIndex, SystemResponsiveness, précision du pointeur,
+télémétrie, services inutiles, TRIM, et bien d'autres.
 
-L'exécutable est construit automatiquement par GitHub Actions :
+> Par principe, Overdrive **ne touche jamais** aux mitigations de sécurité
+> (Spectre/Meltdown) ni à la protection en temps réel de Windows Defender.
 
-- **Releases** : la dernière release (`v1.0.0-build.N`) contient
-  `Overdrive.exe`, prêt à lancer.
-- **Artifacts** : chaque exécution du workflow « Build Overdrive.exe » publie
-  aussi l'artefact `Overdrive-exe`.
+### Jeux — 12 titres pris en charge
+Counter-Strike 2, Valorant, Fortnite, Apex Legends, League of Legends,
+Call of Duty Warzone, Overwatch 2, Rainbow Six Siege, Rocket League, PUBG,
+Dota 2 et GTA Online. Pour chaque jeu : détection d'installation (Steam et
+hors Steam), options de lancement à jour avec bouton Copier, et au moins
+5 réglages concrets qui comptent vraiment (valeurs exactes, fichiers de
+configuration, caps FPS).
 
-Au lancement :
+**Counter-Strike 2** bénéficie d'un panneau dédié : détection des profils
+`userdata` Steam, lecture de `cs2_video.txt` avec recommandations vidéo,
+et écriture en un clic d'un `autoexec.cfg` recommandé (l'ancien est
+sauvegardé en `.bak`).
 
-- Windows demande l'élévation administrateur (UAC) : nécessaire pour modifier
-  les réglages système.
-- SmartScreen peut afficher un avertissement (exécutable non signé) :
-  « Informations complémentaires » puis « Exécuter quand même ».
+### Nettoyage
+Analyse puis suppression des caches qui s'accumulent : fichiers temporaires,
+cache shaders DirectX et NVIDIA, vignettes, cache Windows Update, corbeille.
+Taille et nombre de fichiers affichés avant toute suppression.
+
+### Matériel et programmes recommandés
+Détection CPU, GPU, RAM, disques et réseau. La page d'accueil propose
+12 outils réellement utiles (MSI Afterburner, HWiNFO64, DDU, Process Lasso,
+LatencyMon, CapFrameX, OBS Studio, Discord, 7-Zip, CrystalDiskInfo, Steam,
+EarTrumpet) installables en un clic via winget.
+
+### Assistant IA
+Un chat intégré pour vous aider à optimiser votre configuration, avec le
+contexte de votre machine (matériel détecté, profil, optimisations déjà
+appliquées, jeux installés). Quatre fournisseurs au choix : **Groq**
+(clé gratuite sur [console.groq.com](https://console.groq.com)), OpenAI,
+Anthropic et Gemini. Les clés API sont **chiffrées localement**
+(Fernet + PBKDF2 liée à la machine, fichiers en permissions restreintes)
+et ne quittent jamais votre PC, sauf vers l'API du fournisseur choisi.
 
 ## Utilisation
 
-- `Overdrive.exe` : lance l'application dans une fenêtre native (navigateur en
-  secours si la fenêtre n'est pas disponible).
-- `Overdrive.exe --server` : mode serveur sans fenêtre, accessible depuis le
-  réseau local (port 8787 par défaut).
-- Options : `--port N`, `--host ADRESSE`, `--browser` (force le navigateur),
-  `--no-open` (n'ouvre rien).
-
-Le journal est écrit dans `%APPDATA%\Overdrive\overdrive.log`.
+| Commande | Effet |
+| --- | --- |
+| `Overdrive.exe` | Fenêtre native (double-clic) |
+| `Overdrive.exe --server` | Mode serveur local : interface sur http://127.0.0.1:8787 dans votre navigateur |
+| `Overdrive.exe --server --host 0.0.0.0` | Accès depuis le réseau local, protégé par un jeton affiché au démarrage |
+| `Overdrive.exe --browser` | Force l'ouverture dans le navigateur |
+| `--port 9000` | Change le port d'écoute |
 
 ## Développement
 
-Python 3.11+ requis (fonctionne aussi sous Linux : les optimisations Windows
-sont alors marquées non disponibles, utile pour développer l'interface).
-
 ```bash
 pip install -r requirements.txt
-python run.py            # fenêtre native (ou navigateur)
-python run.py --server   # mode serveur : http://127.0.0.1:8787
+python run.py --server        # http://127.0.0.1:8787
 ```
 
-Construction de l'exécutable (Windows) :
+Fonctionne aussi sous Linux/macOS pour le développement : l'interface et
+l'API tournent, les optimisations Windows sont affichées à titre informatif.
 
-```bash
-pip install pyinstaller
-python build_exe.py      # produit dist/Overdrive.exe
+```
+overdrive/
+├── server.py          # API REST (FastAPI)
+├── main.py            # lanceur : fenêtre native, navigateur ou serveur
+├── core/
+│   ├── tweaks/        # catalogue des 78 optimisations + moteur d'application
+│   ├── games/         # 12 jeux, détection Steam/hors Steam, CS2
+│   ├── ai/            # fournisseurs IA + assistant contextuel
+│   ├── hardware.py    # détection matériel
+│   ├── cleaner.py     # nettoyage de caches
+│   ├── programs.py    # programmes recommandés (winget)
+│   ├── quiz.py        # questionnaire de profil
+│   └── secure_store.py# clés API chiffrées localement
+└── web/               # interface (HTML/CSS/JS, aucune dépendance)
 ```
 
-## Avertissements
+L'exécutable est construit par GitHub Actions ([workflow](../../actions)) :
+test de fumée sous Linux, puis PyInstaller sous Windows et publication en
+Release. `python build_exe.py` reproduit le build localement.
 
-- Les optimisations modifient des réglages Windows (registre, services). Elles
-  sont choisies pour être sûres et documentées, et chacune dispose d'une
-  annulation — créez néanmoins un point de restauration avant d'appliquer des
-  optimisations marquées « avancé ».
-- Overdrive ne touche jamais aux protections de sécurité du système
-  (mitigations CPU, antivirus temps réel).
+## Sécurité et confidentialité
 
-## Confidentialité
+- Aucune télémétrie, aucun compte, aucune connexion sortante en dehors des
+  appels à l'API IA que vous configurez et de l'installation de programmes
+  via winget.
+- Serveur local limité à `127.0.0.1` par défaut ; l'exposition réseau est un
+  choix explicite (`--host`) et exige alors un jeton d'accès.
+- Chaque optimisation est réversible depuis l'application ; créez un point de
+  restauration avant d'appliquer des réglages avancés.
 
-- Aucune donnée n'est collectée ni envoyée : tout reste sur votre machine.
-- Les clés API de l'assistant sont chiffrées localement et ne quittent jamais
-  votre machine, sauf vers l'API du fournisseur que vous avez choisi.
+## Avertissement
+
+Overdrive modifie des réglages de Windows. Les optimisations proposées sont
+documentées et réversibles, mais vous les appliquez sous votre
+responsabilité. Créez un point de restauration (bouton intégré) avant
+d'appliquer des réglages marqués « avancé ».
+
+## Licence
+
+[MIT](LICENSE)
