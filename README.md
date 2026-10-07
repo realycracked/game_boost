@@ -1,9 +1,15 @@
-# Overdrive — Game Booster
+# Game Booster
 
-**Optimiseur PC gaming tout-en-un pour Windows 10/11.** Plus de 78 optimisations
-système réversibles, 12 jeux pris en charge (CS2, Valorant, …), nettoyage de
-caches, programmes recommandés, détection matériel et assistant IA — dans une
-interface claire inspirée de Notion, 100 % locale, sans télémétrie.
+**Overdrive, l'optimiseur PC gaming tout-en-un pour Windows 10/11.** Plus de
+78 optimisations système réversibles, 12 jeux pris en charge (CS2, Valorant, …),
+moniteur temps réel, nettoyage de caches, programmes recommandés, détection
+matériel et assistant IA — dans une interface claire inspirée de Notion,
+disponible en français et en anglais, 100 % locale, sans télémétrie.
+
+*Game Booster is an all-in-one gaming PC optimizer for Windows 10/11: 78
+reversible system tweaks, 12 supported games, real-time monitoring, cache
+cleanup and an AI assistant — fully local, no telemetry, French and English
+interface.*
 
 [![Build](../../actions/workflows/build-exe.yml/badge.svg)](../../actions/workflows/build-exe.yml)
 [![Dernière version](https://img.shields.io/badge/t%C3%A9l%C3%A9charger-Overdrive.exe-2383e2)](../../releases/latest)
@@ -84,6 +90,23 @@ Anthropic et Gemini. Les clés API sont **chiffrées localement**
 (Fernet + PBKDF2 liée à la machine, fichiers en permissions restreintes)
 et ne quittent jamais votre PC, sauf vers l'API du fournisseur choisi.
 
+### Supervision et boost (version 2)
+
+- **Moniteur temps réel** : CPU, RAM, débits disque et réseau et top des
+  processus, rafraîchis toutes les 2 secondes avec des sparklines sobres.
+- **Programmes au démarrage** : liste des entrées de démarrage Windows
+  (registre et dossiers Démarrage) avec interrupteur activer/désactiver,
+  sans jamais supprimer la commande elle-même.
+- **Boost en un clic** : point de restauration, application des optimisations
+  recommandées par votre profil et nettoyage sûr, enchaînés avec un compte
+  rendu étape par étape.
+- **Latence** : estimation de la latence vers les principales zones de
+  serveurs de jeu (3 connexions TCP par région, aucune donnée envoyée).
+- **Rapport système** : export texte complet (matériel, profil, optimisations,
+  jeux détectés) téléchargeable depuis les réglages.
+- **Interface bilingue** : français et anglais, sélecteur dans les réglages —
+  catalogues d'optimisations, de jeux et questionnaire inclus.
+
 ## Utilisation
 
 | Commande | Effet |
@@ -113,11 +136,16 @@ overdrive/
 │   ├── games/         # 12 jeux, détection Steam/hors Steam, CS2
 │   ├── ai/            # fournisseurs IA + assistant contextuel
 │   ├── hardware.py    # détection matériel
+│   ├── monitor.py     # moniteur temps réel (CPU/RAM/disque/réseau)
+│   ├── startup.py     # programmes au démarrage Windows
+│   ├── latency.py     # latence estimée vers les zones de serveurs
+│   ├── report.py      # rapport système exportable
+│   ├── boost.py       # boost en un clic (orchestration)
 │   ├── cleaner.py     # nettoyage de caches
 │   ├── programs.py    # programmes recommandés (winget)
 │   ├── quiz.py        # questionnaire de profil
 │   └── secure_store.py# clés API chiffrées localement
-└── web/               # interface (HTML/CSS/JS, aucune dépendance)
+└── web/               # interface FR/EN (HTML/CSS/JS, aucune dépendance)
 ```
 
 L'exécutable est construit par GitHub Actions ([workflow](../../actions)) :

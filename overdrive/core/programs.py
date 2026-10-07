@@ -152,3 +152,65 @@ def install_program(program_id: str) -> dict:
     detail = (proc.stdout or proc.stderr or "").strip().splitlines()
     last = detail[-1] if detail else f"code {proc.returncode}"
     return {"ok": False, "message": f"Échec de l'installation de {program['name']} : {last}"}
+
+
+# ---------------------------------------------------------------------------
+# i18n — champ anglais additif (« description_en »), injecté dans PROGRAMS au
+# chargement du module sans modifier aucune valeur existante.
+# ---------------------------------------------------------------------------
+
+# {id du programme: description_en}
+_PROGRAMS_EN: dict[str, str] = {
+    "msi_afterburner": (
+        "GPU overclocking and undervolting with an in-game FPS and "
+        "temperature overlay."
+    ),
+    "hwinfo64": (
+        "Highly detailed sensor monitoring (temperatures, voltages, clocks) "
+        "to diagnose throttling and overheating."
+    ),
+    "ddu": (
+        "Clean removal of graphics drivers before a reinstall, to start over "
+        "from a healthy base."
+    ),
+    "process_lasso": (
+        "Automatic CPU priority and affinity management to keep games "
+        "responsive even with applications running in the background."
+    ),
+    "latencymon": (
+        "DPC/ISR latency analysis to pinpoint the drivers causing "
+        "micro-stutter and audio crackling."
+    ),
+    "capframex": (
+        "Frametime capture and analysis to measure objectively how your "
+        "optimizations affect smoothness."
+    ),
+    "obs_studio": (
+        "The free reference for recording and streaming your games, with GPU "
+        "encoding that barely costs any performance."
+    ),
+    "discord": (
+        "The essential voice chat and messaging app for playing as a team "
+        "and joining your games' communities."
+    ),
+    "7zip": (
+        "A free, fast archiver to extract mods, texture packs and downloaded "
+        "tools."
+    ),
+    "crystaldiskinfo": (
+        "SSD/HDD health monitoring (S.M.A.R.T.) to anticipate a failure "
+        "before you lose your saves."
+    ),
+    "steam": (
+        "The most widespread gaming platform, required for most PC titles "
+        "and their launch options."
+    ),
+    "eartrumpet": (
+        "Per-application volume control from the taskbar, handy for "
+        "balancing game, voice chat and music."
+    ),
+}
+
+for _program in PROGRAMS:
+    _program["description_en"] = _PROGRAMS_EN.get(
+        _program["id"], _program["description"])

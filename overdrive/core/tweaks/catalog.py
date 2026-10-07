@@ -1052,3 +1052,431 @@ TWEAKS: list[dict] = [
                       "MouseDataQueueSize", 20),
        default_for=[]),
 ]
+
+# ---------------------------------------------------------------------------
+# i18n — champs anglais additifs (« label_en », « name_en », « description_en »).
+# Les tables ci-dessous sont injectées dans CATEGORIES et TWEAKS au chargement
+# du module, sans modifier aucune valeur existante du catalogue.
+# ---------------------------------------------------------------------------
+
+_CATEGORY_LABELS_EN: dict[str, str] = {
+    "alimentation": "Power",
+    "visuels": "Visuals & animations",
+    "jeux": "Gaming",
+    "systeme": "System & CPU",
+    "memoire": "Memory",
+    "reseau": "Network & latency",
+    "gpu": "GPU",
+    "stockage": "Storage",
+    "confidentialite": "Privacy & telemetry",
+    "services": "Windows services",
+    "peripheriques": "Mouse & peripherals",
+}
+
+# {id du tweak: (name_en, description_en)}
+_TWEAKS_EN: dict[str, tuple[str, str]] = {
+    "power_plan_ultimate": (
+        "Ultimate Performance power plan",
+        "Enables Windows' hidden “Ultimate Performance” power plan. Removes the "
+        "aggressive power savings that hold back your CPU and GPU in-game.",
+    ),
+    "hibernation_off": (
+        "Disable hibernation",
+        "Turns off hibernation and frees the hiberfil.sys file (several GB). "
+        "Also avoids the slow wake-ups caused by the hybrid sleep state.",
+    ),
+    "usb_selective_suspend_off": (
+        "USB selective suspend disabled",
+        "Stops Windows from putting USB ports to sleep. Prevents micro-dropouts "
+        "from your mouse, keyboard or headset in the middle of a match.",
+    ),
+    "pcie_aspm_off": (
+        "PCI Express power management disabled",
+        "Disables PCIe link power saving (ASPM). The GPU keeps its full "
+        "bandwidth with no wake-up latency.",
+    ),
+    "power_throttling_off": (
+        "Power Throttling disabled",
+        "Disables power throttling of background processes. Game and overlay "
+        "applications keep their full CPU clock speed.",
+    ),
+    "fast_startup_off": (
+        "Fast startup disabled",
+        "Disables fast startup (Hiberboot), which carries a “dirty” kernel over "
+        "between sessions. A true reboot avoids corrupted drivers and states.",
+    ),
+    "cpu_min_state_100": (
+        "Minimum processor state at 100%",
+        "Forces the minimum processor state to 100% on AC power: the CPU no "
+        "longer clocks down between actions, which smooths out frametimes.",
+    ),
+    "visualfx_performance": (
+        "Visual effects: best performance",
+        "Sets Windows visual effects to “Adjust for best performance”. Frees "
+        "the CPU and GPU from interface eye candy.",
+    ),
+    "window_animations_off": (
+        "Window animations disabled",
+        "Removes the minimize/maximize window animation. The interface responds "
+        "instantly — useful when alt-tabbing mid-game.",
+    ),
+    "transparency_off": (
+        "Transparency disabled",
+        "Turns off Windows transparency effects (taskbar, menus). Less "
+        "compositing work for the GPU.",
+    ),
+    "menu_show_delay_0": (
+        "Menu open delay set to 0",
+        "Removes the 400 ms delay before Windows menus open. The interface "
+        "immediately feels snappier.",
+    ),
+    "taskbar_animations_off": (
+        "Taskbar animations disabled",
+        "Cuts taskbar and Start menu animations. A little less DWM compositing "
+        "in the background.",
+    ),
+    "listview_alpha_select_off": (
+        "Translucent selection rectangle disabled",
+        "Replaces Explorer's translucent selection rectangle with a simple "
+        "outline. A micro rendering gain on the desktop.",
+    ),
+    "listview_shadow_off": (
+        "Icon label shadows disabled",
+        "Removes the drop shadow under desktop icon labels. Slightly lightens "
+        "Explorer rendering.",
+    ),
+    "drag_full_windows_off": (
+        "Window contents hidden while dragging",
+        "No longer draws window contents while they are being moved. Reduces "
+        "rendering work when handling windows.",
+    ),
+    "user_preferences_mask_perf": (
+        "Preferences mask: performance",
+        "Applies the performance-oriented UserPreferencesMask: cuts fades, "
+        "pointer shadows and leftover animations in one go.",
+    ),
+    "aero_peek_off": (
+        "Aero Peek disabled",
+        "Disables the Aero Peek desktop preview. Fewer pointless thumbnails and "
+        "compositing while your game is running.",
+    ),
+    "game_mode_on": (
+        "Game Mode enabled",
+        "Enables Windows Game Mode: CPU/GPU priority goes to the game in the "
+        "foreground and Windows updates are postponed while you play.",
+    ),
+    "gamedvr_off": (
+        "Game DVR recording disabled",
+        "Shuts off Xbox Game DVR background capture (automatic clips). Removes "
+        "a constant GPU/disk load; OBS remains the right tool for recording.",
+    ),
+    "gamedvr_policy_off": (
+        "Game DVR blocked (machine policy)",
+        "Blocks Game DVR at the machine level (HKLM). Complements the per-user "
+        "setting for every account on the PC.",
+    ),
+    "game_bar_off": (
+        "Xbox Game Bar out of the way",
+        "Stops the Game Bar from opening via the Xbox key/button and disables "
+        "its startup panel. Avoids a useless overlay on top of your game.",
+    ),
+    "hags_on": (
+        "Hardware-accelerated GPU scheduling (HAGS)",
+        "Enables hardware-accelerated GPU scheduling (HwSchMode=2). Reduces GPU "
+        "queue latency on recent cards and drivers. Reboot required.",
+    ),
+    "fse_optimizations_off": (
+        "Fullscreen optimizations disabled (global)",
+        "Globally disables “fullscreen optimizations” (FSE): exclusive "
+        "fullscreen games bypass DWM composition, for lower latency.",
+    ),
+    "win32_priority_separation": (
+        "Foreground CPU priority (0x26)",
+        "Sets Win32PrioritySeparation to 38 (0x26): short quanta and a strong "
+        "priority for the foreground program — your game. Default value: 2.",
+    ),
+    "sysmain_off": (
+        "SysMain (Superfetch) service disabled",
+        "Stops and disables SysMain, which preloads applications in the "
+        "background. Removes disk access and RAM usage while you play.",
+    ),
+    "startup_delay_off": (
+        "App startup delay removed",
+        "Removes the artificial delay (StartupDelayInMSec) that Windows imposes "
+        "on applications launched at sign-in.",
+    ),
+    "svchost_split_threshold": (
+        "Service grouping (SvcHostSplit)",
+        "Raises the svchost.exe split threshold: services share fewer "
+        "processes, reducing memory footprint and context switches.",
+    ),
+    "timer_resolution_global": (
+        "Global timer resolution (Win11)",
+        "Forces Windows 11 to honor the high timer resolution requested by "
+        "games even in the background (GlobalTimerResolutionRequests=1). "
+        "Reboot required.",
+    ),
+    "wait_to_kill_services_2000": (
+        "Faster service shutdown",
+        "Reduces the wait before services are force-stopped (5000 → 2000 ms). "
+        "Faster PC shutdowns and restarts.",
+    ),
+    "auto_end_tasks_on": (
+        "Hung tasks closed automatically",
+        "Automatically closes applications that stop responding at "
+        "sign-out/shutdown, without the “Close anyway?” prompt.",
+    ),
+    "memory_compression_off": (
+        "Memory compression disabled",
+        "Disables memory compression: fewer CPU cycles stolen from the game "
+        "when RAM is under pressure. Best kept for PCs with 16 GB or more.",
+    ),
+    "page_combining_off": (
+        "Page combining disabled",
+        "Disables memory page deduplication (PageCombining), a background CPU "
+        "task. Relevant on machines with plenty of RAM.",
+    ),
+    "large_system_cache_0": (
+        "Standard system cache (workstation)",
+        "Ensures LargeSystemCache=0: RAM goes to applications (the game) first, "
+        "not to the giant file cache meant for servers.",
+    ),
+    "clear_pagefile_off": (
+        "No page file wipe at shutdown",
+        "Ensures ClearPageFileAtShutdown=0: wiping the pagefile at every "
+        "shutdown slows it down heavily with no benefit on a gaming PC.",
+    ),
+    "paging_executive_off": (
+        "Kernel kept in RAM",
+        "DisablePagingExecutive=1: stops Windows from paging the kernel out to "
+        "disk. More consistent system access; needs RAM headroom.",
+    ),
+    "network_throttling_off": (
+        "Multimedia network throttling disabled",
+        "NetworkThrottlingIndex=0xFFFFFFFF: removes the 10 packets/ms limit "
+        "Windows applies while multimedia plays. Essential for online gaming.",
+    ),
+    "system_responsiveness_0": (
+        "System responsiveness dedicated to gaming",
+        "SystemResponsiveness=0: the multimedia scheduler no longer reserves "
+        "20% of the CPU for background tasks. The foreground game takes it all.",
+    ),
+    "nagle_off": (
+        "Nagle's algorithm disabled",
+        "Writes TcpAckFrequency=1 and TCPNoDelay=1 on every interface: small "
+        "packets leave without waiting to be batched. A steadier ping.",
+    ),
+    "qos_reserve_0": (
+        "QoS bandwidth reserve at 0%",
+        "Removes the share of bandwidth the QoS scheduler may reserve when an "
+        "application emits QoS flows. No effect in most cases (Windows "
+        "reserves nothing by default); harmless.",
+    ),
+    "dns_cloudflare": (
+        "Cloudflare DNS (1.1.1.1)",
+        "Switches active adapters' DNS to Cloudflare (1.1.1.1 / 1.0.0.1), often "
+        "faster than your ISP's at resolving game servers.",
+    ),
+    "lso_off": (
+        "Large Send Offload disabled",
+        "Disables LSO on network adapters: packet segmentation goes back to the "
+        "CPU, avoiding the latency some drivers add. Slightly lower raw "
+        "throughput.",
+    ),
+    "nic_power_saving_off": (
+        "Network adapter power saving disabled",
+        "Stops Windows from powering down the network adapter to save energy. "
+        "Avoids disconnects and ping spikes when the adapter wakes up.",
+    ),
+    "teredo_off": (
+        "Teredo disabled",
+        "Disables the Teredo IPv6 tunnel, a source of latency and stray "
+        "lookups. Beware: Xbox/Game Pass party chat may depend on it.",
+    ),
+    "games_task_gpu_priority": (
+        "Game CPU/IO priority (MMCSS profile)",
+        "Raises the multimedia scheduler's “Games” profile: Priority 2→6, High "
+        "categories (GPU Priority keeps its factory value of 8). Game threads "
+        "move ahead of everything else.",
+    ),
+    "tdr_delay_10": (
+        "TDR delay raised to 10 s",
+        "Gives the GPU 10 s (instead of 2) to respond before Windows resets the "
+        "driver. Avoids “driver reset” crashes under heavy load.",
+    ),
+    "mpo_off": (
+        "Multiplane Overlay disabled",
+        "Disables the compositor's MPO (OverlayTestMode=5), a known cause of "
+        "flicker and stutter with G-Sync/FreeSync on some drivers.",
+    ),
+    "directx_swap_vrr_on": (
+        "DirectX windowed + VRR optimizations",
+        "Enables optimizations for windowed games and variable refresh rate in "
+        "the DirectX graphics preferences.",
+    ),
+    "trim_on": (
+        "SSD TRIM enabled",
+        "Ensures TRIM is active (DisableDeleteNotify=0), essential to preserve "
+        "an SSD's write performance over time.",
+    ),
+    "ntfs_last_access_off": (
+        "NTFS “last access” timestamp disabled",
+        "NTFS stops writing the last-access date on every file read. Fewer "
+        "stray writes during game loading screens.",
+    ),
+    "prefetcher_off": (
+        "Prefetch/Superfetch (registry) disabled",
+        "Shuts off Prefetch/Superfetch preloading at the registry level. On "
+        "NVMe SSDs this preloading brings nothing and creates useless disk "
+        "access.",
+    ),
+    "short_names_off": (
+        "Legacy 8.3 short names disabled",
+        "Disables generation of legacy 8.3 file names on new volumes: faster "
+        "file creation in large folders.",
+    ),
+    "scheduled_defrag_off": (
+        "Scheduled defragmentation disabled",
+        "Disables the scheduled defrag/optimization task. Useful if you prefer "
+        "running SSD optimization manually, outside gaming sessions.",
+    ),
+    "telemetry_minimal": (
+        "Telemetry reduced to the minimum",
+        "AllowTelemetry=0 (Security level; Home/Pro editions fall back to the "
+        "minimal “Required” level). Fewer background uploads.",
+    ),
+    "diagtrack_off": (
+        "Telemetry service (DiagTrack) disabled",
+        "Stops and disables “Connected User Experiences and Telemetry”, which "
+        "collects and uploads diagnostics continuously.",
+    ),
+    "dmwappush_off": (
+        "WAP push message service disabled",
+        "Disables dmwappushservice, the push message router tied to data "
+        "collection. No use on a gaming PC.",
+    ),
+    "advertising_id_off": (
+        "Advertising ID disabled",
+        "Disables the advertising ID that applications use for targeting. No "
+        "impact on gaming, a clear privacy win.",
+    ),
+    "content_suggestions_off": (
+        "Windows suggestions and ads disabled",
+        "Cuts Start menu suggestions, tips and app promotions "
+        "(ContentDeliveryManager). Less noise and background activity.",
+    ),
+    "consumer_features_off": (
+        "Auto-install of promoted apps blocked",
+        "DisableWindowsConsumerFeatures=1: Windows no longer installs sponsored "
+        "applications (mobile games, third-party services) on its own.",
+    ),
+    "cortana_off": (
+        "Cortana disabled",
+        "Blocks Cortana via policy (AllowCortana=0). Removes its resident "
+        "process and its network requests on Windows 10.",
+    ),
+    "background_apps_off": (
+        "Background apps disabled",
+        "Stops Microsoft Store apps from running in the background "
+        "(GlobalUserDisabled=1). Frees CPU, RAM and network while you play.",
+    ),
+    "activity_feed_off": (
+        "Activity history disabled",
+        "Shuts off the activity feed and its cloud upload (EnableActivityFeed, "
+        "PublishUserActivities, UploadUserActivities set to 0).",
+    ),
+    "feedback_requests_off": (
+        "Windows feedback requests disabled",
+        "NumberOfSIUFInPeriod=0: Windows no longer asks for your feedback "
+        "through notifications. Fewer interruptions.",
+    ),
+    "tailored_experiences_off": (
+        "Tailored experiences disabled",
+        "Windows no longer uses diagnostic data to personalize tips and ads "
+        "(TailoredExperiences...=0).",
+    ),
+    "svc_fax_off": (
+        "Fax service disabled",
+        "Disables the Fax service, useless on a modern gaming PC. One less "
+        "resident service.",
+    ),
+    "svc_spooler_off": (
+        "Print spooler disabled",
+        "Disables the print spooler: PRINTING IS IMPOSSIBLE while this tweak is "
+        "active. Only for PCs without a printer.",
+    ),
+    "svc_wsearch_off": (
+        "Windows Search indexing disabled",
+        "Disables the WSearch indexing service: file search gets slower, but "
+        "the disk and CPU can breathe while you play.",
+    ),
+    "svc_xbox_off": (
+        "Xbox services disabled",
+        "Disables XblAuthManager, XblGameSave and XboxNetApiSvc. WARNING: the "
+        "Xbox app, Game Pass and its cloud saves depend on them.",
+    ),
+    "svc_mapsbroker_off": (
+        "Maps manager disabled",
+        "Disables MapsBroker (offline maps), pointless on a gaming PC. Frees an "
+        "automatic-start service.",
+    ),
+    "svc_remote_registry_off": (
+        "Remote Registry disabled",
+        "Ensures RemoteRegistry stays Disabled (already the factory setting on "
+        "Windows 10/11). Hardening with no in-game impact.",
+    ),
+    "svc_wersvc_off": (
+        "Windows Error Reporting disabled",
+        "Disables WerSvc: no more crash report collection or upload. Makes "
+        "diagnosing a recurring crash harder, hence the advanced level.",
+    ),
+    "svc_wmpnetwork_off": (
+        "Windows Media network sharing disabled",
+        "Disables WMPNetworkSvc, media library sharing over the local network. "
+        "A legacy service with no use for gaming.",
+    ),
+    "mouse_accel_off": (
+        "Enhance pointer precision disabled",
+        "Disables Windows mouse acceleration (MouseSpeed/Threshold set to 0). "
+        "A must for FPS games: the same flick always lands the same way.",
+    ),
+    "mouse_hover_time_10": (
+        "Mouse hover delay reduced",
+        "Reduces MouseHoverTime from 400 to 10 ms: tooltips and previews react "
+        "to hovering instantly.",
+    ),
+    "keyboard_delay_0": (
+        "Minimal keyboard repeat delay",
+        "Sets the delay before a held key repeats to the minimum "
+        "(KeyboardDelay=0). Useful for strafing and fast text editing.",
+    ),
+    "sticky_keys_off": (
+        "Sticky Keys disabled",
+        "Disables the Sticky Keys shortcut (5 × Shift) that interrupts the game "
+        "mid-action (Flags=506).",
+    ),
+    "toggle_keys_off": (
+        "Toggle Keys silenced",
+        "Disables the Toggle Keys beep and shortcut (Num Lock held for 5 s) — "
+        "Flags=58.",
+    ),
+    "filter_keys_off": (
+        "Filter Keys disabled",
+        "Disables the Filter Keys shortcut (right Shift held for 8 s), which "
+        "can freeze the keyboard in-game (Flags=122).",
+    ),
+    "input_queue_sizes": (
+        "Smaller mouse/keyboard input queues",
+        "Reduces MouseDataQueueSize and KeyboardDataQueueSize from 100 to 20: "
+        "less input buffering, at the cost of less headroom under heavy load.",
+    ),
+}
+
+for _category in CATEGORIES:
+    _category["label_en"] = _CATEGORY_LABELS_EN.get(_category["id"],
+                                                    _category["label"])
+
+for _tweak in TWEAKS:
+    _en = _TWEAKS_EN.get(_tweak["id"])
+    _tweak["name_en"] = _en[0] if _en else _tweak["name"]
+    _tweak["description_en"] = _en[1] if _en else _tweak["description"]

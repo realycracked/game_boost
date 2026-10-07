@@ -267,8 +267,218 @@ def compute_profile(answers: dict) -> dict:
     return {
         "id": profile_id,
         "label": meta["label"],
+        "label_en": meta.get("label_en", meta["label"]),
         "description": meta["description"],
+        "description_en": meta.get("description_en", meta["description"]),
         "risk_max": risk_max,
         "recommended_tweaks": _recommended_tweaks(profile_id, risk_max),
         "notes": _build_notes(answers, profile_id, risk_max),
+        "notes_en": _build_notes_en(answers, profile_id, risk_max),
     }
+
+
+# ---------------------------------------------------------------------------
+# i18n — champs anglais additifs (« question_en », « label_en »,
+# « description_en », « notes_en »), injectés dans QUESTIONS et _PROFILES au
+# chargement du module sans modifier aucune valeur existante.
+# ---------------------------------------------------------------------------
+
+# {id de question: {"question": question_en, "options": {id: label_en}}}
+_QUESTIONS_EN: dict[str, dict] = {
+    "jeux": {
+        "question": "Which types of games do you play most often?",
+        "options": {
+            "fps_competitif": "Competitive FPS (CS2, Valorant, Overwatch 2...)",
+            "battle_royale": "Battle royale (Fortnite, Warzone, Apex Legends...)",
+            "moba": "MOBA (League of Legends, Dota 2...)",
+            "solo_aaa": "Big single-player games (AAA)",
+            "un_peu_de_tout": "A bit of everything",
+        },
+    },
+    "objectif": {
+        "question": "What matters most to you in-game?",
+        "options": {
+            "max_fps": "Maximum FPS, even at the cost of graphics",
+            "latence": "Perfect responsiveness (minimal latency and input lag)",
+            "equilibre": "A good balance between performance and visual quality",
+            "stream": "A stable machine for gaming and streaming at the same time",
+        },
+    },
+    "config": {
+        "question": "How would you describe your PC?",
+        "options": {
+            "haut_de_gamme": "High-end and recent",
+            "milieu_de_gamme": "Mid-range",
+            "modeste": "Modest or a bit old",
+            "je_ne_sais_pas": "I'm not really sure",
+        },
+    },
+    "connexion": {
+        "question": "How is your PC connected to the Internet?",
+        "options": {
+            "fibre": "Fiber, over an Ethernet cable",
+            "adsl_4g": "DSL or 4G/5G",
+            "wifi": "Over Wi-Fi",
+            "je_ne_sais_pas": "I don't know",
+        },
+    },
+    "risque": {
+        "question": "How far are you willing to go with optimizations?",
+        "options": {
+            "sur": "Safe tweaks only",
+            "modere": "Safe and moderate tweaks",
+            "avance": "Everything, including advanced tweaks",
+        },
+    },
+    "usage": {
+        "question": "What else is your PC used for besides gaming?",
+        "options": {
+            "jeu_uniquement": "Nothing else, it's only for gaming",
+            "bureautique": "Office work, studies, browsing",
+            "creation": "Content creation or streaming",
+            "dev": "Software development and IT",
+        },
+    },
+    "peripheriques": {
+        "question": "Which mouse do you use?",
+        "options": {
+            "gamer": "A gaming mouse with its own software (G HUB, Synapse...)",
+            "standard": "A standard mouse",
+            "je_ne_sais_pas": "I don't know",
+        },
+    },
+}
+
+_PROFILES_EN: dict[str, dict] = {
+    "fps": {
+        "label": "FPS first",
+        "description": (
+            "Your machine will be tuned to push out as many frames per second "
+            "as possible, at the expense of Windows' visual comfort. Ideal for "
+            "competitive gaming on a high refresh rate monitor."
+        ),
+    },
+    "latence": {
+        "label": "Latency first",
+        "description": (
+            "The goal is maximum responsiveness: lower input lag, ping and "
+            "micro-stutter. Perfect for competitive FPS where every "
+            "millisecond counts."
+        ),
+    },
+    "equilibre": {
+        "label": "Balanced performance and comfort",
+        "description": (
+            "A sensible compromise: better in-game performance without "
+            "sacrificing day-to-day comfort. The most versatile choice for a "
+            "PC that is also used for other things."
+        ),
+    },
+    "stream": {
+        "label": "Stability for streaming",
+        "description": (
+            "The priority is a stable machine able to handle gaming and "
+            "encoding at the same time. Settings favor consistent performance "
+            "over peak FPS."
+        ),
+    },
+}
+
+for _question in QUESTIONS:
+    _q_en = _QUESTIONS_EN.get(_question["id"], {})
+    _question["question_en"] = _q_en.get("question", _question["question"])
+    _labels_en = _q_en.get("options", {})
+    for _option in _question["options"]:
+        _option["label_en"] = _labels_en.get(_option["id"], _option["label"])
+
+for _profile_id, _meta_en in _PROFILES_EN.items():
+    if _profile_id in _PROFILES:
+        _PROFILES[_profile_id]["label_en"] = _meta_en["label"]
+        _PROFILES[_profile_id]["description_en"] = _meta_en["description"]
+
+
+def _build_notes_en(answers: dict, profile_id: str, risk_max: str) -> list[str]:
+    """Mêmes conseils personnalisés que ``_build_notes``, en anglais.
+
+    La logique de sélection est strictement identique à ``_build_notes`` afin
+    que ``notes`` et ``notes_en`` restent alignés élément par élément.
+    """
+    notes: list[str] = []
+
+    connexion = _single(answers, "connexion")
+    if connexion == "wifi":
+        notes.append(
+            "You play over Wi-Fi: switching to an Ethernet cable is the best "
+            "network optimization there is, far more effective than any tweak."
+        )
+    elif connexion == "adsl_4g":
+        notes.append(
+            "On a DSL or 4G/5G connection, remember to pause downloads and "
+            "automatic updates during your sessions to protect your ping."
+        )
+
+    config = _single(answers, "config")
+    if config == "modeste":
+        notes.append(
+            "On a modest setup, the biggest gain comes from in-game settings: "
+            "lower the resolution or enable FSR/DLSS, and use Overdrive's "
+            "cache cleanup to free up disk space."
+        )
+    elif config == "je_ne_sais_pas":
+        notes.append(
+            "Overdrive's home page shows the details of your hardware: take a "
+            "look to find out what your PC is really made of."
+        )
+
+    jeux = _multiple(answers, "jeux")
+    if "fps_competitif" in jeux or "battle_royale" in jeux:
+        notes.append(
+            "For competitive games, cap your FPS just below the maximum you "
+            "can hold consistently: steady frametimes matter more than peak "
+            "FPS."
+        )
+
+    usage = _single(answers, "usage")
+    if usage == "creation":
+        notes.append(
+            "You create content: avoid disabling too many Windows services, "
+            "as some capture and editing software depends on them."
+        )
+    elif usage == "dev":
+        notes.append(
+            "You develop on this machine: review every service tweak before "
+            "applying it, since some tools (virtualization, indexing) may "
+            "depend on them."
+        )
+
+    peripheriques = _single(answers, "peripheriques")
+    if peripheriques == "gamer":
+        notes.append(
+            "With a gaming mouse, set sensitivity only in its software and "
+            "in-game: the tweak that disables Windows' pointer precision "
+            "prevents any stray acceleration."
+        )
+    elif peripheriques == "standard":
+        notes.append(
+            "Even with a standard mouse, disabling Windows pointer "
+            "acceleration makes your aim more predictable in every game."
+        )
+
+    if risk_max == "avance":
+        notes.append(
+            "You chose advanced optimizations: always create a restore point "
+            "from Overdrive before applying them."
+        )
+    else:
+        notes.append(
+            "Every tweak Overdrive applies is reversible, but creating a "
+            "restore point before the first run remains a good habit."
+        )
+
+    if profile_id == "stream":
+        notes.append(
+            "For streaming, use your GPU's hardware encoder (NVENC, AMF or "
+            "QuickSync) in OBS: it costs far fewer FPS than x264 encoding."
+        )
+
+    return notes
