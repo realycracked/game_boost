@@ -13,7 +13,7 @@ _DEFAULTS: dict[str, Any] = {
     "profile": None,          # résultat du QCM (dict) ou None
     "quiz_answers": {},       # {question_id: option_id | [option_id, ...]}
     "ai_provider": None,      # fournisseur IA par défaut ("groq", "openai", "anthropic", "gemini")
-    "theme": "light",
+    "theme": "dark",
 }
 
 
