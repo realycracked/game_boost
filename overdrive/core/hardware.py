@@ -1,9 +1,16 @@
-"""Détection du matériel (CPU, RAM, GPU, disques, réseau) avec cache module."""
+"""Détection du matériel (CPU, RAM, GPU, disques, réseau) avec cache module.
+
+Le dict retourné par :func:`detect_hardware` porte aussi la clé ``"tier"``
+(:func:`hardware_tier`) : classification « petite config » / milieu de
+gamme / haut de gamme utilisée par le profil ``petite_config`` du quiz et
+par la bannière de la page Optimisations.
+"""
 
 from __future__ import annotations
 
 import json
 import platform
+import re
 import socket
 import subprocess
 import threading
@@ -193,6 +200,151 @@ def _summary(cpu: dict, ram: dict, gpus: list[dict]) -> str:
     return f"{cpu['name']} · {ram['total_gb']} Go RAM · {gpu_name}"
 
 
+# ---------------------------------------------------------------------------
+# Classification en tier (« petite config » / milieu / haut de gamme)
+# ---------------------------------------------------------------------------
+
+#: Adaptateurs virtuels à ignorer (même liste que insights._VIRTUAL_GPU_MARKERS).
+_VIRTUAL_GPU_MARKERS = ("microsoft basic display", "virtual", "remote", "vnc")
+
+#: iGPU détectables par nom (minuscules, recherche par sous-chaîne).
+_IGPU_MARKERS = (
+    "intel(r) hd graphics", "intel hd graphics",
+    "intel(r) uhd graphics", "intel uhd graphics",
+    "iris",  # Iris / Iris Plus / Iris Xe
+)
+
+#: APU AMD : « AMD Radeon(TM) Graphics », « Radeon(TM) R5 Graphics »... —
+#: un « radeon ... graphics » sans numéro de série dédié (RX/HD/R9 290, etc.).
+_AMD_APU_RE = re.compile(r"radeon(\(tm\))?\s+(r[2-7]\s+)?graphics$")
+
+
+def _is_igpu(name: str) -> bool:
+    """Vrai si le nom de GPU désigne une puce graphique intégrée (iGPU/APU)."""
+    low = name.lower().strip()
+    if any(marker in low for marker in _IGPU_MARKERS):
+        return True
+    # APU AMD type « Radeon(TM) Vega 8 Graphics ».
+    if "vega" in low and "graphics" in low:
+        return True
+    return _AMD_APU_RE.search(low) is not None
+
+
+def _as_positive_number(value: object) -> float | None:
+    """Nombre strictement positif, sinon ``None`` (entrée manquante/invalide)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value) if value > 0 else None
+
+
+def hardware_tier(hw: dict | None = None) -> str:
+    """Classe la machine : ``"lowend"`` | ``"midrange"`` | ``"highend"`` | ``"unknown"``.
+
+    Fonction PURE sur le dict de :func:`detect_hardware` (``hw=None`` =>
+    ``detect_hardware()``), donc testable sous Linux avec des fixtures.
+
+    Critères (chaque signal n'est évalué que si ses entrées existent) :
+
+    * ``unknown`` : RAM indisponible/<= 0 **et** cœurs physiques **et**
+      logiques indisponibles (le GPU seul ne suffit pas à classer) ;
+    * ``lowend`` si au moins un signal : RAM <= 8,5 Go (8 Go = minimum CS2,
+      psutil remonte 7,8–8,0 pour 8 Go physiques) ; iGPU uniquement ; tous
+      les GPU réels à VRAM connue et <= 2048 Mo (AdapterRAM fiable sous
+      4 Go) ; <= 2 cœurs physiques ; <= 4 cœurs physiques à moins de
+      2600 MHz de fréquence de base ;
+    * ``highend`` : aucun signal lowend, RAM >= 31 Go, >= 8 cœurs physiques
+      et au moins un GPU dédié (VRAM volontairement ignorée : uint32) ;
+    * ``midrange`` sinon.
+
+    Ajustement documenté par rapport à la spécification : le repli
+    ``cores_physical = cores_logical // 2`` est borné à 1 minimum (une
+    machine à 1 cœur logique donnerait sinon 0 cœur physique, incohérent).
+    """
+    if hw is None:
+        hw = detect_hardware()
+    if not isinstance(hw, dict):
+        return "unknown"
+
+    ram = hw.get("ram") if isinstance(hw.get("ram"), dict) else {}
+    cpu = hw.get("cpu") if isinstance(hw.get("cpu"), dict) else {}
+    gpus = hw.get("gpus") if isinstance(hw.get("gpus"), list) else []
+
+    ram_gb = _as_positive_number(ram.get("total_gb"))
+    cores_physical = _as_positive_number(cpu.get("cores_physical"))
+    cores_logical = _as_positive_number(cpu.get("cores_logical"))
+    freq_mhz = _as_positive_number(cpu.get("freq_mhz_max"))
+
+    # Cas VM / détection en panne : rien d'exploitable pour classer.
+    if ram_gb is None and cores_physical is None and cores_logical is None:
+        return "unknown"
+
+    # Repli : cœurs physiques inconnus mais cœurs logiques disponibles
+    # (SMT supposé), borné à 1 pour rester cohérent.
+    if cores_physical is None and cores_logical is not None:
+        cores_physical = float(max(1, int(cores_logical) // 2))
+
+    real_gpus: list[dict] = []
+    for gpu in gpus:
+        if not isinstance(gpu, dict):
+            continue
+        name = str(gpu.get("name") or "").strip()
+        if not name:
+            continue
+        if any(marker in name.lower() for marker in _VIRTUAL_GPU_MARKERS):
+            continue
+        real_gpus.append(gpu)
+
+    igpu_only = bool(real_gpus) and all(
+        _is_igpu(str(gpu.get("name") or "")) for gpu in real_gpus
+    )
+    has_dgpu = any(not _is_igpu(str(gpu.get("name") or "")) for gpu in real_gpus)
+
+    lowend = False
+    # L1 — 8 Go de RAM ou moins (seuil 8,5 : inclut 8 Go, exclut 12 Go).
+    if ram_gb is not None and ram_gb <= 8.5:
+        lowend = True
+    # L2 — aucune carte dédiée : aucun iGPU ne tient CS2 confortablement.
+    if igpu_only:
+        lowend = True
+    # L3 — VRAM maximale <= 2 Go, uniquement si toutes les VRAM sont connues.
+    if real_gpus:
+        vrams = [_as_positive_number(gpu.get("vram_mb")) for gpu in real_gpus]
+        if all(vram is not None for vram in vrams) and max(vrams) <= 2048:  # type: ignore[type-var]
+            lowend = True
+    # L4 — dual-core : la simulation subtick de CS2 + Windows saturent.
+    if cores_physical is not None and cores_physical <= 2:
+        lowend = True
+    # L5 — quad-core basse fréquence (i5-8250U base 1,6 GHz...).
+    if (cores_physical is not None and freq_mhz is not None
+            and cores_physical <= 4 and freq_mhz < 2600):
+        lowend = True
+
+    if lowend:
+        return "lowend"
+
+    # 31 et non 32 : 32 Go physiques remontent ~31,8 via psutil.
+    if (ram_gb is not None and ram_gb >= 31
+            and cores_physical is not None and cores_physical >= 8
+            and has_dgpu):
+        return "highend"
+
+    return "midrange"
+
+
+def cached_tier() -> str | None:
+    """Tier si la détection matérielle a déjà eu lieu, sinon ``None``.
+
+    Ne déclenche JAMAIS une détection (appelé par ``/api/status`` qui doit
+    rester instantané).
+    """
+    cache = _CACHE
+    if cache is None:
+        return None
+    tier = cache.get("tier")
+    # Secours : cache rempli par une version antérieure sans la clé "tier".
+    return tier if isinstance(tier, str) else hardware_tier(cache)
+
+
 def detect_hardware(refresh: bool = False) -> dict:
     """Détecte le matériel de la machine (résultat mis en cache au niveau module)."""
     global _CACHE
@@ -226,4 +378,7 @@ def _detect_locked() -> dict:
         "network": _network_info(),
         "summary": _summary(cpu, ram, gpus),
     }
+    # Calculé en dernier, une fois le dict rempli : ?refresh=1 recalcule
+    # donc aussi le tier.
+    _CACHE["tier"] = hardware_tier(_CACHE)
     return _CACHE

@@ -70,8 +70,13 @@ def _chk_svc(service: str, expected_startup: str) -> dict:
 def _t(id: str, name: str, description: str, category: str, impact: str,
        risk: str, apply: list[dict], revert: list[dict],
        check: dict | None = None, default_for: list[str] | None = None,
-       windows_only: bool = True) -> dict:
-    """Construit l'entrée normalisée d'un tweak."""
+       lowend: bool = False, windows_only: bool = True) -> dict:
+    """Construit l'entrée normalisée d'un tweak.
+
+    ``lowend`` marque les tweaks réellement utiles sur une petite
+    configuration (iGPU, 4-8 Go de RAM, CPU 2-4 cœurs) ; le champ circule
+    tel quel jusqu'à /api/tweaks via ``engine.list_tweaks()``.
+    """
     return {
         "id": id,
         "name": name,
@@ -81,6 +86,7 @@ def _t(id: str, name: str, description: str, category: str, impact: str,
         "risk": risk,
         "windows_only": windows_only,
         "default_for": list(default_for or []),
+        "lowend": bool(lowend),
         "apply": apply,
         "revert": revert,
         "check": check,
@@ -103,9 +109,11 @@ TWEAKS: list[dict] = [
     # Alimentation                                                        #
     # ------------------------------------------------------------------ #
     _t("power_plan_ultimate", "Plan Performances ultimes",
-       "Active le plan d'alimentation « Performances ultimes » caché de Windows. "
-       "Supprime les économies d'énergie agressives qui limitent CPU et GPU en jeu.",
-       "alimentation", "eleve", "sur",
+       "Active le plan « Performances ultimes » : supprime les économies "
+       "d'énergie fines du plan équilibré. Gain modeste sur les CPU récents "
+       "(frametimes un peu plus stables) ; augmente consommation et chauffe "
+       "— prudence sur portable limité thermiquement.",
+       "alimentation", "moyen", "sur",
        # Duplique le schéma caché vers un GUID fixe (Overdrive) puis l'active :
        # sans GUID de destination, powercfg crée une copie au GUID aléatoire et
        # le setactive sur le schéma source échoue sur la plupart des éditions.
@@ -119,17 +127,19 @@ TWEAKS: list[dict] = [
        revert=[_ps("powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e | "
                    "Out-Null; powercfg /delete "
                    "0d0d0d0d-0d0d-0d0d-0d0d-0d0d0d0d0d0d 2>$null | Out-Null")],
-       check=None, default_for=["fps", "latence", "equilibre", "stream"]),
+       check=None, default_for=["fps", "latence"], lowend=True),
 
     _t("hibernation_off", "Désactiver l'hibernation",
-       "Désactive l'hibernation et libère le fichier hiberfil.sys (plusieurs Go). "
-       "Évite aussi les réveils lents liés à l'état hybride.",
+       "Désactive l'hibernation et supprime hiberfil.sys (plusieurs Go "
+       "récupérés). Aucun effet sur les FPS : c'est un gain d'espace disque, "
+       "précieux sur les petits SSD. Fait perdre la veille prolongée (et le "
+       "démarrage rapide).",
        "alimentation", "faible", "sur",
        apply=[_cmd("powercfg", "/h", "off")],
        revert=[_cmd("powercfg", "/h", "on")],
        check=_chk_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\Power",
                       "HibernateEnabled", 0),
-       default_for=["fps", "latence"]),
+       default_for=[], lowend=True),
 
     _t("usb_selective_suspend_off", "Suspension sélective USB désactivée",
        "Empêche Windows de mettre en veille les ports USB. Évite les micro-"
@@ -152,9 +162,11 @@ TWEAKS: list[dict] = [
        check=None, default_for=["fps", "latence", "equilibre"]),
 
     _t("pcie_aspm_off", "Gestion d'énergie PCI Express désactivée",
-       "Désactive l'économie d'énergie des liens PCIe (ASPM). Le GPU garde "
-       "toute sa bande passante sans latence de réveil.",
-       "alimentation", "moyen", "modere",
+       "Désactive l'économie d'énergie des liens PCIe (ASPM). Gain quasi nul "
+       "sur la plupart des machines récentes ; peut corriger de rares "
+       "stutters liés aux transitions d'état du lien PCIe. Augmente la "
+       "consommation au repos — sans objet sur iGPU.",
+       "alimentation", "faible", "modere",
        apply=[_cmd("powercfg", "/setacvalueindex", "scheme_current",
                    "501a4d13-42af-4429-9fd1-a8218c268e20",
                    "ee12f906-d277-404b-b6da-e5fa1a576df5", "0"),
@@ -163,12 +175,15 @@ TWEAKS: list[dict] = [
                     "501a4d13-42af-4429-9fd1-a8218c268e20",
                     "ee12f906-d277-404b-b6da-e5fa1a576df5", "1"),
                _cmd("powercfg", "/setactive", "scheme_current")],
-       check=None, default_for=["fps", "latence"]),
+       check=None, default_for=[]),
 
     _t("power_throttling_off", "Power Throttling désactivé",
-       "Désactive le bridage d'alimentation des processus en arrière-plan. "
-       "Les applications de jeu et d'overlay gardent leur pleine fréquence CPU.",
-       "alimentation", "moyen", "modere",
+       "Désactive le bridage EcoQoS des processus en arrière-plan. Le jeu au "
+       "premier plan n'est jamais bridé : utile surtout pour les applis de "
+       "capture ou de stream en arrière-plan. Déconseillé sur petite config "
+       "(2-4 cœurs) et sur portable : les tâches de fond consomment alors "
+       "plus de CPU et de batterie.",
+       "alimentation", "faible", "modere",
        apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\Power\PowerThrottling",
                    "PowerThrottlingOff", "dword", 1)],
        revert=[_reg_del("HKLM",
@@ -177,7 +192,7 @@ TWEAKS: list[dict] = [
        check=_chk_reg("HKLM",
                       r"SYSTEM\CurrentControlSet\Control\Power\PowerThrottling",
                       "PowerThrottlingOff", 1),
-       default_for=["fps", "latence"]),
+       default_for=["stream"]),
 
     _t("fast_startup_off", "Démarrage rapide désactivé",
        "Désactive le démarrage rapide (Hiberboot) qui garde un noyau « sale » "
@@ -193,9 +208,12 @@ TWEAKS: list[dict] = [
        default_for=["equilibre", "stream"]),
 
     _t("cpu_min_state_100", "État processeur minimal à 100 %",
-       "Force l'état processeur minimal à 100 % sur secteur : le CPU ne "
-       "redescend plus en fréquence entre deux actions, ce qui lisse le frametime.",
-       "alimentation", "moyen", "modere",
+       "Force l'état processeur minimal à 100 % sur secteur. Sur les CPU "
+       "récents (Speed Shift/HWP), la remontée en fréquence prend ~1 ms : "
+       "gain quasi nul. Peut lisser le frametime sur de vieux CPU, mais "
+       "augmente nettement chauffe et consommation — déconseillé sur "
+       "portable et sur petite config limitée thermiquement.",
+       "alimentation", "faible", "modere",
        apply=[_cmd("powercfg", "/setacvalueindex", "scheme_current",
                    "sub_processor", "procthrottlemin", "100"),
               _cmd("powercfg", "/setactive", "scheme_current")],
@@ -220,7 +238,7 @@ TWEAKS: list[dict] = [
        check=_chk_reg("HKCU",
                       r"Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects",
                       "VisualFXSetting", 2),
-       default_for=["fps"]),
+       default_for=["fps"], lowend=True),
 
     _t("window_animations_off", "Animations de fenêtres désactivées",
        "Supprime l'animation d'agrandissement/réduction des fenêtres. "
@@ -231,7 +249,7 @@ TWEAKS: list[dict] = [
        revert=[_reg("HKCU", _DESKTOP + r"\WindowMetrics", "MinAnimate",
                     "string", "1")],
        check=_chk_reg("HKCU", _DESKTOP + r"\WindowMetrics", "MinAnimate", "0"),
-       default_for=["fps", "latence"]),
+       default_for=["fps", "latence"], lowend=True),
 
     _t("transparency_off", "Transparence désactivée",
        "Désactive les effets de transparence de Windows (barre des tâches, "
@@ -246,7 +264,7 @@ TWEAKS: list[dict] = [
        check=_chk_reg("HKCU",
                       r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
                       "EnableTransparency", 0),
-       default_for=["fps", "equilibre", "stream"]),
+       default_for=["fps", "equilibre", "stream"], lowend=True),
 
     _t("menu_show_delay_0", "Délai d'ouverture des menus à 0",
        "Supprime le délai de 400 ms avant l'ouverture des menus Windows. "
@@ -264,7 +282,7 @@ TWEAKS: list[dict] = [
        apply=[_reg("HKCU", _ADVANCED, "TaskbarAnimations", "dword", 0)],
        revert=[_reg("HKCU", _ADVANCED, "TaskbarAnimations", "dword", 1)],
        check=_chk_reg("HKCU", _ADVANCED, "TaskbarAnimations", 0),
-       default_for=["fps"]),
+       default_for=["fps"], lowend=True),
 
     _t("listview_alpha_select_off", "Rectangle de sélection translucide désactivé",
        "Remplace le rectangle de sélection translucide de l'Explorateur par un "
@@ -303,11 +321,13 @@ TWEAKS: list[dict] = [
                     "9e3e078012000000")],
        check=_chk_reg("HKCU", _DESKTOP, "UserPreferencesMask",
                       "9012038010000000"),
-       default_for=["fps"]),
+       default_for=["fps"], lowend=True),
 
     _t("aero_peek_off", "Aero Peek désactivé",
-       "Désactive l'aperçu du bureau Aero Peek. Moins de miniatures et de "
-       "composition inutiles pendant que le jeu tourne.",
+       "Désactive l'aperçu du bureau Aero Peek. Effet sur les performances "
+       "quasi nul : Peek ne se déclenche qu'au survol du coin de la barre "
+       "des tâches, jamais pendant une partie. À cocher par cohérence avec "
+       "un profil « toutes animations désactivées ».",
        "visuels", "faible", "sur",
        apply=[_reg("HKCU", r"Software\Microsoft\Windows\DWM", "EnableAeroPeek",
                    "dword", 0)],
@@ -315,15 +335,17 @@ TWEAKS: list[dict] = [
                     "dword", 1)],
        check=_chk_reg("HKCU", r"Software\Microsoft\Windows\DWM",
                       "EnableAeroPeek", 0),
-       default_for=["fps"]),
+       default_for=[]),
 
     # ------------------------------------------------------------------ #
     # Jeux                                                                #
     # ------------------------------------------------------------------ #
     _t("game_mode_on", "Mode Jeu activé",
-       "Active le Mode Jeu de Windows : priorité CPU/GPU au jeu au premier "
-       "plan et mises à jour Windows reportées pendant la partie.",
-       "jeux", "moyen", "sur",
+       "S'assure que le Mode Jeu de Windows est actif (il l'est par défaut "
+       "depuis 2017). Bloque l'activité de Windows Update et les "
+       "notifications pendant la partie ; l'effet « priorité GPU » reste "
+       "marginal. Utile uniquement s'il avait été désactivé.",
+       "jeux", "faible", "sur",
        apply=[_reg("HKCU", r"Software\Microsoft\GameBar", "AllowAutoGameMode",
                    "dword", 1),
               _reg("HKCU", r"Software\Microsoft\GameBar", "AutoGameModeEnabled",
@@ -333,12 +355,14 @@ TWEAKS: list[dict] = [
                         "AutoGameModeEnabled")],
        check=_chk_reg("HKCU", r"Software\Microsoft\GameBar",
                       "AllowAutoGameMode", 1),
-       default_for=["fps", "latence", "equilibre", "stream"]),
+       default_for=["fps", "latence", "equilibre", "stream"], lowend=True),
 
     _t("gamedvr_off", "Enregistrement Game DVR désactivé",
-       "Coupe la capture d'arrière-plan Xbox Game DVR (clips automatiques). "
-       "Supprime une charge GPU/disque permanente ; OBS reste le bon outil pour capturer.",
-       "jeux", "eleve", "sur",
+       "Coupe la capture Xbox Game DVR (clips automatiques et hooks de "
+       "capture). Gain important si l'enregistrement en arrière-plan était "
+       "actif ; sinon, supprime surtout les hooks et l'activité résiduelle "
+       "de la Game Bar. OBS reste le bon outil pour capturer.",
+       "jeux", "moyen", "sur",
        apply=[_reg("HKCU", _GCS, "GameDVR_Enabled", "dword", 0),
               _reg("HKCU", r"Software\Microsoft\Windows\CurrentVersion\GameDVR",
                    "AppCaptureEnabled", "dword", 0)],
@@ -346,19 +370,21 @@ TWEAKS: list[dict] = [
                _reg("HKCU", r"Software\Microsoft\Windows\CurrentVersion\GameDVR",
                     "AppCaptureEnabled", "dword", 1)],
        check=_chk_reg("HKCU", _GCS, "GameDVR_Enabled", 0),
-       default_for=["fps", "latence", "equilibre", "stream"]),
+       default_for=["fps", "latence", "equilibre", "stream"], lowend=True),
 
     _t("gamedvr_policy_off", "Game DVR interdit (stratégie machine)",
-       "Interdit Game DVR au niveau machine (HKLM). Complète le réglage "
-       "utilisateur pour tous les comptes du PC.",
-       "jeux", "moyen", "modere",
+       "Interdit Game DVR par stratégie machine (HKLM), pour tous les "
+       "comptes du PC. N'apporte rien de plus que le réglage utilisateur sur "
+       "un PC mono-compte et verrouille la capture Game Bar pour tout le "
+       "monde : à réserver aux machines multi-comptes.",
+       "jeux", "faible", "modere",
        apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\GameDVR",
                    "AllowGameDVR", "dword", 0)],
        revert=[_reg_del("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\GameDVR",
                         "AllowGameDVR")],
        check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\GameDVR",
                       "AllowGameDVR", 0),
-       default_for=["fps", "latence"]),
+       default_for=[]),
 
     _t("game_bar_off", "Xbox Game Bar en retrait",
        "Empêche la Game Bar de s'ouvrir via la touche/le bouton Xbox et coupe "
@@ -388,9 +414,13 @@ TWEAKS: list[dict] = [
        default_for=["fps", "latence"]),
 
     _t("fse_optimizations_off", "Optimisations plein écran désactivées (global)",
-       "Désactive globalement les « optimisations plein écran » (FSE) : les jeux "
-       "en plein écran exclusif évitent la composition DWM, pour une latence moindre.",
-       "jeux", "moyen", "modere",
+       "Désactive globalement les « optimisations plein écran ». Tweak "
+       "hérité de 2017 : sur les Windows 10/11 récents, le modèle de "
+       "présentation a mûri et ces clés GameConfigStore ont un effet limité, "
+       "voire nul. Peut encore aider quelques jeux anciens en plein écran "
+       "exclusif ; sinon, préférez le réglage par jeu (onglet Compatibilité "
+       "de l'exécutable).",
+       "jeux", "faible", "modere",
        apply=[_reg("HKCU", _GCS, "GameDVR_FSEBehaviorMode", "dword", 2),
               _reg("HKCU", _GCS, "GameDVR_HonorUserFSEBehaviorMode", "dword", 1),
               _reg("HKCU", _GCS, "GameDVR_DXGIHonorFSEWindowsCompatible",
@@ -402,31 +432,22 @@ TWEAKS: list[dict] = [
                     "dword", 0),
                _reg("HKCU", _GCS, "GameDVR_EFSEFeatureFlags", "dword", 0)],
        check=_chk_reg("HKCU", _GCS, "GameDVR_FSEBehaviorMode", 2),
-       default_for=["latence", "fps"]),
+       default_for=["latence"]),
 
     # ------------------------------------------------------------------ #
     # Système & CPU                                                       #
     # ------------------------------------------------------------------ #
-    _t("win32_priority_separation", "Priorité CPU au premier plan (0x26)",
-       "Règle Win32PrioritySeparation sur 38 (0x26) : quanta courts et nette "
-       "priorité au programme au premier plan — le jeu. Valeur par défaut : 2.",
-       "systeme", "eleve", "modere",
-       apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\PriorityControl",
-                   "Win32PrioritySeparation", "dword", 38)],
-       revert=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\PriorityControl",
-                    "Win32PrioritySeparation", "dword", 2)],
-       check=_chk_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\PriorityControl",
-                      "Win32PrioritySeparation", 38),
-       default_for=["fps", "latence"]),
-
     _t("sysmain_off", "Service SysMain (Superfetch) désactivé",
-       "Arrête et désactive SysMain, qui précharge des applications en tâche de "
-       "fond. Supprime des accès disque et de la RAM consommée pendant le jeu.",
-       "systeme", "moyen", "modere",
+       "Arrête et désactive SysMain (Superfetch). Son cache occupe de la "
+       "mémoire « en attente » rendue instantanément aux applications : le "
+       "gain réel concerne surtout les HDD saturés par le préchargement. "
+       "Déconseillé sur petite config : sa désactivation peut aussi couper "
+       "la compression mémoire.",
+       "systeme", "faible", "modere",
        apply=[_svc("SysMain", "disabled", stop=True)],
        revert=[_svc("SysMain", "auto")],
        check=_chk_svc("SysMain", "disabled"),
-       default_for=["fps", "equilibre"]),
+       default_for=[]),
 
     _t("startup_delay_off", "Délai de démarrage des applications supprimé",
        "Supprime le délai artificiel (StartupDelayInMSec) que Windows impose "
@@ -444,8 +465,11 @@ TWEAKS: list[dict] = [
        default_for=["fps", "equilibre"]),
 
     _t("svchost_split_threshold", "Regroupement des services (SvcHostSplit)",
-       "Relève le seuil de séparation des svchost.exe : les services partagent "
-       "moins de processus, ce qui réduit l'empreinte mémoire et les changements de contexte.",
+       "Relève le seuil SvcHostSplit : les services Windows sont regroupés "
+       "dans beaucoup moins de processus svchost.exe, comme avant Windows "
+       "10 1703. Économise de l'ordre de 100 à 200 Mo de RAM — surtout "
+       "utile sous 8 Go — au prix d'une isolation moindre (un service qui "
+       "plante peut en entraîner d'autres). Redémarrage requis.",
        "systeme", "faible", "avance",
        apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control",
                    "SvcHostSplitThresholdInKB", "dword", 67108864)],
@@ -453,12 +477,16 @@ TWEAKS: list[dict] = [
                     "SvcHostSplitThresholdInKB", "dword", 3670016)],
        check=_chk_reg("HKLM", r"SYSTEM\CurrentControlSet\Control",
                       "SvcHostSplitThresholdInKB", 67108864),
-       default_for=[]),
+       default_for=[], lowend=True),
 
     _t("timer_resolution_global", "Résolution du timer global (Win11)",
-       "Force Windows 11 à honorer la haute résolution du timer demandée par les "
-       "jeux même en arrière-plan (GlobalTimerResolutionRequests=1). Redémarrage requis.",
-       "systeme", "moyen", "avance",
+       "Windows 11 n'honore plus les demandes de timer haute résolution des "
+       "processus en arrière-plan ; cette clé rétablit l'ancien comportement "
+       "global (GlobalTimerResolutionRequests=1). Sans effet sur le jeu au "
+       "premier plan, qui obtient déjà sa résolution — utile seulement à "
+       "certains outils de fond (capture, limiteurs externes). Redémarrage "
+       "requis.",
+       "systeme", "faible", "avance",
        apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\Session Manager\kernel",
                    "GlobalTimerResolutionRequests", "dword", 1)],
        revert=[_reg_del("HKLM",
@@ -482,89 +510,160 @@ TWEAKS: list[dict] = [
        default_for=["fps", "equilibre"]),
 
     _t("auto_end_tasks_on", "Fermeture automatique des tâches bloquées",
-       "Ferme automatiquement les applications qui ne répondent plus à la "
-       "déconnexion/extinction, sans fenêtre « Fermer quand même ? ».",
-       "systeme", "faible", "sur",
+       "Ferme d'office les applications qui ne répondent plus à la "
+       "déconnexion ou à l'extinction, sans fenêtre « Fermer quand même ? ». "
+       "Attention : un document non enregistré dans une application bloquée "
+       "peut être perdu à l'extinction.",
+       "systeme", "faible", "modere",
        apply=[_reg("HKCU", _DESKTOP, "AutoEndTasks", "string", "1")],
        revert=[_reg_del("HKCU", _DESKTOP, "AutoEndTasks")],
        check=_chk_reg("HKCU", _DESKTOP, "AutoEndTasks", "1"),
        default_for=["equilibre"]),
 
+    _t("onedrive_startup_off", "OneDrive coupé au démarrage",
+       "Désactive le lancement automatique de OneDrive à l'ouverture de "
+       "session (mécanisme StartupApproved, le même que le Gestionnaire des "
+       "tâches). OneDrive reste installé et utilisable à la demande.",
+       "systeme", "moyen", "sur",
+       # Format StartupApproved : 12 octets, 1er octet pair = activé (02),
+       # impair = désactivé (03). L'instantané original_values restaure
+       # l'état réel de l'utilisateur au revert.
+       apply=[_reg("HKCU",
+                   r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+                   "OneDrive", "binary", "030000000000000000000000")],
+       revert=[_reg("HKCU",
+                    r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+                    "OneDrive", "binary", "020000000000000000000000")],
+       check=_chk_reg("HKCU",
+                      r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+                      "OneDrive", "030000000000000000000000"),
+       default_for=["petite_config"], lowend=True),
+
+    _t("edge_preload_off", "Préchargement de Microsoft Edge désactivé",
+       "Empêche Edge de se précharger à l'ouverture de session (Startup "
+       "Boost) et de rester en tâche de fond une fois fermé. Libère RAM et "
+       "CPU si Edge n'est pas votre navigateur principal.",
+       "systeme", "moyen", "sur",
+       # Défaut Windows : stratégie non configurée (valeurs absentes)
+       # => revert = reg_delete.
+       apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Edge",
+                   "StartupBoostEnabled", "dword", 0),
+              _reg("HKLM", r"SOFTWARE\Policies\Microsoft\Edge",
+                   "BackgroundModeEnabled", "dword", 0)],
+       revert=[_reg_del("HKLM", r"SOFTWARE\Policies\Microsoft\Edge",
+                        "StartupBoostEnabled"),
+               _reg_del("HKLM", r"SOFTWARE\Policies\Microsoft\Edge",
+                        "BackgroundModeEnabled")],
+       check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Edge",
+                      "StartupBoostEnabled", 0),
+       default_for=["petite_config"], lowend=True),
+
+    _t("widgets_news_off", "Widgets et actualités désactivés",
+       "Coupe les Widgets de Windows 11 (processus WebView2 permanents) et "
+       "le flux « Actualités et champs d'intérêt » de Windows 10. Plusieurs "
+       "centaines de Mo de RAM récupérés sur les petites configurations.",
+       "systeme", "eleve", "sur",
+       apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Dsh",
+                   "AllowNewsAndInterests", "dword", 0),
+              _reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Windows Feeds",
+                   "EnableFeeds", "dword", 0),
+              _reg("HKCU", _ADVANCED, "TaskbarDa", "dword", 0)],
+       revert=[_reg_del("HKLM", r"SOFTWARE\Policies\Microsoft\Dsh",
+                        "AllowNewsAndInterests"),
+               _reg_del("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Windows Feeds",
+                        "EnableFeeds"),
+               _reg("HKCU", _ADVANCED, "TaskbarDa", "dword", 1)],
+       check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Dsh",
+                      "AllowNewsAndInterests", 0),
+       default_for=["petite_config"], lowend=True),
+
+    _t("defender_scan_lowprio", "Analyses Defender en arrière-plan allégées",
+       "Limite le CPU que les analyses planifiées de Microsoft Defender "
+       "peuvent consommer (50 % → 20 %) et les cantonne aux périodes "
+       "d'inactivité. LA PROTECTION EN TEMPS RÉEL RESTE TOTALEMENT ACTIVE.",
+       "systeme", "moyen", "sur",
+       # Défauts usine : ScanAvgCPULoadFactor=50, ScanOnlyIfIdleEnabled=$true.
+       # Conforme à la charte : on ne touche ni la protection temps réel ni
+       # le cloud.
+       apply=[_ps("Set-MpPreference -ScanAvgCPULoadFactor 20 "
+                  "-ScanOnlyIfIdleEnabled $true")],
+       revert=[_ps("Set-MpPreference -ScanAvgCPULoadFactor 50 "
+                   "-ScanOnlyIfIdleEnabled $true")],
+       check=None, default_for=["petite_config"], lowend=True),
+
     # ------------------------------------------------------------------ #
     # Mémoire                                                             #
     # ------------------------------------------------------------------ #
     _t("memory_compression_off", "Compression mémoire désactivée",
-       "Désactive la compression mémoire : moins de cycles CPU volés au jeu "
-       "quand la RAM est sollicitée. À réserver aux PC avec 16 Go ou plus.",
-       "memoire", "moyen", "modere",
+       "Désactive la compression mémoire : moins de cycles CPU dépensés "
+       "quand la RAM est sollicitée. Réservé aux PC avec 16 Go ou plus — "
+       "CONTRE-PRODUCTIF en dessous : la compression évite justement des "
+       "accès disque (pagefile) quand la RAM manque.",
+       "memoire", "faible", "modere",
        apply=[_ps("Disable-MMAgent -MemoryCompression")],
        revert=[_ps("Enable-MMAgent -MemoryCompression")],
-       check=None, default_for=["fps", "latence"]),
+       check=None, default_for=[]),
 
     _t("page_combining_off", "Combinaison de pages désactivée",
-       "Désactive la déduplication des pages mémoire (PageCombining), une tâche "
-       "de fond CPU. Pertinent sur les machines avec beaucoup de RAM.",
+       "Désactive la déduplication des pages mémoire (PageCombining). Le "
+       "coût CPU de cette tâche de fond est en pratique infime : gain quasi "
+       "nul, à réserver aux machines avec beaucoup de RAM puisque la "
+       "déduplication économise de la mémoire. Sans intérêt sur petite "
+       "config.",
        "memoire", "faible", "avance",
        apply=[_ps("Disable-MMAgent -PageCombining")],
        revert=[_ps("Enable-MMAgent -PageCombining")],
        check=None, default_for=[]),
 
-    _t("large_system_cache_0", "Cache système standard (poste de travail)",
-       "Garantit LargeSystemCache=0 : la RAM sert d'abord aux applications (le "
-       "jeu), pas au cache fichiers géant destiné aux serveurs.",
-       "memoire", "faible", "sur",
-       apply=[_reg("HKLM", _MEMMGMT, "LargeSystemCache", "dword", 0)],
-       revert=[_reg("HKLM", _MEMMGMT, "LargeSystemCache", "dword", 0)],
-       check=_chk_reg("HKLM", _MEMMGMT, "LargeSystemCache", 0),
-       default_for=["equilibre"]),
-
-    _t("clear_pagefile_off", "Pas d'effacement du fichier d'échange à l'arrêt",
-       "Garantit ClearPageFileAtShutdown=0 : l'effacement du pagefile à chaque "
-       "extinction ralentit fortement l'arrêt sans bénéfice pour un PC de jeu.",
-       "memoire", "faible", "sur",
-       apply=[_reg("HKLM", _MEMMGMT, "ClearPageFileAtShutdown", "dword", 0)],
-       revert=[_reg("HKLM", _MEMMGMT, "ClearPageFileAtShutdown", "dword", 0)],
-       check=_chk_reg("HKLM", _MEMMGMT, "ClearPageFileAtShutdown", 0),
-       default_for=["equilibre"]),
-
     _t("paging_executive_off", "Noyau maintenu en RAM",
-       "DisablePagingExecutive=1 : empêche Windows de paginer le noyau sur le "
-       "disque. Accès système plus constants ; nécessite une marge de RAM.",
+       "DisablePagingExecutive=1 : garde le code noyau paginable en RAM. "
+       "Gain imperceptible en jeu sur un SSD — c'est avant tout une aide au "
+       "débogage de pilotes. À éviter sur les PC avec peu de RAM, où cette "
+       "marge verrouillée manquera aux applications.",
        "memoire", "faible", "modere",
        apply=[_reg("HKLM", _MEMMGMT, "DisablePagingExecutive", "dword", 1)],
        revert=[_reg("HKLM", _MEMMGMT, "DisablePagingExecutive", "dword", 0)],
        check=_chk_reg("HKLM", _MEMMGMT, "DisablePagingExecutive", 1),
-       default_for=["fps"]),
+       default_for=[]),
 
     # ------------------------------------------------------------------ #
     # Réseau & latence                                                    #
     # ------------------------------------------------------------------ #
     _t("network_throttling_off", "Bridage réseau multimédia désactivé",
-       "NetworkThrottlingIndex=0xFFFFFFFF : supprime la limite de 10 paquets/ms "
-       "que Windows applique quand du multimédia joue. Essentiel en jeu en ligne.",
-       "reseau", "eleve", "sur",
+       "NetworkThrottlingIndex=0xFFFFFFFF : lève la limite de 10 paquets/ms "
+       "que Windows applique pendant la lecture multimédia. Sans effet sur "
+       "le ping en jeu — CS2 échange une centaine de paquets par seconde, "
+       "cent fois sous la limite. Utile seulement pour des transferts "
+       "dépassant ~100 Mbit/s pendant qu'un média joue.",
+       "reseau", "faible", "sur",
        apply=[_reg("HKLM", _SYSPROF, "NetworkThrottlingIndex", "dword",
                    4294967295)],
        revert=[_reg("HKLM", _SYSPROF, "NetworkThrottlingIndex", "dword", 10)],
        check=_chk_reg("HKLM", _SYSPROF, "NetworkThrottlingIndex", 4294967295),
-       default_for=["fps", "latence", "equilibre", "stream"]),
+       default_for=[]),
 
     _t("system_responsiveness_0", "Réactivité système dédiée au jeu",
-       "SystemResponsiveness=0 : le planificateur multimédia ne réserve plus "
-       "20 % du CPU aux tâches de fond. Le jeu au premier plan prend tout.",
-       "reseau", "eleve", "sur",
+       "SystemResponsiveness=0 : le planificateur multimédia (MMCSS) ne "
+       "réserve plus 20 % du CPU aux tâches ordinaires face aux threads "
+       "multimédia enregistrés (audio du jeu notamment). Gain modeste, le "
+       "plus sensible sur les CPU 2-4 cœurs saturés ; à éviter pendant un "
+       "stream, l'encodeur en arrière-plan profite de cette réserve.",
+       "reseau", "moyen", "sur",
        apply=[_reg("HKLM", _SYSPROF, "SystemResponsiveness", "dword", 0)],
        revert=[_reg("HKLM", _SYSPROF, "SystemResponsiveness", "dword", 20)],
        check=_chk_reg("HKLM", _SYSPROF, "SystemResponsiveness", 0),
-       default_for=["fps", "latence", "equilibre"]),
+       default_for=["fps", "latence", "equilibre"], lowend=True),
 
     _t("nagle_off", "Algorithme de Nagle désactivé",
-       "Écrit TcpAckFrequency=1 et TCPNoDelay=1 sur toutes les interfaces : les "
-       "petits paquets partent sans attente de regroupement. Ping plus régulier.",
-       "reseau", "moyen", "modere",
+       "Désactive l'algorithme de Nagle (TcpAckFrequency=1, TCPNoDelay=1) "
+       "sur toutes les interfaces. Sans effet sur CS2, Valorant et la "
+       "quasi-totalité des FPS en ligne, dont le trafic de jeu passe en "
+       "UDP ; ne concerne que les rares jeux communiquant en TCP (certains "
+       "MMO).",
+       "reseau", "faible", "modere",
        apply=[_ps("Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces' | ForEach-Object { New-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -PropertyType DWord -Force | Out-Null; New-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay' -Value 1 -PropertyType DWord -Force | Out-Null }")],
        revert=[_ps("Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces' | ForEach-Object { Remove-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency','TCPNoDelay' -ErrorAction SilentlyContinue }")],
-       check=None, default_for=["latence"]),
+       check=None, default_for=[]),
 
     _t("qos_reserve_0", "Réserve de bande passante QoS à 0 %",
        "Supprime la part de débit que le planificateur QoS peut réserver quand "
@@ -580,17 +679,23 @@ TWEAKS: list[dict] = [
        default_for=[]),
 
     _t("dns_cloudflare", "DNS Cloudflare (1.1.1.1)",
-       "Bascule les DNS des cartes actives vers Cloudflare (1.1.1.1 / 1.0.0.1), "
-       "souvent plus rapides que ceux du FAI pour résoudre les serveurs de jeu.",
+       "Bascule les DNS des cartes actives vers Cloudflare (1.1.1.1 / "
+       "1.0.0.1). N'améliore pas le ping en jeu — la résolution de nom n'a "
+       "lieu qu'au moment de la connexion au serveur — mais peut accélérer "
+       "navigation et connexions initiales si les DNS du FAI sont lents. "
+       "Remplace la configuration DNS existante.",
        "reseau", "faible", "modere",
        apply=[_ps("Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' } | Set-DnsClientServerAddress -ServerAddresses ('1.1.1.1','1.0.0.1')")],
        revert=[_ps("Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' } | Set-DnsClientServerAddress -ResetServerAddresses")],
        check=None, default_for=[]),
 
     _t("lso_off", "Large Send Offload désactivé",
-       "Désactive le LSO des cartes réseau : le découpage des paquets revient au "
-       "CPU, ce qui évite la latence ajoutée par certains pilotes. Débit brut un peu réduit.",
-       "reseau", "moyen", "avance",
+       "Désactive le Large Send Offload : le découpage des paquets revient "
+       "au CPU. Correctif hérité de l'époque des pilotes Realtek bogués ; "
+       "sur un pilote sain, aucun gain mesurable et un surcroît de charge "
+       "CPU — déconseillé sur petit CPU. À réserver au dépannage de latence "
+       "réseau anormale.",
+       "reseau", "faible", "avance",
        apply=[_ps("Disable-NetAdapterLso -Name '*'")],
        revert=[_ps("Enable-NetAdapterLso -Name '*'")],
        check=None, default_for=[]),
@@ -601,7 +706,8 @@ TWEAKS: list[dict] = [
        "reseau", "moyen", "sur",
        apply=[_ps("Get-NetAdapter -Physical | ForEach-Object { Disable-NetAdapterPowerManagement -Name $_.Name -ErrorAction SilentlyContinue }")],
        revert=[_ps("Get-NetAdapter -Physical | ForEach-Object { Enable-NetAdapterPowerManagement -Name $_.Name -ErrorAction SilentlyContinue }")],
-       check=None, default_for=["latence", "equilibre", "stream"]),
+       check=None, default_for=["latence", "equilibre", "stream"],
+       lowend=True),
 
     _t("teredo_off", "Teredo désactivé",
        "Désactive le tunnel IPv6 Teredo, source de latence et de résolutions "
@@ -612,14 +718,33 @@ TWEAKS: list[dict] = [
                     "type=default")],
        check=None, default_for=[]),
 
+    _t("delivery_optimization_off", "Partage P2P des mises à jour désactivé",
+       "DODownloadMode=0 : Windows Update télécharge en HTTP simple et "
+       "n'envoie plus vos mises à jour à d'autres PC. Libère bande passante "
+       "montante, disque et CPU — sensible sur petite connexion et petit "
+       "CPU.",
+       "reseau", "moyen", "sur",
+       apply=[_reg("HKLM",
+                   r"SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization",
+                   "DODownloadMode", "dword", 0)],
+       revert=[_reg_del("HKLM",
+                        r"SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization",
+                        "DODownloadMode")],
+       check=_chk_reg("HKLM",
+                      r"SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization",
+                      "DODownloadMode", 0),
+       default_for=["petite_config"], lowend=True),
+
     # ------------------------------------------------------------------ #
     # GPU                                                                 #
     # ------------------------------------------------------------------ #
     _t("games_task_gpu_priority", "Priorité CPU/IO des jeux (profil MMCSS)",
-       "Relève le profil « Games » du planificateur multimédia : Priority 2→6, "
-       "catégories High (GPU Priority garde sa valeur d'usine 8). Les threads "
-       "du jeu passent devant le reste.",
-       "gpu", "moyen", "modere",
+       "Relève le profil « Games » du planificateur multimédia (MMCSS). Ne "
+       "concerne que les applications qui s'enregistrent explicitement sous "
+       "ce profil — ce que très peu de jeux font réellement, et rien "
+       "n'indique que CS2 en fasse partie : gain le plus souvent nul, "
+       "réglage inoffensif.",
+       "gpu", "faible", "sur",
        apply=[_reg("HKLM", _GAMES_TASK, "Priority", "dword", 6),
               _reg("HKLM", _GAMES_TASK, "Scheduling Category", "string", "High"),
               _reg("HKLM", _GAMES_TASK, "SFIO Priority", "string", "High")],
@@ -628,7 +753,7 @@ TWEAKS: list[dict] = [
                     "Medium"),
                _reg("HKLM", _GAMES_TASK, "SFIO Priority", "string", "Normal")],
        check=_chk_reg("HKLM", _GAMES_TASK, "Priority", 6),
-       default_for=["fps", "latence"]),
+       default_for=[]),
 
     _t("tdr_delay_10", "Délai TDR porté à 10 s",
        "Laisse 10 s (au lieu de 2) au GPU pour répondre avant que Windows ne "
@@ -679,22 +804,25 @@ TWEAKS: list[dict] = [
                    " else {Remove-ItemProperty -Path $p -Name"
                    " DirectXUserGlobalSettings -ErrorAction SilentlyContinue}}")],
        check=None,
-       default_for=["fps", "equilibre"]),
+       default_for=["fps", "equilibre"], lowend=True),
 
     # ------------------------------------------------------------------ #
     # Stockage                                                            #
     # ------------------------------------------------------------------ #
     _t("trim_on", "TRIM SSD activé",
-       "Garantit que le TRIM est actif (DisableDeleteNotify=0), indispensable "
-       "pour conserver les performances d'écriture d'un SSD dans le temps.",
-       "stockage", "moyen", "sur",
+       "Garantit que le TRIM est actif (DisableDeleteNotify=0). Windows "
+       "l'active déjà d'usine sur les SSD : ce réglage est une vérification "
+       "de bon fonctionnement, pas un gain de performances.",
+       "stockage", "faible", "sur",
        apply=[_cmd("fsutil", "behavior", "set", "DisableDeleteNotify", "0")],
        revert=[_cmd("fsutil", "behavior", "set", "DisableDeleteNotify", "0")],
        check=None, default_for=["fps", "latence", "equilibre", "stream"]),
 
     _t("ntfs_last_access_off", "Horodatage « dernier accès » NTFS désactivé",
-       "NTFS n'écrit plus la date de dernier accès à chaque lecture de fichier. "
-       "Moins d'écritures parasites pendant les chargements de jeux.",
+       "NTFS n'écrit plus la date de dernier accès à chaque lecture. "
+       "Windows le désactive déjà de lui-même sur la plupart des volumes "
+       "(gestion système au-delà de 128 Go) : gain marginal, surtout utile "
+       "sur un petit SSD système.",
        "stockage", "faible", "sur",
        apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Control\FileSystem",
                    "NtfsDisableLastAccessUpdate", "dword", 1)],
@@ -705,8 +833,10 @@ TWEAKS: list[dict] = [
        default_for=["fps", "equilibre"]),
 
     _t("prefetcher_off", "Prefetch/Superfetch (registre) désactivés",
-       "Coupe le préchargement Prefetch/Superfetch au niveau registre. Sur SSD "
-       "NVMe, ce préchargement n'apporte rien et génère des accès disque inutiles.",
+       "Coupe le Prefetch au niveau registre. Gain quasi nul sur SSD "
+       "(Windows le neutralise déjà largement) et déconseillé sur HDD, où "
+       "le préchargement accélère réellement démarrages et lancements "
+       "d'applications.",
        "stockage", "faible", "avance",
        # EnableSuperfetch n'est plus lu par Windows 10/11 (SysMain pilote tout)
        # et n'existe pas d'usine : on ne touche que EnablePrefetcher.
@@ -727,14 +857,28 @@ TWEAKS: list[dict] = [
        check=None, default_for=[]),
 
     _t("scheduled_defrag_off", "Défragmentation planifiée désactivée",
-       "Désactive la tâche planifiée de défragmentation/optimisation. Utile si "
-       "vous préférez lancer l'optimisation SSD manuellement, hors sessions de jeu.",
+       "Désactive la tâche planifiée d'optimisation des disques. Elle ne "
+       "tourne qu'en période d'inactivité et assure le retrim des SSD : à "
+       "couper seulement si vous optimisez manuellement, et déconseillé sur "
+       "HDD où la fragmentation s'accumule.",
        "stockage", "faible", "modere",
        apply=[_cmd("schtasks", "/Change", "/TN",
                    r"\Microsoft\Windows\Defrag\ScheduledDefrag", "/Disable")],
        revert=[_cmd("schtasks", "/Change", "/TN",
                     r"\Microsoft\Windows\Defrag\ScheduledDefrag", "/Enable")],
        check=None, default_for=[]),
+
+    _t("reserved_storage_off", "Stockage réservé de Windows désactivé",
+       "Libère les ~7 Go que Windows réserve pour ses mises à jour (DISM). "
+       "Précieux sur un petit SSD de 120/256 Go. Échoue proprement si une "
+       "mise à jour est en cours ; les mises à jour futures redeviennent "
+       "plus lentes si le disque est presque plein.",
+       "stockage", "moyen", "modere",
+       apply=[_cmd("dism", "/Online", "/Set-ReservedStorageState",
+                   "/State:Disabled")],
+       revert=[_cmd("dism", "/Online", "/Set-ReservedStorageState",
+                    "/State:Enabled")],
+       check=None, default_for=["petite_config"], lowend=True),
 
     # ------------------------------------------------------------------ #
     # Confidentialité & télémétrie                                        #
@@ -750,7 +894,7 @@ TWEAKS: list[dict] = [
                         "AllowTelemetry")],
        check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\DataCollection",
                       "AllowTelemetry", 0),
-       default_for=["fps", "latence", "equilibre", "stream"]),
+       default_for=["fps", "latence", "equilibre", "stream"], lowend=True),
 
     _t("diagtrack_off", "Service de télémétrie (DiagTrack) désactivé",
        "Arrête et désactive « Expériences des utilisateurs connectés et "
@@ -759,16 +903,17 @@ TWEAKS: list[dict] = [
        apply=[_svc("DiagTrack", "disabled", stop=True)],
        revert=[_svc("DiagTrack", "auto")],
        check=_chk_svc("DiagTrack", "disabled"),
-       default_for=["fps", "latence", "equilibre", "stream"]),
+       default_for=["fps", "latence", "equilibre", "stream"], lowend=True),
 
     _t("dmwappush_off", "Service de messages push WAP désactivé",
-       "Désactive dmwappushservice, le routeur de messages push lié à la "
-       "collecte de données. Sans usage pour un PC de jeu.",
+       "Désactive dmwappushservice, lié à la collecte de données. Le "
+       "service est déjà en démarrage manuel et ne tourne presque jamais : "
+       "gain nul, c'est un simple durcissement de confidentialité.",
        "confidentialite", "faible", "sur",
        apply=[_svc("dmwappushservice", "disabled", stop=True)],
        revert=[_svc("dmwappushservice", "manual")],
        check=_chk_svc("dmwappushservice", "disabled"),
-       default_for=["fps", "equilibre"]),
+       default_for=[]),
 
     _t("advertising_id_off", "Identifiant publicitaire désactivé",
        "Désactive l'identifiant publicitaire utilisé par les applications pour "
@@ -800,11 +945,13 @@ TWEAKS: list[dict] = [
                _reg("HKCU", _CDM, "SilentInstalledAppsEnabled", "dword", 1),
                _reg("HKCU", _CDM, "SoftLandingEnabled", "dword", 1)],
        check=_chk_reg("HKCU", _CDM, "SystemPaneSuggestionsEnabled", 0),
-       default_for=["fps", "equilibre", "stream"]),
+       default_for=["fps", "equilibre", "stream"], lowend=True),
 
     _t("consumer_features_off", "Installation auto d'applications promues bloquée",
-       "DisableWindowsConsumerFeatures=1 : Windows n'installe plus tout seul "
-       "les applications sponsorisées (jeux mobiles, services tiers).",
+       "DisableWindowsConsumerFeatures=1 : bloque l'installation automatique "
+       "d'applications sponsorisées. Stratégie pleinement honorée surtout "
+       "sur les éditions Entreprise/Éducation ; sur Famille/Pro l'effet est "
+       "partiel et les réglages ContentDeliveryManager font l'essentiel.",
        "confidentialite", "faible", "sur",
        apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\CloudContent",
                    "DisableWindowsConsumerFeatures", "dword", 1)],
@@ -815,8 +962,9 @@ TWEAKS: list[dict] = [
        default_for=["equilibre", "stream"]),
 
     _t("cortana_off", "Cortana désactivée",
-       "Interdit Cortana via stratégie (AllowCortana=0). Supprime son processus "
-       "résident et ses requêtes réseau sur Windows 10.",
+       "Interdit Cortana via stratégie (AllowCortana=0) sur Windows 10 : "
+       "moins d'activité résidente et de requêtes réseau. Sans effet sur "
+       "Windows 11, où Cortana a été retirée du système.",
        "confidentialite", "faible", "sur",
        apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Windows Search",
                    "AllowCortana", "dword", 0)],
@@ -824,7 +972,7 @@ TWEAKS: list[dict] = [
                         "AllowCortana")],
        check=_chk_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\Windows Search",
                       "AllowCortana", 0),
-       default_for=["fps", "equilibre"]),
+       default_for=["fps", "equilibre"], lowend=True),
 
     _t("background_apps_off", "Applications en arrière-plan désactivées",
        "Empêche les applications du Microsoft Store de tourner en arrière-plan "
@@ -839,11 +987,14 @@ TWEAKS: list[dict] = [
        check=_chk_reg("HKCU",
                       r"Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications",
                       "GlobalUserDisabled", 1),
-       default_for=["fps", "latence", "equilibre"]),
+       default_for=["fps", "latence", "equilibre"], lowend=True),
 
     _t("activity_feed_off", "Historique d'activités désactivé",
-       "Coupe le flux d'activités et son envoi au cloud (EnableActivityFeed, "
-       "PublishUserActivities, UploadUserActivities à 0).",
+       "Coupe l'historique d'activités (EnableActivityFeed, "
+       "PublishUserActivities, UploadUserActivities à 0). La "
+       "synchronisation cloud de la Timeline a été abandonnée par "
+       "Microsoft : c'est désormais un réglage de confidentialité, sans "
+       "gain de performances.",
        "confidentialite", "faible", "sur",
        apply=[_reg("HKLM", r"SOFTWARE\Policies\Microsoft\Windows\System",
                    "EnableActivityFeed", "dword", 0),
@@ -885,17 +1036,82 @@ TWEAKS: list[dict] = [
                       "TailoredExperiencesWithDiagnosticDataEnabled", 0),
        default_for=["equilibre"]),
 
+    _t("copilot_off", "Copilot désactivé",
+       "Désactive l'intégration Copilot de Windows 11 (stratégie "
+       "utilisateur) et retire son bouton de la barre des tâches. Un "
+       "processus WebView2 de moins en tâche de fond.",
+       "confidentialite", "faible", "sur",
+       apply=[_reg("HKCU", r"Software\Policies\Microsoft\Windows\WindowsCopilot",
+                   "TurnOffWindowsCopilot", "dword", 1),
+              _reg("HKCU", _ADVANCED, "ShowCopilotButton", "dword", 0)],
+       revert=[_reg_del("HKCU",
+                        r"Software\Policies\Microsoft\Windows\WindowsCopilot",
+                        "TurnOffWindowsCopilot"),
+               _reg("HKCU", _ADVANCED, "ShowCopilotButton", "dword", 1)],
+       check=_chk_reg("HKCU", r"Software\Policies\Microsoft\Windows\WindowsCopilot",
+                      "TurnOffWindowsCopilot", 1),
+       default_for=["petite_config"], lowend=True),
+
+    _t("search_web_suggestions_off", "Recherche Windows sans suggestions web",
+       "La recherche du menu Démarrer n'interroge plus Bing : résultats "
+       "locaux uniquement. Moins de RAM pour SearchHost et plus aucune "
+       "requête réseau à chaque frappe.",
+       "confidentialite", "moyen", "sur",
+       # DisableSearchBoxSuggestions = clé supportée Win10 21H1+/Win11 ;
+       # BingSearchEnabled = secours pour les anciens Windows 10.
+       apply=[_reg("HKCU", r"Software\Policies\Microsoft\Windows\Explorer",
+                   "DisableSearchBoxSuggestions", "dword", 1),
+              _reg("HKCU", r"Software\Microsoft\Windows\CurrentVersion\Search",
+                   "BingSearchEnabled", "dword", 0)],
+       revert=[_reg_del("HKCU", r"Software\Policies\Microsoft\Windows\Explorer",
+                        "DisableSearchBoxSuggestions"),
+               _reg_del("HKCU", r"Software\Microsoft\Windows\CurrentVersion\Search",
+                        "BingSearchEnabled")],
+       check=_chk_reg("HKCU", r"Software\Policies\Microsoft\Windows\Explorer",
+                      "DisableSearchBoxSuggestions", 1),
+       default_for=["petite_config"], lowend=True),
+
+    _t("clipboard_history_off", "Historique du presse-papiers désactivé",
+       "Désactive l'historique du presse-papiers (Win+V) : Windows ne garde "
+       "plus chaque copie en mémoire. Micro-gain de RAM et confidentialité "
+       "accrue.",
+       "confidentialite", "faible", "sur",
+       # Défaut usine : valeur absente (fonction inactive tant que
+       # l'utilisateur ne l'a pas activée).
+       apply=[_reg("HKCU", r"Software\Microsoft\Clipboard",
+                   "EnableClipboardHistory", "dword", 0)],
+       revert=[_reg_del("HKCU", r"Software\Microsoft\Clipboard",
+                        "EnableClipboardHistory")],
+       check=_chk_reg("HKCU", r"Software\Microsoft\Clipboard",
+                      "EnableClipboardHistory", 0),
+       default_for=["petite_config"], lowend=True),
+
+    _t("lockscreen_tips_off", "Conseils de l'écran de verrouillage désactivés",
+       "Coupe les anecdotes, conseils et promotions de l'écran de "
+       "verrouillage (Spotlight overlay) et leurs téléchargements en "
+       "arrière-plan. Les fonds d'écran Windows à la une restent "
+       "fonctionnels.",
+       "confidentialite", "faible", "sur",
+       # Complète content_suggestions_off (338388/338389/310093) sans doublon.
+       apply=[_reg("HKCU", _CDM, "RotatingLockScreenOverlayEnabled", "dword", 0),
+              _reg("HKCU", _CDM, "SubscribedContent-338387Enabled", "dword", 0)],
+       revert=[_reg("HKCU", _CDM, "RotatingLockScreenOverlayEnabled", "dword", 1),
+               _reg("HKCU", _CDM, "SubscribedContent-338387Enabled", "dword", 1)],
+       check=_chk_reg("HKCU", _CDM, "RotatingLockScreenOverlayEnabled", 0),
+       default_for=["petite_config"], lowend=True),
+
     # ------------------------------------------------------------------ #
     # Services Windows                                                    #
     # ------------------------------------------------------------------ #
     _t("svc_fax_off", "Service Fax désactivé",
-       "Désactive le service Fax, inutile sur un PC de jeu moderne. "
-       "Un service résident de moins.",
+       "Désactive le service Fax. Il est déjà en démarrage manuel et ne "
+       "tourne jamais sur un PC moderne : gain nul, simple durcissement "
+       "pour réduire la surface du système.",
        "services", "faible", "sur",
        apply=[_svc("Fax", "disabled", stop=True)],
        revert=[_svc("Fax", "manual")],
        check=_chk_svc("Fax", "disabled"),
-       default_for=["fps", "equilibre"]),
+       default_for=[]),
 
     _t("svc_spooler_off", "Spouleur d'impression désactivé",
        "Désactive le spouleur d'impression : IMPRESSION IMPOSSIBLE tant que ce "
@@ -913,11 +1129,14 @@ TWEAKS: list[dict] = [
        apply=[_svc("WSearch", "disabled", stop=True)],
        revert=[_svc("WSearch", "delayed-auto")],
        check=_chk_svc("WSearch", "disabled"),
-       default_for=["fps"]),
+       default_for=["fps"], lowend=True),
 
     _t("svc_xbox_off", "Services Xbox désactivés",
-       "Désactive XblAuthManager, XblGameSave et XboxNetApiSvc. ATTENTION : "
-       "l'application Xbox, le Game Pass et ses sauvegardes cloud en dépendent.",
+       "Désactive XblAuthManager, XblGameSave et XboxNetApiSvc. Ces "
+       "services sont en démarrage manuel et ne tournent que si l'app "
+       "Xbox/Game Pass est utilisée : gain quasi nul si vous ne l'utilisez "
+       "pas, et connexion Xbox/sauvegardes cloud cassées si vous "
+       "l'utilisez.",
        "services", "faible", "modere",
        apply=[_svc("XblAuthManager", "disabled", stop=True),
               _svc("XblGameSave", "disabled", stop=True),
@@ -929,8 +1148,10 @@ TWEAKS: list[dict] = [
        default_for=[]),
 
     _t("svc_mapsbroker_off", "Gestionnaire de cartes désactivé",
-       "Désactive MapsBroker (cartes hors connexion), sans objet sur un PC de "
-       "jeu. Libère un service à démarrage automatique.",
+       "Désactive MapsBroker (cartes hors connexion). En démarrage "
+       "automatique différé sur Windows 10 (petit gain au démarrage de "
+       "session), déjà en manuel sur Windows 11 : gain minime dans tous "
+       "les cas.",
        "services", "faible", "sur",
        apply=[_svc("MapsBroker", "disabled", stop=True)],
        revert=[_svc("MapsBroker", "delayed-auto")],
@@ -956,21 +1177,25 @@ TWEAKS: list[dict] = [
        default_for=[]),
 
     _t("svc_wmpnetwork_off", "Partage réseau Windows Media désactivé",
-       "Désactive WMPNetworkSvc, le partage de bibliothèques multimédias en "
-       "réseau local. Service hérité sans usage pour le jeu.",
+       "Désactive WMPNetworkSvc (partage de bibliothèques Windows Media en "
+       "réseau). Le service est en manuel et souvent absent des "
+       "installations récentes : gain nul, pur nettoyage d'héritage.",
        "services", "faible", "sur",
        apply=[_svc("WMPNetworkSvc", "disabled", stop=True)],
        revert=[_svc("WMPNetworkSvc", "manual")],
        check=_chk_svc("WMPNetworkSvc", "disabled"),
-       default_for=["equilibre"]),
+       default_for=[]),
 
     # ------------------------------------------------------------------ #
     # Souris & périphériques                                              #
     # ------------------------------------------------------------------ #
     _t("mouse_accel_off", "Précision du pointeur améliorée désactivée",
-       "Désactive l'accélération souris de Windows (MouseSpeed/Threshold à 0). "
-       "Indispensable en FPS : le même geste produit toujours le même déplacement.",
-       "peripheriques", "eleve", "sur",
+       "Désactive l'accélération souris de Windows (MouseSpeed/Threshold à "
+       "0) : le même geste produit toujours le même déplacement sur le "
+       "bureau et dans les jeux sans Raw Input. CS2 et la plupart des FPS "
+       "récents lisent la souris en Raw Input et l'ignorent déjà en jeu — "
+       "ce réglage sert d'assurance de cohérence.",
+       "peripheriques", "moyen", "sur",
        apply=[_reg("HKCU", _MOUSE, "MouseSpeed", "string", "0"),
               _reg("HKCU", _MOUSE, "MouseThreshold1", "string", "0"),
               _reg("HKCU", _MOUSE, "MouseThreshold2", "string", "0")],
@@ -981,24 +1206,27 @@ TWEAKS: list[dict] = [
        default_for=["fps", "latence", "equilibre", "stream"]),
 
     _t("mouse_hover_time_10", "Délai de survol souris réduit",
-       "Réduit MouseHoverTime de 400 à 10 ms : les infobulles et aperçus "
-       "réagissent immédiatement au survol.",
+       "Réduit MouseHoverTime de 400 à 10 ms : infobulles et aperçus "
+       "réagissent immédiatement au survol. Confort de bureau uniquement — "
+       "aucun effet sur la latence en jeu.",
        "peripheriques", "faible", "sur",
        apply=[_reg("HKCU", _MOUSE, "MouseHoverTime", "string", "10")],
        revert=[_reg("HKCU", _MOUSE, "MouseHoverTime", "string", "400")],
        check=_chk_reg("HKCU", _MOUSE, "MouseHoverTime", "10"),
-       default_for=["latence"]),
+       default_for=[]),
 
     _t("keyboard_delay_0", "Délai de répétition clavier minimal",
        "Règle le délai avant répétition d'une touche maintenue au minimum "
-       "(KeyboardDelay=0). Utile pour le strafe et l'édition rapide.",
+       "(KeyboardDelay=0). Confort de frappe et d'édition uniquement : les "
+       "jeux lisent l'état des touches directement et ignorent la "
+       "répétition clavier.",
        "peripheriques", "faible", "sur",
        apply=[_reg("HKCU", r"Control Panel\Keyboard", "KeyboardDelay",
                    "string", "0")],
        revert=[_reg("HKCU", r"Control Panel\Keyboard", "KeyboardDelay",
                     "string", "1")],
        check=_chk_reg("HKCU", r"Control Panel\Keyboard", "KeyboardDelay", "0"),
-       default_for=["latence", "fps"]),
+       default_for=[]),
 
     _t("sticky_keys_off", "Touches rémanentes désactivées",
        "Désactive le raccourci des touches rémanentes (5 × Maj) qui interrompt "
@@ -1035,22 +1263,6 @@ TWEAKS: list[dict] = [
        check=_chk_reg("HKCU", r"Control Panel\Accessibility\Keyboard Response",
                       "Flags", "122"),
        default_for=["fps", "latence", "equilibre", "stream"]),
-
-    _t("input_queue_sizes", "Files d'attente souris/clavier réduites",
-       "Réduit MouseDataQueueSize et KeyboardDataQueueSize de 100 à 20 : moins "
-       "de mise en tampon des entrées, au prix d'une marge réduite sous forte charge.",
-       "peripheriques", "faible", "avance",
-       apply=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Services\mouclass\Parameters",
-                   "MouseDataQueueSize", "dword", 20),
-              _reg("HKLM", r"SYSTEM\CurrentControlSet\Services\kbdclass\Parameters",
-                   "KeyboardDataQueueSize", "dword", 20)],
-       revert=[_reg("HKLM", r"SYSTEM\CurrentControlSet\Services\mouclass\Parameters",
-                    "MouseDataQueueSize", "dword", 100),
-               _reg("HKLM", r"SYSTEM\CurrentControlSet\Services\kbdclass\Parameters",
-                    "KeyboardDataQueueSize", "dword", 100)],
-       check=_chk_reg("HKLM", r"SYSTEM\CurrentControlSet\Services\mouclass\Parameters",
-                      "MouseDataQueueSize", 20),
-       default_for=[]),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1077,13 +1289,16 @@ _CATEGORY_LABELS_EN: dict[str, str] = {
 _TWEAKS_EN: dict[str, tuple[str, str]] = {
     "power_plan_ultimate": (
         "Ultimate Performance power plan",
-        "Enables Windows' hidden “Ultimate Performance” power plan. Removes the "
-        "aggressive power savings that hold back your CPU and GPU in-game.",
+        "Enables the hidden Ultimate Performance power plan, removing "
+        "fine-grained power saving. Modest gain on modern CPUs (slightly "
+        "steadier frametimes); raises power draw and heat — use with care "
+        "on thermally limited laptops.",
     ),
     "hibernation_off": (
         "Disable hibernation",
-        "Turns off hibernation and frees the hiberfil.sys file (several GB). "
-        "Also avoids the slow wake-ups caused by the hybrid sleep state.",
+        "Disables hibernation and removes hiberfil.sys, reclaiming several "
+        "GB. No FPS effect: this is a disk-space tweak, valuable on small "
+        "SSDs. You lose hibernate (and Fast Startup).",
     ),
     "usb_selective_suspend_off": (
         "USB selective suspend disabled",
@@ -1092,13 +1307,17 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "pcie_aspm_off": (
         "PCI Express power management disabled",
-        "Disables PCIe link power saving (ASPM). The GPU keeps its full "
-        "bandwidth with no wake-up latency.",
+        "Disables PCIe link power management (ASPM). Near-zero gain on most "
+        "modern machines; can fix rare stutter tied to PCIe link state "
+        "transitions. Raises idle power draw — irrelevant on iGPUs.",
     ),
     "power_throttling_off": (
         "Power Throttling disabled",
-        "Disables power throttling of background processes. Game and overlay "
-        "applications keep their full CPU clock speed.",
+        "Disables EcoQoS power throttling of background processes. The "
+        "foreground game is never throttled: mainly useful for background "
+        "capture or streaming apps. Not recommended on small configs (2-4 "
+        "cores) or laptops: background tasks then consume more CPU and "
+        "battery.",
     ),
     "fast_startup_off": (
         "Fast startup disabled",
@@ -1107,8 +1326,11 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "cpu_min_state_100": (
         "Minimum processor state at 100%",
-        "Forces the minimum processor state to 100% on AC power: the CPU no "
-        "longer clocks down between actions, which smooths out frametimes.",
+        "Forces the minimum processor state to 100% on AC power. On modern "
+        "CPUs (Speed Shift/HWP) frequency ramp-up takes about 1 ms, so the "
+        "gain is near zero. May smooth frametimes on old CPUs, but clearly "
+        "increases heat and power draw — not recommended on laptops or "
+        "thermally limited small configs.",
     ),
     "visualfx_performance": (
         "Visual effects: best performance",
@@ -1157,23 +1379,31 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "aero_peek_off": (
         "Aero Peek disabled",
-        "Disables the Aero Peek desktop preview. Fewer pointless thumbnails and "
-        "compositing while your game is running.",
+        "Disables the Aero Peek desktop preview. Performance effect is near "
+        "zero: Peek only triggers when hovering the taskbar corner, never "
+        "while a game is running. Tick it for consistency with an 'all "
+        "animations off' profile.",
     ),
     "game_mode_on": (
         "Game Mode enabled",
-        "Enables Windows Game Mode: CPU/GPU priority goes to the game in the "
-        "foreground and Windows updates are postponed while you play.",
+        "Makes sure Windows Game Mode is on (it has been the default since "
+        "2017). Blocks Windows Update activity and notifications during "
+        "play; the 'GPU priority' effect is marginal. Only useful if it had "
+        "been turned off.",
     ),
     "gamedvr_off": (
         "Game DVR recording disabled",
-        "Shuts off Xbox Game DVR background capture (automatic clips). Removes "
-        "a constant GPU/disk load; OBS remains the right tool for recording.",
+        "Turns off Xbox Game DVR capture (automatic clips and capture "
+        "hooks). Big win if background recording was enabled; otherwise it "
+        "mainly removes Game Bar capture hooks and residual activity. OBS "
+        "remains the right tool for recording.",
     ),
     "gamedvr_policy_off": (
         "Game DVR blocked (machine policy)",
-        "Blocks Game DVR at the machine level (HKLM). Complements the per-user "
-        "setting for every account on the PC.",
+        "Blocks Game DVR via machine policy (HKLM) for every account on the "
+        "PC. Adds nothing over the per-user setting on a single-user PC and "
+        "locks Game Bar capture for everyone: reserve it for multi-account "
+        "machines.",
     ),
     "game_bar_off": (
         "Xbox Game Bar out of the way",
@@ -1187,18 +1417,19 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "fse_optimizations_off": (
         "Fullscreen optimizations disabled (global)",
-        "Globally disables “fullscreen optimizations” (FSE): exclusive "
-        "fullscreen games bypass DWM composition, for lower latency.",
-    ),
-    "win32_priority_separation": (
-        "Foreground CPU priority (0x26)",
-        "Sets Win32PrioritySeparation to 38 (0x26): short quanta and a strong "
-        "priority for the foreground program — your game. Default value: 2.",
+        "Globally disables Fullscreen Optimizations. A 2017-era tweak: on "
+        "recent Windows 10/11 builds the presentation model has matured and "
+        "these GameConfigStore keys have limited or no effect. May still "
+        "help a few older games in exclusive fullscreen; otherwise prefer "
+        "the per-game setting (the executable's Compatibility tab).",
     ),
     "sysmain_off": (
         "SysMain (Superfetch) service disabled",
-        "Stops and disables SysMain, which preloads applications in the "
-        "background. Removes disk access and RAM usage while you play.",
+        "Stops and disables SysMain (Superfetch). Its cache lives in "
+        "standby memory that is handed back to applications instantly: the "
+        "real benefit is mostly on HDDs thrashed by preloading. Not "
+        "recommended on low-end PCs: disabling it can also turn off memory "
+        "compression.",
     ),
     "startup_delay_off": (
         "App startup delay removed",
@@ -1207,14 +1438,20 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "svchost_split_threshold": (
         "Service grouping (SvcHostSplit)",
-        "Raises the svchost.exe split threshold: services share fewer "
-        "processes, reducing memory footprint and context switches.",
+        "Raises the SvcHostSplit threshold so Windows services are grouped "
+        "into far fewer svchost.exe processes, as before Windows 10 1703. "
+        "Saves roughly 100-200 MB of RAM — most useful below 8 GB — at the "
+        "cost of weaker isolation (one crashing service can take others "
+        "down). Reboot required.",
     ),
     "timer_resolution_global": (
         "Global timer resolution (Win11)",
-        "Forces Windows 11 to honor the high timer resolution requested by "
-        "games even in the background (GlobalTimerResolutionRequests=1). "
-        "Reboot required.",
+        "Windows 11 no longer honors high-resolution timer requests from "
+        "background processes; this key restores the old global behavior "
+        "(GlobalTimerResolutionRequests=1). No effect on the foreground "
+        "game, which already gets its requested resolution — only helps "
+        "certain background tools (capture, external limiters). Reboot "
+        "required.",
     ),
     "wait_to_kill_services_2000": (
         "Faster service shutdown",
@@ -1223,48 +1460,53 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "auto_end_tasks_on": (
         "Hung tasks closed automatically",
-        "Automatically closes applications that stop responding at "
-        "sign-out/shutdown, without the “Close anyway?” prompt.",
+        "Force-closes applications that stop responding at sign-out or "
+        "shutdown, skipping the 'Close anyway?' prompt. Warning: unsaved "
+        "work in a hung application can be lost at shutdown.",
     ),
     "memory_compression_off": (
         "Memory compression disabled",
-        "Disables memory compression: fewer CPU cycles stolen from the game "
-        "when RAM is under pressure. Best kept for PCs with 16 GB or more.",
+        "Disables memory compression: fewer CPU cycles spent when RAM is "
+        "under pressure. For PCs with 16 GB or more only — COUNTERPRODUCTIVE "
+        "below that: compression is precisely what avoids disk paging when "
+        "RAM runs short.",
     ),
     "page_combining_off": (
         "Page combining disabled",
-        "Disables memory page deduplication (PageCombining), a background CPU "
-        "task. Relevant on machines with plenty of RAM.",
-    ),
-    "large_system_cache_0": (
-        "Standard system cache (workstation)",
-        "Ensures LargeSystemCache=0: RAM goes to applications (the game) first, "
-        "not to the giant file cache meant for servers.",
-    ),
-    "clear_pagefile_off": (
-        "No page file wipe at shutdown",
-        "Ensures ClearPageFileAtShutdown=0: wiping the pagefile at every "
-        "shutdown slows it down heavily with no benefit on a gaming PC.",
+        "Disables memory page deduplication (PageCombining). The CPU cost "
+        "of this background task is tiny in practice: near-zero gain, only "
+        "for machines with plenty of RAM since deduplication saves memory. "
+        "Pointless on low-end PCs.",
     ),
     "paging_executive_off": (
         "Kernel kept in RAM",
-        "DisablePagingExecutive=1: stops Windows from paging the kernel out to "
-        "disk. More consistent system access; needs RAM headroom.",
+        "DisablePagingExecutive=1: keeps pageable kernel code resident in "
+        "RAM. Imperceptible in-game gain on an SSD — it is primarily a "
+        "driver-debugging aid. Avoid on low-RAM PCs, where that locked "
+        "headroom is taken away from applications.",
     ),
     "network_throttling_off": (
         "Multimedia network throttling disabled",
-        "NetworkThrottlingIndex=0xFFFFFFFF: removes the 10 packets/ms limit "
-        "Windows applies while multimedia plays. Essential for online gaming.",
+        "NetworkThrottlingIndex=0xFFFFFFFF: lifts the 10 packets/ms cap "
+        "Windows applies while multimedia is playing. No effect on in-game "
+        "ping — CS2 exchanges about a hundred packets per second, a hundred "
+        "times below the cap. Only matters for transfers above ~100 Mbit/s "
+        "while media is playing.",
     ),
     "system_responsiveness_0": (
         "System responsiveness dedicated to gaming",
-        "SystemResponsiveness=0: the multimedia scheduler no longer reserves "
-        "20% of the CPU for background tasks. The foreground game takes it all.",
+        "SystemResponsiveness=0: the multimedia scheduler (MMCSS) stops "
+        "reserving 20% of the CPU for regular tasks against registered "
+        "multimedia threads (notably game audio). Modest gain, most "
+        "noticeable on saturated 2-4 core CPUs; avoid while streaming, as "
+        "the background encoder benefits from that reserve.",
     ),
     "nagle_off": (
         "Nagle's algorithm disabled",
-        "Writes TcpAckFrequency=1 and TCPNoDelay=1 on every interface: small "
-        "packets leave without waiting to be batched. A steadier ping.",
+        "Disables Nagle's algorithm (TcpAckFrequency=1, TCPNoDelay=1) on "
+        "all interfaces. Has no effect on CS2, Valorant and virtually every "
+        "online FPS, whose game traffic runs over UDP; only matters for the "
+        "few TCP-based games (some MMOs).",
     ),
     "qos_reserve_0": (
         "QoS bandwidth reserve at 0%",
@@ -1274,14 +1516,19 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "dns_cloudflare": (
         "Cloudflare DNS (1.1.1.1)",
-        "Switches active adapters' DNS to Cloudflare (1.1.1.1 / 1.0.0.1), often "
-        "faster than your ISP's at resolving game servers.",
+        "Switches active adapters' DNS to Cloudflare (1.1.1.1 / 1.0.0.1). "
+        "Does not improve in-game ping — name resolution only happens when "
+        "connecting to the server — but can speed up browsing and initial "
+        "connections when the ISP's DNS is slow. Replaces the existing DNS "
+        "configuration.",
     ),
     "lso_off": (
         "Large Send Offload disabled",
-        "Disables LSO on network adapters: packet segmentation goes back to the "
-        "CPU, avoiding the latency some drivers add. Slightly lower raw "
-        "throughput.",
+        "Disables Large Send Offload, moving packet segmentation back to "
+        "the CPU. A fix inherited from the buggy Realtek driver era; on a "
+        "healthy driver it brings no measurable gain and adds CPU load — "
+        "not recommended on weak CPUs. Reserve it for troubleshooting "
+        "abnormal network latency.",
     ),
     "nic_power_saving_off": (
         "Network adapter power saving disabled",
@@ -1295,9 +1542,11 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "games_task_gpu_priority": (
         "Game CPU/IO priority (MMCSS profile)",
-        "Raises the multimedia scheduler's “Games” profile: Priority 2→6, High "
-        "categories (GPU Priority keeps its factory value of 8). Game threads "
-        "move ahead of everything else.",
+        "Raises the multimedia scheduler's (MMCSS) 'Games' profile. Only "
+        "affects applications that explicitly register under this profile — "
+        "which very few games actually do, and there is no indication CS2 "
+        "is one of them: the gain is usually nil, the setting itself "
+        "harmless.",
     ),
     "tdr_delay_10": (
         "TDR delay raised to 10 s",
@@ -1316,19 +1565,23 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "trim_on": (
         "SSD TRIM enabled",
-        "Ensures TRIM is active (DisableDeleteNotify=0), essential to preserve "
-        "an SSD's write performance over time.",
+        "Ensures TRIM is active (DisableDeleteNotify=0). Windows already "
+        "enables it out of the box on SSDs: this is a health check, not a "
+        "performance gain.",
     ),
     "ntfs_last_access_off": (
         "NTFS “last access” timestamp disabled",
-        "NTFS stops writing the last-access date on every file read. Fewer "
-        "stray writes during game loading screens.",
+        "NTFS stops writing the last-access date on every read. Windows "
+        "already disables it by itself on most volumes (system-managed "
+        "above 128 GB): a marginal gain, mostly useful on a small system "
+        "SSD.",
     ),
     "prefetcher_off": (
         "Prefetch/Superfetch (registry) disabled",
-        "Shuts off Prefetch/Superfetch preloading at the registry level. On "
-        "NVMe SSDs this preloading brings nothing and creates useless disk "
-        "access.",
+        "Shuts off Prefetch at the registry level. Near-zero gain on SSDs "
+        "(Windows already largely neutralizes it) and not recommended on "
+        "HDDs, where prefetching genuinely speeds up boots and app "
+        "launches.",
     ),
     "short_names_off": (
         "Legacy 8.3 short names disabled",
@@ -1337,8 +1590,10 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "scheduled_defrag_off": (
         "Scheduled defragmentation disabled",
-        "Disables the scheduled defrag/optimization task. Useful if you prefer "
-        "running SSD optimization manually, outside gaming sessions.",
+        "Disables the scheduled drive-optimization task. It only runs while "
+        "the PC is idle and handles SSD retrim: disable it only if you "
+        "optimize manually, and avoid it on HDDs where fragmentation builds "
+        "up.",
     ),
     "telemetry_minimal": (
         "Telemetry reduced to the minimum",
@@ -1352,8 +1607,9 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "dmwappush_off": (
         "WAP push message service disabled",
-        "Disables dmwappushservice, the push message router tied to data "
-        "collection. No use on a gaming PC.",
+        "Disables dmwappushservice, tied to data collection. The service is "
+        "already set to manual start and almost never runs: zero gain, this "
+        "is plain privacy hardening.",
     ),
     "advertising_id_off": (
         "Advertising ID disabled",
@@ -1367,13 +1623,16 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "consumer_features_off": (
         "Auto-install of promoted apps blocked",
-        "DisableWindowsConsumerFeatures=1: Windows no longer installs sponsored "
-        "applications (mobile games, third-party services) on its own.",
+        "DisableWindowsConsumerFeatures=1: blocks automatic installation of "
+        "sponsored apps. The policy is fully honored mostly on "
+        "Enterprise/Education editions; on Home/Pro its effect is partial "
+        "and the ContentDeliveryManager settings do most of the work.",
     ),
     "cortana_off": (
         "Cortana disabled",
-        "Blocks Cortana via policy (AllowCortana=0). Removes its resident "
-        "process and its network requests on Windows 10.",
+        "Blocks Cortana via policy (AllowCortana=0) on Windows 10: less "
+        "resident process activity and fewer network requests. No effect on "
+        "Windows 11, where Cortana has been removed from the OS.",
     ),
     "background_apps_off": (
         "Background apps disabled",
@@ -1382,8 +1641,10 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "activity_feed_off": (
         "Activity history disabled",
-        "Shuts off the activity feed and its cloud upload (EnableActivityFeed, "
-        "PublishUserActivities, UploadUserActivities set to 0).",
+        "Shuts off activity history (EnableActivityFeed, "
+        "PublishUserActivities, UploadUserActivities set to 0). Microsoft "
+        "has retired Timeline cloud sync: this is now a privacy setting, "
+        "with no performance gain.",
     ),
     "feedback_requests_off": (
         "Windows feedback requests disabled",
@@ -1397,8 +1658,9 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "svc_fax_off": (
         "Fax service disabled",
-        "Disables the Fax service, useless on a modern gaming PC. One less "
-        "resident service.",
+        "Disables the Fax service. It is already set to manual start and "
+        "never runs on a modern PC: zero gain, just hardening to trim the "
+        "system's surface.",
     ),
     "svc_spooler_off": (
         "Print spooler disabled",
@@ -1412,13 +1674,16 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "svc_xbox_off": (
         "Xbox services disabled",
-        "Disables XblAuthManager, XblGameSave and XboxNetApiSvc. WARNING: the "
-        "Xbox app, Game Pass and its cloud saves depend on them.",
+        "Disables XblAuthManager, XblGameSave and XboxNetApiSvc. These "
+        "services are manual-start and only run when the Xbox app/Game Pass "
+        "is in use: near-zero gain if you don't use it, and broken Xbox "
+        "sign-in/cloud saves if you do.",
     ),
     "svc_mapsbroker_off": (
         "Maps manager disabled",
-        "Disables MapsBroker (offline maps), pointless on a gaming PC. Frees an "
-        "automatic-start service.",
+        "Disables MapsBroker (offline maps). Delayed auto-start on Windows "
+        "10 (a small sign-in-time gain), already manual on Windows 11: a "
+        "minimal gain either way.",
     ),
     "svc_remote_registry_off": (
         "Remote Registry disabled",
@@ -1432,23 +1697,29 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
     ),
     "svc_wmpnetwork_off": (
         "Windows Media network sharing disabled",
-        "Disables WMPNetworkSvc, media library sharing over the local network. "
-        "A legacy service with no use for gaming.",
+        "Disables WMPNetworkSvc (Windows Media library sharing over the "
+        "network). The service is manual-start and often absent from recent "
+        "installs: zero gain, pure legacy cleanup.",
     ),
     "mouse_accel_off": (
         "Enhance pointer precision disabled",
-        "Disables Windows mouse acceleration (MouseSpeed/Threshold set to 0). "
-        "A must for FPS games: the same flick always lands the same way.",
+        "Disables Windows mouse acceleration (MouseSpeed/Threshold set to "
+        "0): the same motion always produces the same movement on the "
+        "desktop and in games without raw input. CS2 and most recent FPS "
+        "games read the mouse through raw input and already bypass it "
+        "in-game — this setting is a consistency safeguard.",
     ),
     "mouse_hover_time_10": (
         "Mouse hover delay reduced",
-        "Reduces MouseHoverTime from 400 to 10 ms: tooltips and previews react "
-        "to hovering instantly.",
+        "Reduces MouseHoverTime from 400 to 10 ms: tooltips and previews "
+        "react to hovering instantly. Desktop comfort only — no effect on "
+        "in-game latency.",
     ),
     "keyboard_delay_0": (
         "Minimal keyboard repeat delay",
         "Sets the delay before a held key repeats to the minimum "
-        "(KeyboardDelay=0). Useful for strafing and fast text editing.",
+        "(KeyboardDelay=0). Typing and editing comfort only: games read key "
+        "state directly and ignore keyboard repeat.",
     ),
     "sticky_keys_off": (
         "Sticky Keys disabled",
@@ -1465,10 +1736,66 @@ _TWEAKS_EN: dict[str, tuple[str, str]] = {
         "Disables the Filter Keys shortcut (right Shift held for 8 s), which "
         "can freeze the keyboard in-game (Flags=122).",
     ),
-    "input_queue_sizes": (
-        "Smaller mouse/keyboard input queues",
-        "Reduces MouseDataQueueSize and KeyboardDataQueueSize from 100 to 20: "
-        "less input buffering, at the cost of less headroom under heavy load.",
+    # Tweaks « petite config » (lowend=True, profil petite_config).
+    "onedrive_startup_off": (
+        "OneDrive cut from startup",
+        "Disables OneDrive's automatic launch at sign-in (the "
+        "StartupApproved mechanism, the same one Task Manager uses). "
+        "OneDrive stays installed and can still be used on demand.",
+    ),
+    "edge_preload_off": (
+        "Microsoft Edge preloading disabled",
+        "Stops Edge from preloading at sign-in (Startup Boost) and from "
+        "staying in the background once closed. Frees RAM and CPU if Edge "
+        "is not your main browser.",
+    ),
+    "widgets_news_off": (
+        "Widgets and news feed disabled",
+        "Shuts off Windows 11 Widgets (permanent WebView2 processes) and "
+        "the Windows 10 “News and interests” feed. Several hundred MB of "
+        "RAM reclaimed on small configurations.",
+    ),
+    "defender_scan_lowprio": (
+        "Lighter Defender background scans",
+        "Caps the CPU that Microsoft Defender's scheduled scans may consume "
+        "(50% → 20%) and confines them to idle periods. REAL-TIME "
+        "PROTECTION STAYS FULLY ON.",
+    ),
+    "copilot_off": (
+        "Copilot disabled",
+        "Disables the Windows 11 Copilot integration (user policy) and "
+        "removes its taskbar button. One less WebView2 process in the "
+        "background.",
+    ),
+    "search_web_suggestions_off": (
+        "Windows Search without web suggestions",
+        "The Start menu search no longer queries Bing: local results only. "
+        "Less RAM for SearchHost and no more network requests on every "
+        "keystroke.",
+    ),
+    "clipboard_history_off": (
+        "Clipboard history disabled",
+        "Disables clipboard history (Win+V): Windows no longer keeps every "
+        "copy in memory. A micro RAM gain and better privacy.",
+    ),
+    "lockscreen_tips_off": (
+        "Lock screen tips disabled",
+        "Shuts off the lock screen's fun facts, tips and promotions "
+        "(Spotlight overlay) and their background downloads. Windows "
+        "Spotlight wallpapers keep working.",
+    ),
+    "delivery_optimization_off": (
+        "Update P2P sharing disabled",
+        "DODownloadMode=0: Windows Update downloads over plain HTTP and no "
+        "longer uploads your updates to other PCs. Frees upload bandwidth, "
+        "disk and CPU — noticeable on small connections and weak CPUs.",
+    ),
+    "reserved_storage_off": (
+        "Windows reserved storage disabled",
+        "Frees the ~7 GB Windows reserves for its updates (DISM). Precious "
+        "on a small 120/256 GB SSD. Fails cleanly if an update is in "
+        "progress; future updates get slower again if the disk is nearly "
+        "full.",
     ),
 }
 

@@ -1106,6 +1106,64 @@ svg.xhair-svg { width: 64px; height: 64px; display: block; border-radius: 6px; }
 .settings-row.sub-setting .set-name { font-weight: 500; }
 .settings-row.sub-disabled .set-info { opacity: 0.55; }
 
+/* ---------- Petites configs (page Optimisations) ---------- */
+
+/* Badge discret : fond transparent, simple liseré, texte atténué. */
+.badge-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* Séparateur vertical entre les catégories et le filtre « Petite config ». */
+.chip-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 2px 4px;
+}
+
+/* Bannière sobre : réutilise .notice, avec un bouton aligné à droite. */
+.notice-lowend { align-items: center; }
+.notice-lowend svg.icon { color: var(--accent); }
+.notice-lowend .btn { flex: 0 0 auto; }
+
+/* ---------- Panneau CS2 « Pour ta machine » ---------- */
+
+.cs2-machine {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+}
+
+.cs2-tier-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cs2-tier-label { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+
+.cs2-tier-select { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+
+.cs2-reasons { margin-top: 12px; }
+.cs2-reasons ul { margin: 0; padding-left: 18px; }
+.cs2-reasons li { margin: 2px 0; }
+
+.cs2-advice { list-style: none; margin: 12px 0 0; padding: 0; }
+.cs2-advice li { padding: 9px 0; border-top: 1px solid var(--border); }
+.cs2-advice .advice-title { font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cs2-advice .advice-detail { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+
+.cs2-video-table .cs2-menu-path { display: block; color: var(--text-2); font-size: 11.5px; margin-top: 1px; }
+.cs2-reco-cell { white-space: nowrap; }
+.val-arrow { color: var(--text-2); margin-right: 5px; }
+.val-diff { color: var(--accent); font-weight: 600; }
+
 /* --- Section Widget (Réglages) et étape de démarrage automatique --- */
 .check-grid { display: flex; flex-wrap: wrap; gap: 6px 14px; max-width: 360px; justify-content: flex-end; }
 .check-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); cursor: pointer; white-space: nowrap; }

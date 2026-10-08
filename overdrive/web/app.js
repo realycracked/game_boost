@@ -158,6 +158,14 @@
       restore_created: "Point de restauration créé.",
       restore_failed: "Création impossible.",
 
+      /* Optimisations — petites configs */
+      tweak_lowend_badge: "Petite config",
+      chip_lowend: "Petite config",
+      lowend_banner: "Petite configuration détectée — sélection adaptée disponible.",
+      lowend_banner_btn: "Cocher la sélection petite config",
+      lowend_selected_one: "{n} optimisation petite config cochée (risque sûr ou modéré).",
+      lowend_selected_many: "{n} optimisations petite config cochées (risque sûr ou modéré).",
+
       /* Jeux */
       games_title: "Jeux",
       games_sub: "Options de lancement et réglages recommandés pour les jeux compétitifs courants.",
@@ -184,6 +192,29 @@
       th_current: "Actuel",
       th_recommended: "Recommandé",
       th_note: "Note",
+
+      /* Panneau CS2 — « Pour ta machine » (tiers) */
+      cs2_machine_group: "Pour ta machine",
+      cs2_tier_detected: "Tier détecté",
+      cs2_tier_reasons: "Pourquoi ce classement",
+      cs2_tier_select: "Tier des recommandations",
+      tier_lowend: "Petite config",
+      tier_midrange: "Milieu de gamme",
+      tier_highend: "Haut de gamme",
+      advice_kind_reco: "Recommandé",
+      advice_kind_opinion: "Avis",
+      advice_kind_info: "Info",
+      cs2_video_read: "Fichier cs2_video.txt lu : comparaison avec vos valeurs actuelles.",
+      cs2_apply_video: "Appliquer les réglages vidéo",
+      cs2_apply_video_body: "Overdrive ne modifie que les réglages déjà présents dans votre cs2_video.txt — jamais votre résolution. Une sauvegarde automatique est créée dans le coffre de configurations avant toute écriture : vous pourrez revenir en arrière. Si CS2 est lancé, l'application sera refusée : fermez d'abord le jeu.",
+      cs2_apply_count_one: "{n} réglage sera modifié (tier « {t} »).",
+      cs2_apply_count_many: "{n} réglages seront modifiés (tier « {t} »).",
+      cs2_apply_none: "Vos réglages correspondent déjà aux recommandations de ce tier : rien à appliquer.",
+      cs2_val_same: "Conforme",
+      cs2_res_changed: "Réglages modifiés",
+      cs2_res_skipped: "Réglages ignorés",
+      cs2_autoexec_group: "Autoexec par tier",
+      cs2_launch_group: "Options de lancement par tier",
 
       /* Latence */
       latency_group: "Latence estimée",
@@ -626,6 +657,14 @@
       restore_created: "Restore point created.",
       restore_failed: "Creation failed.",
 
+      /* Optimizations — low-end machines */
+      tweak_lowend_badge: "Low-end",
+      chip_lowend: "Low-end",
+      lowend_banner: "Low-end machine detected — a tailored selection is available.",
+      lowend_banner_btn: "Select the low-end picks",
+      lowend_selected_one: "{n} low-end optimization selected (safe or moderate risk).",
+      lowend_selected_many: "{n} low-end optimizations selected (safe or moderate risk).",
+
       /* Games */
       games_title: "Games",
       games_sub: "Launch options and recommended settings for popular competitive games.",
@@ -652,6 +691,29 @@
       th_current: "Current",
       th_recommended: "Recommended",
       th_note: "Note",
+
+      /* CS2 panel — "For your machine" (tiers) */
+      cs2_machine_group: "For your machine",
+      cs2_tier_detected: "Detected tier",
+      cs2_tier_reasons: "Why this rating",
+      cs2_tier_select: "Recommendations tier",
+      tier_lowend: "Low-end",
+      tier_midrange: "Mid-range",
+      tier_highend: "High-end",
+      advice_kind_reco: "Recommended",
+      advice_kind_opinion: "Opinion",
+      advice_kind_info: "Info",
+      cs2_video_read: "cs2_video.txt read: compared against your current values.",
+      cs2_apply_video: "Apply video settings",
+      cs2_apply_video_body: "Overdrive only changes settings already present in your cs2_video.txt — never your resolution. An automatic backup is created in the config vault before anything is written, so you can roll back. If CS2 is running, the change will be refused: close the game first.",
+      cs2_apply_count_one: "{n} setting will be changed ({t} tier).",
+      cs2_apply_count_many: "{n} settings will be changed ({t} tier).",
+      cs2_apply_none: "Your settings already match this tier's recommendations: nothing to apply.",
+      cs2_val_same: "Matches",
+      cs2_res_changed: "Changed settings",
+      cs2_res_skipped: "Skipped settings",
+      cs2_autoexec_group: "Autoexec per tier",
+      cs2_launch_group: "Launch options per tier",
 
       /* Latency */
       latency_group: "Estimated latency",
@@ -1008,10 +1070,13 @@
     tweakSelection: new Set(),
     tweakSelectionInit: false,
     tweakFilter: "all",
+    tweakLowendOnly: false,  // filtre « Petite config » (cumulable aux catégories)
     tweakResults: {},        // id → {ok, message}
     games: null,             // GET /api/games → liste
     selectedGame: null,
     cs2: null,               // GET /api/games/cs2
+    cs2Tier: null,           // tier choisi dans le panneau (null = détecté)
+    cs2VideoResult: null,    // dernier résultat POST /api/games/cs2/video
     programs: null,          // GET /api/programs
     cleanTargets: null,      // GET /api/clean/scan (null = pas encore analysé)
     cleanScanning: false,
@@ -1837,6 +1902,16 @@
     }
     if (!alive(seq)) { return; }
 
+    /* Tier matériel encore inconnu (warm-up en cours) : retente une fois,
+       la route /api/status est instantanée (lecture du cache uniquement). */
+    if (state.status && !state.status.tier) {
+      try {
+        var st2 = await api("/api/status");
+        if (st2) { state.status = st2; }
+      } catch (eTier) { /* bandeau déjà affiché, tier simplement inconnu */ }
+      if (!alive(seq)) { return; }
+    }
+
     var tweaks = state.tweaks.tweaks || [];
     var supportedIds = {};
     tweaks.forEach(function (x) { if (x.supported !== false) { supportedIds[x.id] = true; } });
@@ -1874,6 +1949,17 @@
         "<span>" + esc(t("notice_not_admin")) + "</span></div>";
     }
 
+    /* Bannière sobre « petite config » : uniquement quand le tier détecté
+       par /api/status vaut lowend. Le bouton coche les tweaks lowend sûrs
+       ou modérés (jamais les avancés). */
+    if (st && st.tier === "lowend") {
+      note = '<div class="notice notice-lowend">' + icon("zap") +
+        "<span>" + esc(t("lowend_banner")) + "</span>" +
+        '<span class="spacer"></span>' +
+        '<button class="btn btn-sm" id="btn-lowend-select" type="button">' +
+        esc(t("lowend_banner_btn")) + "</button></div>" + note;
+    }
+
     var toolbar =
       '<div class="tweaks-toolbar">' +
       '<button class="btn btn-sm" id="btn-sel-profile" type="button"' +
@@ -1892,11 +1978,19 @@
       categories.map(function (c) {
         return '<button class="chip' + (state.tweakFilter === c.id ? " active" : "") + '" data-filter="' +
           esc(c.id) + '" type="button">' + esc(tr(c, "label")) + "</button>";
-      }).join("") + "</div>";
+      }).join("") +
+      '<span class="chip-sep" aria-hidden="true"></span>' +
+      '<button class="chip' + (state.tweakLowendOnly ? " active" : "") +
+      '" id="chip-lowend" type="button" aria-pressed="' + (state.tweakLowendOnly ? "true" : "false") + '">' +
+      esc(t("chip_lowend")) + "</button></div>";
 
     var groups = categories.map(function (c) {
       if (state.tweakFilter !== "all" && state.tweakFilter !== c.id) { return ""; }
-      var items = tweaks.filter(function (x) { return x.category === c.id; });
+      var items = tweaks.filter(function (x) {
+        if (x.category !== c.id) { return false; }
+        if (state.tweakLowendOnly && !x.lowend) { return false; }
+        return true;
+      });
       if (!items.length) { return ""; }
       var rows = items.map(tweakRowHtml).join("");
       return '<div class="tweak-group"><h2 class="tweak-group-head">' + esc(tr(c, "label")) +
@@ -1930,12 +2024,33 @@
     byId("btn-revert").addEventListener("click", onRevertTweaks);
     byId("btn-restore").addEventListener("click", onRestorePoint);
 
-    $all(".chip", area).forEach(function (chip) {
+    $all(".chip[data-filter]", area).forEach(function (chip) {
       chip.addEventListener("click", function () {
         state.tweakFilter = chip.dataset.filter;
         buildTweaksArea();
       });
     });
+
+    var lowendChip = byId("chip-lowend");
+    if (lowendChip) {
+      lowendChip.addEventListener("click", function () {
+        state.tweakLowendOnly = !state.tweakLowendOnly;
+        buildTweaksArea();
+      });
+    }
+
+    var lowendBtn = byId("btn-lowend-select");
+    if (lowendBtn) {
+      lowendBtn.addEventListener("click", function () {
+        var picked = tweaks.filter(function (x) {
+          return x.lowend && x.supported !== false &&
+            (x.risk === "sur" || x.risk === "modere");
+        }).map(function (x) { return x.id; });
+        state.tweakSelection = new Set(picked);
+        buildTweaksArea();
+        showBanner(tp(picked.length, "lowend_selected_one", "lowend_selected_many"), "ok");
+      });
+    }
 
     byId("tweaks-list").addEventListener("change", function (e) {
       var input = e.target;
@@ -1969,6 +2084,7 @@
       '<span class="tweak-name">' + esc(tr(x, "name")) + "</span>" +
       '<span class="badge ' + im.cls + '">' + esc(t(im.key)) + "</span>" +
       '<span class="badge ' + rk.cls + '">' + esc(t(rk.key)) + "</span>" +
+      (x.lowend ? '<span class="badge badge-outline">' + esc(t("tweak_lowend_badge")) + "</span>" : "") +
       '<span class="tweak-desc" title="' + esc(tr(x, "description")) + '">' + esc(tr(x, "description")) + "</span>" +
       status + "</label>" + resHtml;
   }
@@ -2689,14 +2805,38 @@
     if (game.id === "cs2") { loadCs2Panel(seq); }
   }
 
-  async function loadCs2Panel(seq) {
-    if (!state.cs2) {
+  /* ---- Panneau CS2 : tiers matériels (« Pour ta machine ») ---- */
+
+  /** Tiers reconnus, alignés sur TIERS côté serveur (cs2.py). */
+  var CS2_TIERS = ["lowend", "midrange", "highend"];
+
+  function cs2TierLabel(tier) {
+    return CS2_TIERS.indexOf(tier) >= 0 ? t("tier_" + tier) : (tier || "");
+  }
+
+  /** Réglages vidéo applicables ET différents de la valeur actuelle du joueur. */
+  function cs2VideoDiffs(info) {
+    var recs = (info && info.video_recommendations) || [];
+    return recs.filter(function (r) {
+      return r.applicable && r.current !== null && r.current !== undefined &&
+        String(r.current) !== String(r.recommended);
+    });
+  }
+
+  async function loadCs2Panel(seq, refresh) {
+    if (!state.cs2 || refresh) {
+      var box0 = byId("cs2-panel");
+      if (box0) { box0.innerHTML = '<div class="loading-line">' + esc(t("cs2_loading")) + "</div>"; }
       try {
-        state.cs2 = await api("/api/games/cs2");
+        var q = state.cs2Tier ? "?tier=" + encodeURIComponent(state.cs2Tier) : "";
+        state.cs2 = await api("/api/games/cs2" + q);
       } catch (e) {
         var boxErr = byId("cs2-panel");
         if (boxErr) { boxErr.innerHTML = '<p class="muted small">' + esc(t("cs2_unavailable")) + "</p>"; }
         return;
+      }
+      if (!state.cs2Tier && state.cs2 && CS2_TIERS.indexOf(state.cs2.selected_tier) >= 0) {
+        state.cs2Tier = state.cs2.selected_tier;
       }
     }
     if (!alive(seq)) { return; }
@@ -2706,8 +2846,31 @@
     bindCs2Panel(seq);
   }
 
+  /** Résultat persistant du dernier POST /api/games/cs2/video. */
+  function cs2VideoResultHtml() {
+    var res = state.cs2VideoResult;
+    if (!res) { return ""; }
+    var html = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>";
+    var changed = res.changed || [];
+    if (changed.length) {
+      html += '<div class="muted small" style="margin-top:4px">' + esc(t("cs2_res_changed")) + " : " +
+        changed.map(function (c) {
+          return '<span class="mono mono-inline">' + esc(c.key) + " " +
+            esc(c.old === null || c.old === undefined ? "—" : c.old) + " → " + esc(c.new) + "</span>";
+        }).join(" ") + "</div>";
+    }
+    var skipped = res.skipped || [];
+    if (res.ok && skipped.length) {
+      html += '<div class="muted small" style="margin-top:2px">' + esc(t("cs2_res_skipped")) + " : " +
+        skipped.length + "</div>";
+    }
+    return html;
+  }
+
   function cs2PanelHtml(info) {
     var profiles = (info && info.userdata_profiles) || [];
+    var tierInfo = (info && info.tier) || {};
+    var selTier = (info && CS2_TIERS.indexOf(info.selected_tier) >= 0) ? info.selected_tier : "midrange";
     var html = '<div class="group-label">' + esc(t("cs2_config")) + "</div>";
 
     if (!profiles.length) {
@@ -2722,36 +2885,123 @@
           '<span class="muted small mono clean-path" title="' + esc(p.cfg_dir) + '">' + esc(p.cfg_dir) + "</span>" +
           "</div>";
       }).join("");
-
-      var select = "";
-      if (profiles.length > 1) {
-        select = '<select class="input" id="cs2-user">' + profiles.map(function (p) {
-          return '<option value="' + esc(p.user_id) + '">' + esc(t("cs2_profile")) + " " + esc(p.user_id) + "</option>";
-        }).join("") + "</select> ";
-      }
-      html += '<div class="quick-actions" style="margin-top:12px">' + select +
-        '<button class="btn btn-primary btn-sm" id="btn-cs2-write" type="button">' + esc(t("cs2_write")) + "</button></div>" +
-        '<div class="small" id="cs2-write-result" style="margin-top:8px"></div>';
     }
 
+    /* ---- « Pour ta machine » : tier détecté, sélecteur, conseils ---- */
+    var reasons = (LANG === "en" && Array.isArray(tierInfo.reasons_en) && tierInfo.reasons_en.length) ?
+      tierInfo.reasons_en : (tierInfo.reasons || []);
+    var tierSeg = '<div class="seg" id="cs2-tier-seg">' + CS2_TIERS.map(function (tierId) {
+      return '<button type="button" data-tier="' + tierId + '"' +
+        (tierId === selTier ? ' class="active"' : "") + ">" + esc(cs2TierLabel(tierId)) + "</button>";
+    }).join("") + "</div>";
+
+    html += '<div class="group-label">' + esc(t("cs2_machine_group")) + "</div>" +
+      '<div class="cs2-machine">' +
+      '<div class="cs2-tier-head">' +
+      '<div><div class="muted small">' + esc(t("cs2_tier_detected")) + "</div>" +
+      '<div class="cs2-tier-label">' + esc(tr(tierInfo, "label") || cs2TierLabel(tierInfo.tier)) + "</div></div>" +
+      '<div class="cs2-tier-select"><div class="muted small">' + esc(t("cs2_tier_select")) + "</div>" +
+      tierSeg + "</div></div>" +
+      (reasons.length ?
+        '<details class="fold cs2-reasons"><summary>' + esc(t("cs2_tier_reasons")) + "</summary>" +
+        '<div class="fold-body"><ul class="muted small">' + reasons.map(function (r) {
+          return "<li>" + esc(r) + "</li>";
+        }).join("") + "</ul></div></details>" : "");
+
+    var advice = (info && info.advice) || [];
+    if (advice.length) {
+      var kindMeta = {
+        reco: { key: "advice_kind_reco", cls: "badge-blue" },
+        opinion: { key: "advice_kind_opinion", cls: "badge-yellow" },
+        info: { key: "advice_kind_info", cls: "badge-gray" }
+      };
+      html += '<ul class="cs2-advice">' + advice.map(function (a) {
+        var meta = kindMeta[a.kind] || kindMeta.info;
+        return '<li><div class="advice-title"><span class="badge ' + meta.cls + '">' +
+          esc(t(meta.key)) + "</span> " + esc(tr(a, "title")) + "</div>" +
+          '<div class="advice-detail">' + esc(tr(a, "detail")) + "</div></li>";
+      }).join("") + "</ul>";
+    }
+    html += "</div>";
+
+    /* ---- Réglages vidéo : comparaison actuel → recommandé + application ---- */
+    var recs = (info && info.video_recommendations) || [];
+    var diffs = cs2VideoDiffs(info);
+    if (recs.length) {
+      html += '<div class="group-label">' + esc(t("cs2_video_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(selTier)) + "</span></div>" +
+        '<p class="muted small" style="margin-top:0">' +
+        esc(info.video_settings ? t("cs2_video_read") : t("cs2_video_not_read")) + "</p>" +
+        '<table class="table cs2-video-table"><thead><tr><th>' + esc(t("th_param")) + "</th><th>" +
+        esc(t("th_current")) + "</th><th>" + esc(t("th_recommended")) + "</th><th>" +
+        esc(t("th_note")) + "</th></tr></thead><tbody>" +
+        recs.map(function (r) {
+          var current = r.current === null || r.current === undefined ? "—" : String(r.current);
+          var reco = r.recommended === null || r.recommended === undefined ? "—" : String(r.recommended);
+          var differs = r.applicable && current !== "—" && reco !== "—" && current !== reco;
+          var same = r.applicable && current !== "—" && current === reco;
+          var recoCell;
+          if (differs) {
+            recoCell = '<span class="val-arrow">→</span><span class="mono val-diff">' + esc(reco) + "</span>";
+          } else if (same) {
+            recoCell = '<span class="mono">' + esc(reco) + '</span> <span class="badge badge-green">' +
+              esc(t("cs2_val_same")) + "</span>";
+          } else {
+            recoCell = '<span class="mono">' + esc(reco) + "</span>";
+          }
+          var noteBits = [];
+          var note = tr(r, "note");
+          if (note) { noteBits.push(esc(note)); }
+          /* skip_reason masqué sur les réglages protégés : la note le dit déjà. */
+          if (!r.applicable && r.skip_reason && !r.protected) {
+            noteBits.push('<span class="muted">' + esc(r.skip_reason) + "</span>");
+          }
+          var menu = tr(r, "menu_path");
+          return "<tr><td><div>" + esc(tr(r, "label")) + "</div>" +
+            (menu ? '<span class="cs2-menu-path">' + esc(menu) + "</span>" : "") + "</td>" +
+            '<td class="mono">' + esc(current) + "</td>" +
+            '<td class="cs2-reco-cell">' + recoCell + "</td>" +
+            '<td class="muted small">' + noteBits.join("<br>") + "</td></tr>";
+        }).join("") + "</tbody></table>";
+
+      var applyDisabled = !info.video_settings || !profiles.length || !diffs.length;
+      html += '<div class="quick-actions" style="margin-top:12px">' +
+        '<button class="btn btn-primary btn-sm" id="btn-cs2-video-apply" type="button"' +
+        (applyDisabled ? " disabled" : "") + ">" + esc(t("cs2_apply_video")) + "</button>" +
+        (info.video_settings && profiles.length && !diffs.length ?
+          '<span class="muted small">' + esc(t("cs2_apply_none")) + "</span>" : "") +
+        "</div>" +
+        '<div class="small" id="cs2-video-result" style="margin-top:8px">' + cs2VideoResultHtml() + "</div>";
+    }
+
+    /* ---- Autoexec par tier : sélecteur de profil, écriture, aperçu ---- */
     if (info && info.autoexec_recommended) {
+      html += '<div class="group-label">' + esc(t("cs2_autoexec_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(selTier)) + "</span></div>";
+      if (profiles.length) {
+        var select = "";
+        if (profiles.length > 1) {
+          select = '<select class="input" id="cs2-user">' + profiles.map(function (p) {
+            return '<option value="' + esc(p.user_id) + '">' + esc(t("cs2_profile")) + " " + esc(p.user_id) + "</option>";
+          }).join("") + "</select> ";
+        }
+        html += '<div class="quick-actions">' + select +
+          '<button class="btn btn-primary btn-sm" id="btn-cs2-write" type="button">' + esc(t("cs2_write")) + "</button></div>" +
+          '<div class="small" id="cs2-write-result" style="margin-top:8px"></div>';
+      }
       html += '<details class="fold"><summary>' + esc(t("cs2_preview")) + "</summary>" +
         '<div class="fold-body"><div class="mono-block"><pre>' + esc(info.autoexec_recommended) + "</pre>" +
         '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div></div></details>";
     }
 
-    var recs = (info && info.video_recommendations) || [];
-    if (recs.length) {
-      html += '<div class="group-label">' + esc(t("cs2_video_group")) + "</div>";
-      if (!info.video_settings) {
-        html += '<p class="muted small">' + esc(t("cs2_video_not_read")) + "</p>";
-      }
-      html += '<table class="table"><thead><tr><th>' + esc(t("th_param")) + "</th><th>" + esc(t("th_current")) +
-        "</th><th>" + esc(t("th_recommended")) + "</th><th>" + esc(t("th_note")) + "</th></tr></thead><tbody>" +
-        recs.map(function (r) {
-          return '<tr><td class="mono">' + esc(r.key) + '</td><td class="mono">' + esc(r.current === null || r.current === undefined ? "—" : r.current) +
-            '</td><td class="mono">' + esc(r.recommended) + '</td><td class="muted small">' + esc(tr(r, "note")) + "</td></tr>";
-        }).join("") + "</tbody></table>";
+    /* ---- Options de lancement du tier sélectionné ---- */
+    var launch = (info && info.launch_options) || null;
+    if (launch && launch.options) {
+      html += '<div class="group-label">' + esc(t("cs2_launch_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(launch.tier || selTier)) + "</span></div>" +
+        '<div class="mono-block"><pre>' + esc(launch.options) + "</pre>" +
+        '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div>" +
+        (tr(launch, "note") ? '<p class="muted small">' + esc(tr(launch, "note")) + "</p>" : "");
     }
     return html;
   }
@@ -2760,6 +3010,67 @@
     var panel = byId("cs2-panel");
     if (!panel) { return; }
     bindCopyButtons(panel);
+    var info = state.cs2 || {};
+    var selTier = CS2_TIERS.indexOf(info.selected_tier) >= 0 ? info.selected_tier : "midrange";
+
+    /* Sélecteur de tier : recharge le panneau résolu pour ce tier. */
+    $all("#cs2-tier-seg button", panel).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var tier = btn.dataset.tier;
+        if (!tier || tier === state.cs2Tier) { return; }
+        state.cs2Tier = tier;
+        state.cs2VideoResult = null;
+        loadCs2Panel(seq, true);
+      });
+    });
+
+    /* Application sécurisée du plan vidéo (modale de confirmation). */
+    var applyBtn = byId("btn-cs2-video-apply");
+    if (applyBtn) {
+      applyBtn.addEventListener("click", function () {
+        var diffs = cs2VideoDiffs(info);
+        if (!diffs.length) { return; }
+        var listHtml = "<ul>" + diffs.map(function (r) {
+          return "<li>" + esc(tr(r, "label")) + ' : <span class="mono mono-inline">' +
+            esc(r.current) + " → " + esc(r.recommended) + "</span></li>";
+        }).join("") + "</ul>";
+        openModal({
+          title: t("cs2_apply_video"),
+          bodyHtml: "<p>" +
+            esc(tf(diffs.length > 1 ? "cs2_apply_count_many" : "cs2_apply_count_one",
+              { n: diffs.length, t: cs2TierLabel(selTier) })) + "</p>" + listHtml +
+            "<p>" + esc(t("cs2_apply_video_body")) + "</p>",
+          confirmLabel: t("cs2_apply_video"),
+          onConfirm: async function () {
+            var sel = byId("cs2-user");
+            var userId = sel ? sel.value : null;
+            var btn2 = byId("btn-cs2-video-apply");
+            setBusy(btn2, t("applying"));
+            var res;
+            try {
+              res = await api("/api/games/cs2/video", { body: { user_id: userId, tier: selTier } });
+            } catch (e) {
+              clearBusy(btn2);
+              return;
+            }
+            state.cs2VideoResult = res;
+            /* Refus serveur (CS2 lancé, fichier absent…) : le message exact
+               du serveur est affiché, en bandeau et sous le bouton. */
+            showBanner(res.message || "", res.ok ? "ok" : "error");
+            if (!alive(seq)) { return; }
+            if (res.ok) {
+              loadCs2Panel(seq, true);   /* relit le fichier : comparaison à jour */
+              return;
+            }
+            clearBusy(btn2);
+            var out = byId("cs2-video-result");
+            if (out) { out.innerHTML = cs2VideoResultHtml(); }
+          }
+        });
+      });
+    }
+
+    /* Écriture de l'autoexec du tier sélectionné. */
     var writeBtn = byId("btn-cs2-write");
     if (writeBtn) {
       writeBtn.addEventListener("click", async function () {
@@ -2767,13 +3078,16 @@
         var userId = sel ? sel.value : null;
         setBusy(writeBtn, t("writing"));
         try {
-          var res = await api("/api/games/cs2/autoexec", { body: { user_id: userId } });
+          var res = await api("/api/games/cs2/autoexec", { body: { user_id: userId, tier: selTier } });
+          if (res.ok) {
+            showBanner(res.message || "", "ok");
+            loadCs2Panel(seq, true);
+            return;
+          }
           var out = byId("cs2-write-result");
           if (out) {
-            out.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>" +
-              (res.ok && res.path ? ' <span class="mono mono-inline">' + esc(res.path) + "</span>" : "");
+            out.innerHTML = '<span class="err-text">' + esc(res.message || "") + "</span>";
           }
-          if (res.ok) { state.cs2 = null; loadCs2Panel(seq); return; }
         } catch (e) { /* bandeau déjà affiché */ }
         clearBusy(writeBtn);
       });

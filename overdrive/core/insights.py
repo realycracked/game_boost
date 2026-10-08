@@ -13,7 +13,13 @@ Détections couvertes :
   (ctypes ``user32``, la plus importante) ;
 * overlays gourmands actifs (processus via psutil) ;
 * pilote graphique ancien (CIM ``Win32_VideoController``) ;
-* plan d'alimentation Équilibré actif (``powercfg``).
+* plan d'alimentation Équilibré actif (``powercfg``) ;
+* 8 Go de RAM ou moins (cache :func:`detect_hardware`) ;
+* Windows installé sur un disque dur mécanique (module Storage,
+  ``MSFT_PhysicalDisk`` via PowerShell — ``Win32_DiskDrive.MediaType``
+  renvoie « Fixed hard disk media » pour tout, donc inutilisable) ;
+* fichier d'échange (pagefile) désactivé avec 16 Go de RAM ou moins
+  (``psutil.swap_memory``).
 """
 
 from __future__ import annotations
@@ -24,6 +30,7 @@ import re
 import subprocess
 from datetime import datetime, timezone
 
+from overdrive.core.hardware import detect_hardware
 from overdrive.paths import is_windows
 
 # ---------------------------------------------------------------------------
@@ -64,6 +71,20 @@ _PS_DRIVER_COMMAND = (
     "{ $_.DriverDate.ToString('yyyy-MM-dd') } else { $null }}} | "
     "ConvertTo-Json -Compress"
 )
+
+#: Type de média du disque système (C:) via le module Storage
+#: (``MSFT_PhysicalDisk``), seule source fiable : psutil ignore le type de
+#: média et ``Win32_DiskDrive.MediaType`` répond « Fixed hard disk media »
+#: pour tout. Sortie attendue : ``HDD``, ``SSD`` ou ``Unspecified``.
+_PS_SYSTEM_DISK_COMMAND = (
+    "Get-Partition -DriveLetter C | Get-Disk | Get-PhysicalDisk | "
+    "Select-Object -ExpandProperty MediaType"
+)
+
+#: Seuil (Go) sous lequel une machine est considérée « petite RAM ».
+_LOW_RAM_MAX_GB = 8.5
+#: Seuil (Go) sous lequel un pagefile désactivé est signalé comme risqué.
+_PAGEFILE_RAM_MAX_GB = 16.5
 
 #: Overlays connus pour coûter des FPS : {nom de processus en minuscules:
 #: (id, nom affiché, comment le couper FR, comment le couper EN)}.
@@ -426,6 +447,127 @@ def _detect_power_plan() -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# e) Petite config : RAM limitée (cache detect_hardware)
+# ---------------------------------------------------------------------------
+
+def _format_gb(value: float) -> str:
+    """Quantité en Go sans zéro décimal inutile (8.0 → « 8 », 7.8 → « 7.8 »)."""
+    return f"{value:g}"
+
+
+def _ram_total_gb() -> float | None:
+    """RAM totale en Go depuis le cache matériel, ``None`` si indisponible."""
+    ram = detect_hardware().get("ram")
+    total = ram.get("total_gb") if isinstance(ram, dict) else None
+    if isinstance(total, bool) or not isinstance(total, (int, float)):
+        return None
+    return float(total) if total > 0 else None
+
+
+def _detect_low_ram() -> list[dict]:
+    """Machine à 8 Go de RAM ou moins (severity conseil)."""
+    total = _ram_total_gb()
+    if total is None or total > _LOW_RAM_MAX_GB:
+        return []
+    total_str = _format_gb(total)
+    return [_insight(
+        "ram_low",
+        "conseil",
+        f"Mémoire vive limitée ({total_str} Go)",
+        f"Limited RAM ({total_str} GB)",
+        f"{total_str} Go de RAM détectés. Pendant le jeu, fermez navigateur, "
+        f"launchers et Discord en vidéo : c'est le gain le plus concret sur "
+        f"cette machine. Si votre carte mère le permet, passer à 16 Go est "
+        f"l'upgrade au meilleur rapport gain/prix, loin devant n'importe "
+        f"quel tweak.",
+        f"{total_str} GB of RAM detected. While gaming, close your browser, "
+        f"launchers and Discord video calls: that is the most tangible gain "
+        f"on this machine. If your motherboard allows it, moving to 16 GB "
+        f"is the best value-for-money upgrade there is, far ahead of any "
+        f"tweak.",
+        action_url=None,
+    )]
+
+
+# ---------------------------------------------------------------------------
+# f) Disque système mécanique (module Storage via PowerShell)
+# ---------------------------------------------------------------------------
+
+def _detect_system_hdd() -> list[dict]:
+    """Windows installé sur un disque dur mécanique (severity important)."""
+    proc = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-Command", _PS_SYSTEM_DISK_COMMAND],
+        shell=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+        creationflags=_creation_flags(),
+    )
+    if proc.returncode != 0:
+        return []
+    # Seule la réponse exacte « HDD » déclenche : « SSD », « Unspecified »,
+    # sortie vide ou erreur sont ignorés (best effort).
+    if (proc.stdout or "").strip() != "HDD":
+        return []
+    return [_insight(
+        "system_hdd",
+        "important",
+        "Windows installé sur un disque dur mécanique",
+        "Windows installed on a mechanical hard drive",
+        "Windows est installé sur un disque dur mécanique. Aucun tweak ne "
+        "compensera cela : temps de chargement longs et micro-blocages "
+        "viennent d'abord de ce disque. Un SSD SATA d'entrée de gamme "
+        "transformerait cette machine — c'est l'upgrade la plus rentable "
+        "qui existe. En attendant, laissez SysMain actif sauf si le disque "
+        "gratte en continu.",
+        "Windows is installed on a mechanical hard drive. No tweak will "
+        "make up for it: long load times and micro-freezes come first and "
+        "foremost from this disk. An entry-level SATA SSD would transform "
+        "this machine — it is the most cost-effective upgrade there is. In "
+        "the meantime, keep SysMain enabled unless the disk is thrashing "
+        "non-stop.",
+        action_url=None,
+    )]
+
+
+# ---------------------------------------------------------------------------
+# g) Pagefile désactivé (dégât classique d'« optimiseurs » tiers)
+# ---------------------------------------------------------------------------
+
+def _detect_pagefile_off() -> list[dict]:
+    """Fichier d'échange désactivé avec peu de RAM (severity important)."""
+    import psutil  # noqa: PLC0415 — import tardif pour un module léger
+
+    # Sous Windows, swap_memory() reflète le pagefile : total nul = désactivé.
+    if psutil.swap_memory().total != 0:
+        return []
+    total = _ram_total_gb()
+    # Au-delà de ~16 Go, désactiver le pagefile est un choix assumable.
+    if total is None or total > _PAGEFILE_RAM_MAX_GB:
+        return []
+    ram_str = _format_gb(total)
+    return [_insight(
+        "pagefile_off",
+        "important",
+        "Fichier d'échange (pagefile) désactivé",
+        "Page file disabled",
+        f"Le fichier d'échange (pagefile) est désactivé — souvent l'œuvre "
+        f"d'un “optimiseur” trop zélé. Avec {ram_str} Go de RAM, c'est la "
+        f"cause classique des crashs “mémoire insuffisante” dans les jeux "
+        f"récents. Remettez-le sur “Taille gérée par le système” : "
+        f"Paramètres > Système > Informations système > Paramètres avancés "
+        f"du système > Performances > Avancé > Mémoire virtuelle.",
+        f"The page file is disabled — often the work of an overzealous "
+        f"third-party “optimizer”. With {ram_str} GB of RAM, this is the "
+        f"classic cause of “out of memory” crashes in recent games. Set it "
+        f"back to “System managed size”: Settings > System > About > "
+        f"Advanced system settings > Performance > Advanced > Virtual "
+        f"memory.",
+        action_url=None,
+    )]
+
+
+# ---------------------------------------------------------------------------
 # API publique
 # ---------------------------------------------------------------------------
 
@@ -439,7 +581,9 @@ def get_insights() -> list[dict]:
         return []
     insights: list[dict] = []
     for detector in (_detect_refresh_rate, _detect_overlays,
-                     _detect_gpu_driver_age, _detect_power_plan):
+                     _detect_gpu_driver_age, _detect_power_plan,
+                     _detect_low_ram, _detect_system_hdd,
+                     _detect_pagefile_off):
         try:
             insights.extend(detector())
         except Exception:  # noqa: BLE001 — chaque détection reste best effort

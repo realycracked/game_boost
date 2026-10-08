@@ -4,6 +4,7 @@ import ctypes
 import logging
 import os
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -36,9 +37,18 @@ from . import APP_NAME, VERSION
 from .core.ai.chat import ask
 from .core.boost import run_boost
 from .core.cleaner import clean, scan
-from .core.games.cs2 import cs2_info, write_autoexec
+from .core.games.cs2 import (
+    TIERS,
+    apply_video_settings,
+    cs2_info,
+    detect_tier,
+    max_refresh_hz,
+    recommended_fps_max,
+    suggest_maxping,
+    write_autoexec,
+)
 from .core.games.detect import detect_games
-from .core.hardware import detect_hardware
+from .core.hardware import cached_tier, detect_hardware
 from .core.latency import REGIONS, measure
 from .core.monitor import sample
 from .core.programs import PROGRAMS, install_program, winget_available
@@ -99,6 +109,14 @@ def create_app() -> FastAPI:
     """Construit et retourne l'application FastAPI d'Overdrive."""
     application = FastAPI(title=APP_NAME, version=VERSION, docs_url=None, redoc_url=None)
 
+    # Warm-up matériel : la détection (cpu_percent 0,2 s + PowerShell GPU,
+    # timeout 10 s) tourne en arrière-plan dès le démarrage, pour que
+    # /api/status reste instantané (il lit cached_tier, jamais bloquant) et
+    # que le tier soit prêt avant que l'utilisateur atteigne la page
+    # Optimisations. La double vérification sous _CACHE_LOCK de
+    # detect_hardware rend ce thread sûr face aux appels concurrents.
+    threading.Thread(target=detect_hardware, daemon=True, name="hw-warmup").start()
+
     @application.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
         """Erreur imprévue → HTTP 500 générique (détail journalisé côté serveur)."""
@@ -153,8 +171,16 @@ def create_app() -> FastAPI:
 
     @application.get("/api/status")
     async def api_status() -> dict:
-        """État général de l'application."""
+        """État général de l'application.
+
+        ``hardware_tier`` (et son alias ``tier``) vaut ``null`` tant que la
+        détection matérielle n'a pas tourné : le front le traite comme
+        inconnu et retente après un chargement de ``/api/hardware``. La
+        lecture passe par :func:`cached_tier` qui ne déclenche JAMAIS de
+        détection — cette route doit rester instantanée.
+        """
         settings = get_settings()
+        tier = cached_tier()
         return {
             "app": APP_NAME,
             "version": VERSION,
@@ -165,6 +191,8 @@ def create_app() -> FastAPI:
             "profile": settings.get("profile"),
             "theme": settings.get("theme", "light"),
             "lang": settings.get("lang", "fr"),
+            "hardware_tier": tier,
+            "tier": tier,
         }
 
     # --------------------------------------------------------------- settings
@@ -227,19 +255,112 @@ def create_app() -> FastAPI:
         """Catalogue des jeux avec détection d'installation."""
         return {"games": detect_games()}
 
-    @application.get("/api/games/cs2")
-    def api_games_cs2() -> dict:
-        """Informations détaillées Counter-Strike 2."""
-        return cs2_info()
+    def _require_tier(value: Any) -> str | None:
+        """Valide un tier optionnel (``None`` accepté, sinon un tier connu)."""
+        if value is None:
+            return None
+        if not isinstance(value, str) or value not in TIERS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tier invalide : choix possibles : {', '.join(TIERS)}.",
+            )
+        return value
 
-    @application.post("/api/games/cs2/autoexec")
-    def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
-        """Écrit l'autoexec recommandé pour CS2."""
+    @application.get("/api/games/cs2")
+    def api_games_cs2(tier: str | None = None) -> dict:
+        """Informations détaillées Counter-Strike 2 (``?tier=`` force un tier)."""
+        return cs2_info(_require_tier(tier))
+
+    @application.post("/api/games/cs2/video")
+    def api_cs2_video(payload: Any = Body(default=None)) -> dict:
+        """Applique le plan vidéo du tier au cs2_video.txt du joueur.
+
+        Corps optionnel ``{"user_id": str|None, "tier": str|None}`` ; sans
+        tier, le tier détecté est utilisé. L'écriture est sécurisée côté
+        module (sauvegarde coffre, refus si CS2 tourne, clés présentes
+        uniquement) ; sous Linux la réponse est un refus propre.
+        """
         data = payload if isinstance(payload, dict) else {}
         user_id = data.get("user_id")
         if user_id is not None and not isinstance(user_id, str):
             raise HTTPException(status_code=400, detail="Le champ 'user_id' doit être une chaîne.")
-        return write_autoexec(user_id=user_id)
+        tier = _require_tier(data.get("tier"))
+        if tier is None:
+            tier = detect_tier().get("tier") or "midrange"
+        return apply_video_settings(user_id, tier)
+
+    @application.get("/api/games/cs2/suggestions")
+    def api_cs2_suggestions() -> dict:
+        """Suggestions dynamiques CS2 (appel coûteux isolé, à la demande).
+
+        La mesure de latence (bornée à ~8 s) vit ici et non dans
+        ``/api/games/cs2`` : le front l'appelle sur clic, pas au chargement.
+        """
+        tier_info = detect_tier()
+        hz_max = max_refresh_hz()
+        return {
+            "maxping": suggest_maxping(),
+            "fps_max": recommended_fps_max(tier_info, hz_max),
+            "hz_max": hz_max,
+            "tier": tier_info,
+        }
+
+    @application.post("/api/games/cs2/autoexec")
+    def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
+        """Écrit l'autoexec recommandé pour CS2 (rétrocompatible sans corps).
+
+        Corps optionnel ``{"user_id", "tier", "fps_max", "maxping",
+        "sensitivity", "zoom_ratio"}`` ; bornes alignées sur celles de
+        ``generate_autoexec`` (hors bornes => HTTP 400 plutôt qu'une ligne
+        commentée silencieuse dans le fichier écrit).
+        """
+        data = payload if isinstance(payload, dict) else {}
+        user_id = data.get("user_id")
+        if user_id is not None and not isinstance(user_id, str):
+            raise HTTPException(status_code=400, detail="Le champ 'user_id' doit être une chaîne.")
+        tier = _require_tier(data.get("tier"))
+        fps_max = data.get("fps_max")
+        if fps_max is not None and (
+                isinstance(fps_max, bool) or not isinstance(fps_max, int)
+                or not (fps_max == 0 or 60 <= fps_max <= 1000)):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'fps_max' doit valoir 0 (illimité) ou un entier de 60 à 1000.",
+            )
+        maxping = data.get("maxping")
+        if maxping is not None and (
+                isinstance(maxping, bool) or not isinstance(maxping, int)
+                or not 25 <= maxping <= 350):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'maxping' doit être un entier de 25 à 350.",
+            )
+        sensitivity = data.get("sensitivity")
+        if sensitivity is not None and (
+                isinstance(sensitivity, bool)
+                or not isinstance(sensitivity, (int, float))
+                or not 0 < float(sensitivity) <= 10):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'sensitivity' doit être un nombre entre 0 (exclu) et 10.",
+            )
+        zoom_ratio = data.get("zoom_ratio")
+        if zoom_ratio is not None and (
+                isinstance(zoom_ratio, bool)
+                or not isinstance(zoom_ratio, (int, float))
+                or not 0.5 <= float(zoom_ratio) <= 2.0):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'zoom_ratio' doit être un nombre entre 0,5 et 2,0.",
+            )
+        return write_autoexec(
+            user_id=user_id,
+            tier=tier,
+            fps_max=fps_max,
+            maxping=maxping,
+            sensitivity=float(sensitivity) if sensitivity is not None else None,
+            zoom_ratio=float(zoom_ratio) if zoom_ratio is not None else None,
+        )
 
     # --------------------------------------------------------------- programs
 
@@ -352,12 +473,18 @@ def create_app() -> FastAPI:
 
     @application.post("/api/quiz")
     def api_quiz_submit(payload: Any = Body(...)) -> dict:
-        """Calcule le profil, le sauvegarde et le retourne."""
+        """Calcule le profil, le sauvegarde et le retourne.
+
+        Le tier matériel est transmis via :func:`cached_tier` (jamais de
+        détection bloquante ici : le warm-up lancé par ``create_app`` rend
+        le cache presque toujours chaud à ce stade) pour basculer sur le
+        profil « petite_config » quand l'utilisateur ne connaît pas sa machine.
+        """
         data = _require_dict(payload)
         answers = data.get("answers")
         if not isinstance(answers, dict):
             raise HTTPException(status_code=400, detail="Le champ 'answers' doit être un objet.")
-        profile = compute_profile(answers)
+        profile = compute_profile(answers, tier=cached_tier())
         update_settings(profile=profile, quiz_answers=answers, first_run=False)
         return {"profile": profile}
 

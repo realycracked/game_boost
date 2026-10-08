@@ -114,6 +114,16 @@ _PROFILES: dict[str, dict] = {
             "plutôt que le pic de FPS."
         ),
     },
+    "petite_config": {
+        "label": "Petite config optimisée",
+        "description": (
+            "Réglages pensés pour les PC modestes : alléger Windows au maximum "
+            "(processus de fond, widgets, préchargements) sans toucher à ce qui "
+            "aide une petite machine, comme la compression mémoire. Soyons "
+            "honnêtes : les plus gros gains restent les réglages en jeu et, à "
+            "terme, un peu plus de RAM ou un SSD."
+        ),
+    },
 }
 
 _OBJECTIF_TO_PROFILE = {
@@ -145,7 +155,14 @@ def _multiple(answers: dict, question_id: str) -> list[str]:
 
 
 def _recommended_tweaks(profile_id: str, risk_max: str) -> list[str]:
-    """Ids de tweaks du catalogue adaptés au profil et au niveau de risque accepté."""
+    """Ids de tweaks du catalogue adaptés au profil et au niveau de risque accepté.
+
+    Pour le profil ``petite_config``, les tweaks marqués ``lowend=True``
+    dans le catalogue sont aussi retenus (toujours filtrés par le risque),
+    en plus du mécanisme ``default_for`` existant. Le champ ``lowend`` est
+    lu de façon tolérante : absent du catalogue, il vaut ``False`` et la
+    sélection retombe proprement sur ``default_for`` seul.
+    """
     try:
         # Import tardif pour éviter les cycles d'import.
         from overdrive.core.tweaks import catalog  # noqa: PLC0415
@@ -157,7 +174,12 @@ def _recommended_tweaks(profile_id: str, risk_max: str) -> list[str]:
     for tweak in getattr(catalog, "TWEAKS", []):
         profiles = tweak.get("default_for", [])
         risk_level = _RISK_ORDER.get(tweak.get("risk", "avance"), 2)
-        if profile_id in profiles and risk_level <= max_level:
+        if risk_level > max_level:
+            continue
+        selected = profile_id in profiles
+        if not selected and profile_id == "petite_config":
+            selected = tweak.get("lowend") is True
+        if selected:
             recommended.append(tweak["id"])
     return recommended
 
@@ -242,13 +264,33 @@ def _build_notes(answers: dict, profile_id: str, risk_max: str) -> list[str]:
             "QuickSync) dans OBS : il coûte beaucoup moins de FPS que l'encodage x264."
         )
 
+    if profile_id == "petite_config":
+        notes.append(
+            "Les tweaks Windows rapportent quelques FPS sur une petite config, pas "
+            "des miracles : les plus gros gains viennent des réglages en jeu "
+            "(résolution, FSR), de la fermeture du navigateur et des launchers "
+            "pendant la partie, et à terme d'un ajout de RAM ou d'un SSD."
+        )
+        notes.append(
+            "Fermez navigateur, Discord en vidéo et launchers pendant le jeu : avec "
+            "8 Go de RAM, chaque application de fond se paie en saccades."
+        )
+        notes.append(
+            "Sur un PC portable, le plan Performances ultimes augmente chauffe et "
+            "consommation : gardez-le pour les sessions branchées sur secteur."
+        )
+
     return notes
 
 
-def compute_profile(answers: dict) -> dict:
+def compute_profile(answers: dict, tier: str | None = None) -> dict:
     """Calcule le profil d'optimisation à partir des réponses au questionnaire.
 
     ``answers`` : ``{question_id: option_id | [option_ids]}``.
+    ``tier`` : tier matériel optionnel (valeur de
+    :func:`overdrive.core.hardware.hardware_tier`), utilisé pour basculer
+    sur le profil « petite_config » quand l'utilisateur ne sait pas décrire
+    sa machine. L'appel à un seul argument reste valide (rétro-compatible).
     """
     if not isinstance(answers, dict):
         answers = {}
@@ -259,6 +301,15 @@ def compute_profile(answers: dict) -> dict:
     # Un joueur "équilibre" qui crée du contenu/stream bascule sur le profil stream.
     if profile_id == "equilibre" and _single(answers, "usage") == "creation":
         profile_id = "stream"
+
+    # En dernier (priorité maximale) : une machine déclarée modeste — ou
+    # détectée « lowend » quand l'utilisateur ne sait pas — prend le profil
+    # dédié aux petites configurations.
+    config = _single(answers, "config")
+    if config == "modeste":
+        profile_id = "petite_config"
+    elif config == "je_ne_sais_pas" and tier == "lowend":
+        profile_id = "petite_config"
 
     risque = _single(answers, "risque")
     risk_max = risque if risque in _RISK_ORDER else "sur"
@@ -382,6 +433,16 @@ _PROFILES_EN: dict[str, dict] = {
             "over peak FPS."
         ),
     },
+    "petite_config": {
+        "label": "Low-end tuned",
+        "description": (
+            "Settings designed for modest PCs: trim Windows down as much as "
+            "possible (background processes, widgets, preloading) without "
+            "touching what actually helps a small machine, such as memory "
+            "compression. Let's be honest: the biggest gains still come from "
+            "in-game settings and, down the road, a bit more RAM or an SSD."
+        ),
+    },
 }
 
 for _question in QUESTIONS:
@@ -479,6 +540,23 @@ def _build_notes_en(answers: dict, profile_id: str, risk_max: str) -> list[str]:
         notes.append(
             "For streaming, use your GPU's hardware encoder (NVENC, AMF or "
             "QuickSync) in OBS: it costs far fewer FPS than x264 encoding."
+        )
+
+    if profile_id == "petite_config":
+        notes.append(
+            "Windows tweaks buy a few FPS on a low-end PC, not miracles: the "
+            "biggest gains come from in-game settings (resolution, FSR), from "
+            "closing your browser and launchers while you play, and down the "
+            "road from adding RAM or an SSD."
+        )
+        notes.append(
+            "Close your browser, Discord video calls and launchers while "
+            "gaming: with 8 GB of RAM, every background app costs you "
+            "stutter."
+        )
+        notes.append(
+            "On a laptop, the Ultimate Performance plan increases heat and "
+            "power draw: save it for sessions plugged into the mains."
         )
 
     return notes
