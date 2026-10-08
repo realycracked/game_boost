@@ -4,6 +4,7 @@ import ctypes
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
@@ -44,6 +45,7 @@ from .core.programs import PROGRAMS, install_program, winget_available
 from .core.quiz import QUESTIONS, compute_profile
 from .core.report import build_report, report_filename
 from .core.secure_store import PROVIDERS, delete_key, list_keys, set_key
+from .core.autostart import get_autostart, set_widget_autostart
 from .core.startup import list_startup, set_startup_enabled
 from .core.tweaks.catalog import CATEGORIES
 from .core.tweaks.engine import (
@@ -426,6 +428,64 @@ def create_app() -> FastAPI:
                 "message": f"Erreur inattendue de l'assistant : {exc}",
                 "provider": provider or "",
             }
+
+    # ----------------------------------------------------------------- widget
+
+    @application.get("/api/widget")
+    def api_widget_get() -> dict:
+        """Réglages du widget et état réel du démarrage automatique."""
+        from .core.widgetcfg import get_widget_settings
+
+        return {"widget": get_widget_settings(), "autostart": get_autostart()}
+
+    @application.post("/api/widget")
+    def api_widget_post(payload: Any = Body(...)) -> dict:
+        """Met à jour les réglages du widget (fusion partielle validée).
+
+        Si "autostart" est fourni, l'entrée de démarrage Windows est
+        synchronisée en plus du réglage persistant.
+        """
+        from .core.widgetcfg import update_widget_settings
+
+        data = _require_dict(payload)
+        config = update_widget_settings(data)
+        autostart_result = None
+        if "autostart" in data:
+            autostart_result = set_widget_autostart(config["autostart"])
+        return {
+            "widget": config,
+            "autostart": get_autostart(),
+            "autostart_result": autostart_result,
+        }
+
+    @application.post("/api/widget/launch")
+    def api_widget_launch() -> dict:
+        """Lance le widget dans un processus détaché."""
+        import subprocess
+
+        if getattr(sys, "frozen", False):
+            command = [sys.executable, "--widget"]
+        else:
+            run_py = Path(__file__).resolve().parent.parent / "run.py"
+            command = [sys.executable, str(run_py), "--widget"]
+        kwargs: dict[str, Any] = {}
+        if is_windows():
+            kwargs["creationflags"] = (
+                getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                | getattr(subprocess, "DETACHED_PROCESS", 0)
+            )
+        try:
+            subprocess.Popen(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                **kwargs,
+            )
+            return {"ok": True, "message": "Widget lancé."}
+        except Exception:
+            log.exception("Échec du lancement du widget")
+            return {"ok": False, "message": "Impossible de lancer le widget."}
 
     return application
 

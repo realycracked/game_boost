@@ -864,6 +864,130 @@ details.fold .fold-body { padding: 0 12px 12px; }
 
 .quiz-result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
+/* ---------- Moniteur ---------- */
+
+.mon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.mon-card .mon-label { font-size: 12.5px; color: var(--text-2); margin-bottom: 4px; }
+.mon-card .mon-value { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.mon-card .mon-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; min-height: 18px; }
+
+.spark-box { margin-top: 10px; color: var(--accent); }
+svg.spark { display: block; width: 100%; height: 44px; }
+
+.proc-name { max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Démarrage (interrupteurs) ---------- */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 19px;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch .track {
+  position: absolute;
+  inset: 0;
+  background: var(--badge-gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  pointer-events: none;
+}
+
+.switch .track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease;
+}
+
+.switch input:checked + .track { background: var(--accent); border-color: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(15px); }
+.switch input:disabled { cursor: not-allowed; }
+.switch input:disabled + .track { opacity: 0.5; }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.startup-state { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.startup-state .state-label { font-size: 12.5px; color: var(--text-2); min-width: 70px; }
+
+/* ---------- Latence estimée ---------- */
+
+.lat-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lat-note { margin: 0; max-width: 620px; }
+.lat-results { margin-top: 12px; }
+.lat-ms { white-space: nowrap; }
+
+/* ---------- Boost ---------- */
+
+.boost-steps { margin: 12px 0 4px; padding: 0; list-style: none; }
+
+.boost-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.boost-steps li:last-child { border-bottom: none; }
+
+.boost-steps .step-ic {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--text-2);
+  display: inline-flex;
+}
+.boost-steps .step-ic.ok { color: var(--green); }
+.boost-steps .step-ic.fail { color: var(--red); }
+
+.boost-steps .step-body { min-width: 0; }
+.boost-steps .step-name { display: block; font-weight: 600; }
+.boost-steps .step-msg { display: block; font-size: 12.5px; color: var(--text-2); margin-top: 1px; }
+
+.boost-details { margin: 6px 0 0; padding-left: 16px; font-size: 12.5px; color: var(--text-2); }
+.boost-details li { margin: 2px 0; }
+
+.boost-restore {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 0 2px;
+  cursor: pointer;
+  color: var(--text);
+}
+
 /* ---------- États de chargement ---------- */
 
 .loading-line { color: var(--text-2); font-size: 13px; padding: 12px 0; }
