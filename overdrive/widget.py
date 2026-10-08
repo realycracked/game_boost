@@ -28,6 +28,12 @@ _EDGE_MARGIN = 16        # marge avec le bord de l'écran (position par défaut)
 _POLL_S = 3.0            # période de surveillance (jeu + config relue)
 _MOVE_DEBOUNCE_S = 0.8   # anti-rebond de la sauvegarde de position
 
+# Raccourci clavier global Ctrl+F10 (Windows uniquement) : afficher/masquer.
+_HOTKEY_ID = 1
+_MOD_CONTROL = 0x0002    # RegisterHotKey : modificateur Ctrl
+_VK_F10 = 0x79           # touche virtuelle F10
+_WM_HOTKEY = 0x0312      # message Windows reçu quand le raccourci est pressé
+
 
 def _initial_size(cfg: dict[str, Any]) -> tuple[int, int]:
     """Taille initiale estimée selon l'échelle et les éléments actifs.
@@ -40,11 +46,12 @@ def _initial_size(cfg: dict[str, Any]) -> tuple[int, int]:
     active = [name for name, on in elements.items() if on] or ["fps"]
     count = len(active)
     extra_game = 70 if "game" in active else 0
+    extra_temp = 50 if "temp" in active else 0  # deux valeurs ("GPU 64° CPU 55°")
     if cfg.get("layout") == "column":
-        width = 210 + extra_game // 2
+        width = 210 + (extra_game + extra_temp) // 2
         height = 34 + 40 * count
     else:
-        width = 44 + 96 * count + extra_game
+        width = 44 + 96 * count + extra_game + extra_temp
         height = 70
     width = int(width * factor)
     height = int(height * factor)
@@ -82,6 +89,36 @@ def _apply_click_through(enabled: bool) -> bool:
         return False
 
 
+def _hotkey_loop(runtime: _WidgetRuntime) -> None:
+    """Boucle du raccourci global Ctrl+F10 : bascule afficher/masquer le widget.
+
+    Windows uniquement (le thread n'est pas lancé ailleurs). RegisterHotKey
+    doit être appelé depuis le thread qui pompe les messages, d'où la boucle
+    ``GetMessageW`` ici même. Si le raccourci est déjà pris par une autre
+    application : warning dans le log, aucun crash. Thread daemon : meurt
+    avec le processus. Jamais d'exception.
+    """
+    try:
+        import ctypes  # noqa: PLC0415 — Windows uniquement
+        import ctypes.wintypes  # noqa: PLC0415
+
+        user32 = ctypes.windll.user32  # type: ignore[attr-defined]
+        if not user32.RegisterHotKey(None, _HOTKEY_ID, _MOD_CONTROL, _VK_F10):
+            log.warning(
+                "Raccourci Ctrl+F10 indisponible (déjà utilisé par une autre application)."
+            )
+            return
+        try:
+            msg = ctypes.wintypes.MSG()
+            while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+                if msg.message == _WM_HOTKEY and msg.wParam == _HOTKEY_ID:
+                    runtime.toggle_visibility()
+        finally:
+            user32.UnregisterHotKey(None, _HOTKEY_ID)
+    except Exception:
+        pass
+
+
 class _WidgetRuntime:
     """État partagé entre le pont JS, la fenêtre et la boucle de surveillance."""
 
@@ -89,6 +126,11 @@ class _WidgetRuntime:
         self.wait_game = wait_game
         self.window: Any = None
         self.user_hidden = False
+        #: Masquage manuel (Ctrl+F10) : tant qu'il est actif, le mode
+        #: --wait-game ne re-montre PAS la fenêtre ; seul un nouveau Ctrl+F10
+        #: (demande explicite de l'utilisateur) la ré-affiche.
+        self.manual_hidden = False
+        self._visible = not wait_game  # état suivi (create_window: hidden=wait_game)
         self._game_present = False
         self._fps_process: str | None = None
         self._gamemode_process: str | None = None
@@ -146,11 +188,14 @@ class _WidgetRuntime:
             gamemode.deactivate()
             self._gamemode_process = None
 
-        # Mode --wait-game : la fenêtre suit la présence d'un jeu.
+        # Mode --wait-game : la fenêtre suit la présence d'un jeu — sauf si
+        # l'utilisateur l'a masquée manuellement (Ctrl+F10) : on respecte son
+        # choix tant qu'il ne la re-demande pas.
         if self.wait_game and self.window is not None:
             if game is not None and not self._game_present:
                 self.user_hidden = False
-                self._set_visible(True)
+                if not self.manual_hidden:
+                    self._set_visible(True)
             elif game is None and self._game_present:
                 self._set_visible(False)
         self._game_present = game is not None
@@ -161,6 +206,27 @@ class _WidgetRuntime:
                 self.window.show()
             else:
                 self.window.hide()
+            self._visible = visible
+        except Exception:
+            pass
+
+    def toggle_visibility(self) -> None:
+        """Bascule manuelle (Ctrl+F10) : force l'état affiché/caché.
+
+        Masquer pose ``manual_hidden`` (le mode jeu ne re-montrera pas la
+        fenêtre) ; ré-afficher lève ``manual_hidden`` et ``user_hidden``.
+        Jamais d'exception (appelé depuis le thread du raccourci).
+        """
+        try:
+            if self.window is None:
+                return
+            if self._visible:
+                self.manual_hidden = True
+                self._set_visible(False)
+            else:
+                self.manual_hidden = False
+                self.user_hidden = False
+                self._set_visible(True)
         except Exception:
             pass
 
@@ -241,12 +307,13 @@ class _Bridge:
     # ----- lecture -----------------------------------------------------------
 
     def get_state(self) -> dict[str, Any]:
-        """Instantané : stats allégées (monitor + FPS), config du widget, jeu."""
+        """Instantané : stats allégées (monitor + FPS + températures), config, jeu."""
         stats: dict[str, Any] = {
             "cpu_percent": None,
             "ram": {"percent": None, "used_gb": None},
             "net": {"down_mbps": None, "up_mbps": None},
             "fps": None,
+            "temps": {"gpu_c": None, "cpu_c": None, "source": None},
         }
         try:
             from .core import monitor  # noqa: PLC0415
@@ -263,6 +330,12 @@ class _Bridge:
             from .core import fps  # noqa: PLC0415
 
             stats["fps"] = fps.get_fps()
+        except Exception:
+            pass
+        try:
+            from .core.temps import read_temps  # noqa: PLC0415 — import tardif
+
+            stats["temps"] = read_temps()
         except Exception:
             pass
         game: dict[str, Any] | None = None
@@ -294,7 +367,7 @@ class _Bridge:
             return widgetcfg.get_widget_settings()
 
     def set_element(self, name: Any, visible: Any) -> dict[str, Any]:
-        """Affiche/masque un élément (fps, game, cpu, ram, net, clock)."""
+        """Affiche/masque un élément (fps, game, cpu, ram, net, clock, temp)."""
         return self._update({"elements": {str(name): bool(visible)}})
 
     def set_opacity(self, value: Any) -> dict[str, Any]:
@@ -422,6 +495,12 @@ def run_widget(wait_game: bool = False) -> None:
         window.events.closing += runtime.on_closing
     except Exception:
         pass
+    if is_windows():
+        # Raccourci global Ctrl+F10 (afficher/masquer) : thread daemon dédié,
+        # RegisterHotKey + GetMessageW devant vivre sur le même thread.
+        threading.Thread(
+            target=_hotkey_loop, args=(runtime,), daemon=True, name="overdrive-hotkey"
+        ).start()
     log.info("Widget démarré (wait_game=%s).", wait_game)
     try:
         webview.start(func=runtime.watch_loop)
