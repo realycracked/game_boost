@@ -335,7 +335,38 @@
       quiz_analyzing: "Analyse…",
       quiz_profile_prefix: "Profil : {p}",
       quiz_notes_title: "Conseils personnalisés",
-      quiz_see_tweaks: "Voir mes optimisations"
+      quiz_see_tweaks: "Voir mes optimisations",
+      continue_lbl: "Continuer",
+      widget_group: "Widget en jeu",
+      widget_note: "Petite fenêtre déplaçable par-dessus le jeu : FPS et infos système. Chaque réglage s'applique immédiatement.",
+      widget_elements: "Informations affichées",
+      widget_el_fps: "FPS", widget_el_game: "Jeu", widget_el_cpu: "CPU",
+      widget_el_ram: "RAM", widget_el_net: "Réseau", widget_el_clock: "Heure",
+      widget_theme: "Thème du widget",
+      widget_theme_desc: "Minimal = texte seul, sans fond : ne masque rien.",
+      widget_theme_dark: "Sombre", widget_theme_light: "Clair", widget_theme_minimal: "Minimal",
+      widget_layout: "Disposition",
+      widget_layout_row: "Ligne", widget_layout_col: "Colonne",
+      widget_opacity: "Opacité",
+      widget_scale: "Taille",
+      widget_click_through: "Cliquer à travers",
+      widget_click_through_desc: "La souris passe au travers du widget. Désactivable ici à tout moment.",
+      widget_autostart: "Démarrage automatique",
+      widget_autostart_desc: "Quand le widget doit-il se lancer ?",
+      widget_auto_never: "Jamais",
+      widget_auto_always: "Au démarrage de Windows",
+      widget_auto_game: "Quand un jeu se lance",
+      widget_launch: "Lancer le widget",
+      widget_launched: "Widget lancé.",
+      widget_saved: "Réglages du widget enregistrés.",
+      widget_save_err: "Impossible d'enregistrer les réglages du widget.",
+      ob_title: "Démarrage automatique",
+      ob_sub: "Choisissez quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
+      ob_never_desc: "Le widget ne se lance que manuellement.",
+      ob_always_desc: "Le widget est présent dès l'allumage du PC.",
+      ob_game_desc: "Invisible au quotidien, il apparaît quand un de vos jeux démarre et disparaît à sa fermeture.",
+      ob_launch_now: "Lancer le widget maintenant",
+      ob_finish: "Terminer"
     },
     en: {
       /* Navigation and chrome */
@@ -656,7 +687,38 @@
       quiz_analyzing: "Analyzing…",
       quiz_profile_prefix: "Profile: {p}",
       quiz_notes_title: "Personalized tips",
-      quiz_see_tweaks: "See my optimizations"
+      quiz_see_tweaks: "See my optimizations",
+      continue_lbl: "Continue",
+      widget_group: "In-game widget",
+      widget_note: "Small movable window on top of the game: FPS and system info. Every setting applies instantly.",
+      widget_elements: "Displayed information",
+      widget_el_fps: "FPS", widget_el_game: "Game", widget_el_cpu: "CPU",
+      widget_el_ram: "RAM", widget_el_net: "Network", widget_el_clock: "Clock",
+      widget_theme: "Widget theme",
+      widget_theme_desc: "Minimal = text only, no background: hides nothing.",
+      widget_theme_dark: "Dark", widget_theme_light: "Light", widget_theme_minimal: "Minimal",
+      widget_layout: "Layout",
+      widget_layout_row: "Row", widget_layout_col: "Column",
+      widget_opacity: "Opacity",
+      widget_scale: "Size",
+      widget_click_through: "Click-through",
+      widget_click_through_desc: "The mouse passes through the widget. Can be turned off here anytime.",
+      widget_autostart: "Autostart",
+      widget_autostart_desc: "When should the widget launch?",
+      widget_auto_never: "Never",
+      widget_auto_always: "At Windows startup",
+      widget_auto_game: "When a game starts",
+      widget_launch: "Launch widget",
+      widget_launched: "Widget launched.",
+      widget_saved: "Widget settings saved.",
+      widget_save_err: "Could not save widget settings.",
+      ob_title: "Autostart",
+      ob_sub: "Choose when the widget (FPS and info over the game) should launch. You can change this anytime in Settings.",
+      ob_never_desc: "The widget only launches manually.",
+      ob_always_desc: "The widget is there as soon as the PC boots.",
+      ob_game_desc: "Invisible day to day; it appears when one of your games starts and goes away when it closes.",
+      ob_launch_now: "Launch the widget now",
+      ob_finish: "Finish"
     }
   };
 
@@ -2487,8 +2549,132 @@
     } catch (e) {
       state.aiKeys = state.aiKeys || { keys: [] };
     }
+    try {
+      state.widgetCfg = await api("/api/widget");
+    } catch (e) {
+      state.widgetCfg = state.widgetCfg || null;
+    }
     if (!alive(seq)) { return; }
     buildSettingsArea(seq);
+  }
+
+  /** Enregistre un réglage partiel du widget et rafraîchit la section. */
+  async function saveWidget(partial, seq, silent) {
+    try {
+      var res = await api("/api/widget", { body: partial });
+      state.widgetCfg = res;
+      if (res && res.autostart_result && res.autostart_result.ok === false) {
+        showBanner(res.autostart_result.message || t("widget_save_err"), "error");
+      } else if (!silent) {
+        showBanner(t("widget_saved"), "ok");
+      }
+      return res;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** HTML de la section Widget des Réglages. */
+  function widgetSectionHtml() {
+    var cfg = state.widgetCfg && state.widgetCfg.widget;
+    if (!cfg) { return ""; }
+    var els = cfg.elements || {};
+    var elNames = ["fps", "game", "cpu", "ram", "net", "clock"];
+    var checks = elNames.map(function (n) {
+      return '<label class="check-item"><input type="checkbox" data-wel="' + n + '"' +
+        (els[n] ? " checked" : "") + "> " + esc(t("widget_el_" + n)) + "</label>";
+    }).join("");
+    function seg(name, values, labels, current) {
+      return '<div class="seg" data-wseg="' + name + '">' + values.map(function (v, i) {
+        return '<button type="button" data-val="' + v + '"' +
+          (v === current ? ' class="active"' : "") + ">" + esc(labels[i]) + "</button>";
+      }).join("") + "</div>";
+    }
+    return '<div class="group-label">' + esc(t("widget_group")) + "</div>" +
+      '<div class="card">' +
+      '<p class="muted small" style="margin-top:0">' + esc(t("widget_note")) + "</p>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_elements")) + "</div></div>" +
+      '<div class="set-controls check-grid">' + checks + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_theme")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_theme_desc")) + "</div></div>" +
+      '<div class="set-controls">' + seg("theme", ["dark", "light", "minimal"],
+        [t("widget_theme_dark"), t("widget_theme_light"), t("widget_theme_minimal")], cfg.theme) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_layout")) + "</div></div>" +
+      '<div class="set-controls">' + seg("layout", ["row", "column"],
+        [t("widget_layout_row"), t("widget_layout_col")], cfg.layout) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_scale")) + "</div></div>" +
+      '<div class="set-controls">' + seg("scale", ["s", "m", "l"], ["S", "M", "L"], cfg.scale) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_opacity")) + "</div></div>" +
+      '<div class="set-controls"><input type="range" id="widget-opacity" min="10" max="100" step="5" value="' +
+      Math.round((cfg.opacity || 0.92) * 100) + '"> <span class="mono mono-inline" id="widget-opacity-val">' +
+      Math.round((cfg.opacity || 0.92) * 100) + "%</span></div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_click_through")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_click_through_desc")) + "</div></div>" +
+      '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-ct"' +
+      (cfg.click_through ? " checked" : "") + "></label></div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_autostart")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_autostart_desc")) + "</div></div>" +
+      '<div class="set-controls"><select class="input" id="widget-autostart">' +
+      [["never", t("widget_auto_never")], ["always", t("widget_auto_always")], ["game", t("widget_auto_game")]]
+        .map(function (o) {
+          return '<option value="' + o[0] + '"' + (cfg.autostart === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
+        }).join("") + "</select>" +
+      '<button class="btn btn-sm" id="widget-launch" type="button">' + esc(t("widget_launch")) + "</button>" +
+      "</div></div></div>";
+  }
+
+  /** Liaisons de la section Widget des Réglages. */
+  function bindWidgetSection(area, seq) {
+    if (!state.widgetCfg || !state.widgetCfg.widget) { return; }
+    $all("[data-wel]", area).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var el = {}; el[cb.dataset.wel] = cb.checked;
+        saveWidget({ elements: el }, seq, true);
+      });
+    });
+    $all("[data-wseg]", area).forEach(function (segEl) {
+      $all("button", segEl).forEach(function (b) {
+        b.addEventListener("click", async function () {
+          var partial = {}; partial[segEl.dataset.wseg] = b.dataset.val;
+          await saveWidget(partial, seq, true);
+          $all("button", segEl).forEach(function (x) { x.classList.toggle("active", x === b); });
+        });
+      });
+    });
+    var op = byId("widget-opacity");
+    if (op) {
+      op.addEventListener("input", function () {
+        var lbl = byId("widget-opacity-val");
+        if (lbl) { lbl.textContent = op.value + "%"; }
+      });
+      op.addEventListener("change", function () {
+        saveWidget({ opacity: Number(op.value) / 100 }, seq, true);
+      });
+    }
+    var ct = byId("widget-ct");
+    if (ct) {
+      ct.addEventListener("change", function () {
+        saveWidget({ click_through: ct.checked }, seq, true);
+      });
+    }
+    var autoSel = byId("widget-autostart");
+    if (autoSel) {
+      autoSel.addEventListener("change", function () {
+        saveWidget({ autostart: autoSel.value }, seq);
+      });
+    }
+    var launch = byId("widget-launch");
+    if (launch) {
+      launch.addEventListener("click", async function () {
+        setBusy(launch, t("widget_launch"));
+        try {
+          var res = await api("/api/widget/launch", { method: "POST" });
+          showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+            (res && res.ok) ? "ok" : "error");
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(launch);
+      });
+    }
   }
 
   function buildSettingsArea(seq) {
@@ -2557,6 +2743,8 @@
       '<div class="set-status">' + esc(t("report_desc")) + "</div></div>" +
       '<div class="set-controls"><a class="btn btn-sm" href="/api/report" download>' +
       icon("download") + " " + esc(t("report_download")) + "</a></div></div></div>" +
+
+      widgetSectionHtml() +
 
       '<div class="group-label">' + esc(t("quiz_group")) + "</div>" +
       '<div class="card"><div class="settings-row">' +
@@ -2644,6 +2832,8 @@
       b.addEventListener("click", function () { setLang(b.dataset.lang); });
     });
     updateThemeLabel();
+
+    bindWidgetSection(area, seq);
 
     byId("btn-redo-quiz").addEventListener("click", function () { openQuiz(false); });
   }
@@ -2808,10 +2998,16 @@
         '<div class="quiz-notes"><div class="quiz-notes-title">' + esc(t("quiz_notes_title")) + "</div><ul>" +
         notes.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul></div>" : "") +
       '<div class="quiz-result-actions">' +
-      '<button class="btn btn-primary" id="quiz-goto-tweaks" type="button">' + esc(t("quiz_see_tweaks")) + "</button>" +
-      '<button class="btn" id="quiz-close" type="button">' + esc(t("close")) + "</button>" +
+      (quiz.firstRun ?
+        '<button class="btn btn-primary" id="quiz-continue" type="button">' + esc(t("continue_lbl")) + "</button>" :
+        '<button class="btn btn-primary" id="quiz-goto-tweaks" type="button">' + esc(t("quiz_see_tweaks")) + "</button>" +
+        '<button class="btn" id="quiz-close" type="button">' + esc(t("close")) + "</button>") +
       "</div></div></div></div>";
 
+    if (quiz.firstRun) {
+      byId("quiz-continue").addEventListener("click", renderAutostartStep);
+      return;
+    }
     byId("quiz-goto-tweaks").addEventListener("click", function () {
       closeQuiz();
       state.pendingProfileSelect = true;
@@ -2820,6 +3016,69 @@
     byId("quiz-close").addEventListener("click", function () {
       closeQuiz();
       render();
+    });
+  }
+
+  /** Étape d'onboarding : démarrage automatique du widget (premier lancement). */
+  function renderAutostartStep() {
+    var root = byId("overlay-root");
+    if (!root) { return; }
+    var chosen = "never";
+    var options = [
+      { id: "never", label: t("widget_auto_never"), desc: t("ob_never_desc") },
+      { id: "always", label: t("widget_auto_always"), desc: t("ob_always_desc") },
+      { id: "game", label: t("widget_auto_game"), desc: t("ob_game_desc") }
+    ];
+
+    function optionsHtml() {
+      return options.map(function (o) {
+        var selected = o.id === chosen;
+        return '<button class="quiz-opt' + (selected ? " selected" : "") + '" data-ob="' + o.id + '" type="button">' +
+          '<span class="opt-mark round"><span class="opt-dot-inner"></span></span>' +
+          '<span class="opt-text">' + esc(o.label) +
+          '<span class="opt-desc">' + esc(o.desc) + "</span></span></button>";
+      }).join("");
+    }
+
+    root.innerHTML =
+      '<div class="quiz-overlay"><div class="quiz-inner">' +
+      '<h2 class="quiz-question">' + esc(t("ob_title")) + "</h2>" +
+      '<p class="quiz-hint">' + esc(t("ob_sub")) + "</p>" +
+      '<div class="quiz-options" id="ob-options">' + optionsHtml() + "</div>" +
+      '<div class="quiz-result-actions">' +
+      '<button class="btn" id="ob-launch" type="button">' + esc(t("ob_launch_now")) + "</button>" +
+      '<button class="btn btn-primary" id="ob-finish" type="button">' + esc(t("ob_finish")) + "</button>" +
+      "</div></div></div>";
+
+    function bindOptions() {
+      $all("[data-ob]", root).forEach(function (b) {
+        b.addEventListener("click", function () {
+          chosen = b.dataset.ob;
+          byId("ob-options").innerHTML = optionsHtml();
+          bindOptions();
+        });
+      });
+    }
+    bindOptions();
+
+    byId("ob-launch").addEventListener("click", async function () {
+      var btn = byId("ob-launch");
+      setBusy(btn, t("ob_launch_now"));
+      try {
+        var res = await api("/api/widget/launch", { method: "POST" });
+        showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+          (res && res.ok) ? "ok" : "error");
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    });
+
+    byId("ob-finish").addEventListener("click", async function () {
+      var btn = byId("ob-finish");
+      setBusy(btn, t("ob_finish"));
+      await saveWidget({ autostart: chosen }, 0, true);
+      closeQuiz();
+      state.pendingProfileSelect = true;
+      if (currentRoute() === "/tweaks") { render(); } else { window.location.hash = "#/tweaks"; }
     });
   }
 
