@@ -176,7 +176,9 @@ class _WidgetRuntime:
             from .core import gamemode  # noqa: PLC0415 — import tardif léger
 
             if process is not None and process != self._gamemode_process:
-                gamemode.activate(process)
+                gamemode.activate(
+                    process, pause_updates=bool(cfg.get("pause_updates"))
+                )
                 self._gamemode_process = process
             elif process is None and self._gamemode_process is not None:
                 gamemode.deactivate()
