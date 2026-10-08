@@ -30,6 +30,7 @@ DEFAULTS: dict[str, Any] = {
         "ram": True,
         "net": False,
         "clock": False,
+        "temp": False,     # températures GPU/CPU (masqué si non mesurables)
     },
     "theme": "dark",       # "dark" | "light" | "minimal" (texte seul, sans fond)
     "layout": "row",       # "row" | "column"
@@ -39,6 +40,7 @@ DEFAULTS: dict[str, Any] = {
     "position": None,      # None ou {"x": int, "y": int}
     "click_through": False,
     "gamemode": False,     # mode jeu automatique (plan performant + priorité)
+    "pause_updates": False,  # mode jeu : suspendre Windows Update pendant la partie
 }
 
 
@@ -112,6 +114,11 @@ def _validate(raw: Any) -> dict[str, Any]:
     if "gamemode" in raw:
         cfg["gamemode"] = _as_bool(raw.get("gamemode"), bool(DEFAULTS["gamemode"]))
 
+    if "pause_updates" in raw:
+        cfg["pause_updates"] = _as_bool(
+            raw.get("pause_updates"), bool(DEFAULTS["pause_updates"])
+        )
+
     return cfg
 
 
@@ -154,6 +161,8 @@ def update_widget_settings(partial: dict[str, Any]) -> dict[str, Any]:
                 current[key] = _as_bool(value, bool(current["click_through"]))
             elif key == "gamemode":
                 current[key] = _as_bool(value, bool(current["gamemode"]))
+            elif key == "pause_updates":
+                current[key] = _as_bool(value, bool(current["pause_updates"]))
     validated = _validate(current)
     try:
         store.update_settings(widget=validated)

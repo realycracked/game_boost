@@ -523,6 +523,123 @@ def create_app() -> FastAPI:
             update_widget_settings(data["widget"])
         return {"ok": True, "message": "Profil importé.", "imported": sorted(updates.keys())}
 
+    # ------------------------------------------------------- vague 4 (outils)
+
+    @application.get("/api/sens/games")
+    def api_sens_games() -> dict:
+        """Jeux pris en charge par le convertisseur de sensibilité."""
+        from .core.sensitivity import GAMES_SENS
+
+        return {"games": GAMES_SENS}
+
+    @application.post("/api/sens/convert")
+    def api_sens_convert(payload: Any = Body(...)) -> dict:
+        """Convertit une sensibilité (jeu, sens, DPI) vers tous les jeux."""
+        from .core.sensitivity import convert
+
+        data = _require_dict(payload)
+        game = data.get("game")
+        sens = data.get("sens")
+        dpi = data.get("dpi")
+        if not isinstance(game, str) or not isinstance(sens, (int, float)) \
+                or not isinstance(dpi, int):
+            raise HTTPException(
+                status_code=400,
+                detail="Champs requis : 'game' (str), 'sens' (nombre), 'dpi' (entier).",
+            )
+        return convert(game, float(sens), dpi)
+
+    @application.get("/api/crosshairs")
+    def api_crosshairs() -> dict:
+        """Bibliothèque de viseurs CS2."""
+        from .core.crosshairs import CROSSHAIRS
+
+        return {"crosshairs": CROSSHAIRS}
+
+    @application.get("/api/vault")
+    def api_vault() -> dict:
+        """Cibles sauvegardables et sauvegardes existantes du coffre de configs."""
+        from .core.configvault import list_backups, vault_targets
+
+        return {"targets": vault_targets(), "backups": list_backups()}
+
+    @application.post("/api/vault/backup")
+    def api_vault_backup(payload: Any = Body(default=None)) -> dict:
+        """Sauvegarde les configurations de jeux sélectionnées (ou toutes)."""
+        from .core.configvault import backup
+
+        data = payload if isinstance(payload, dict) else {}
+        ids = data.get("ids")
+        if ids is not None and (not isinstance(ids, list)
+                                or not all(isinstance(i, str) for i in ids)):
+            raise HTTPException(status_code=400, detail="Le champ 'ids' doit être une liste de chaînes.")
+        return backup(ids)
+
+    @application.post("/api/vault/restore")
+    def api_vault_restore(payload: Any = Body(...)) -> dict:
+        """Restaure une sauvegarde du coffre (sauvegarde de sécurité automatique)."""
+        from .core.configvault import restore
+
+        data = _require_dict(payload)
+        backup_id = data.get("id")
+        ids = data.get("ids")
+        if not isinstance(backup_id, str) or not backup_id:
+            raise HTTPException(status_code=400, detail="Le champ 'id' est requis.")
+        if ids is not None and (not isinstance(ids, list)
+                                or not all(isinstance(i, str) for i in ids)):
+            raise HTTPException(status_code=400, detail="Le champ 'ids' doit être une liste de chaînes.")
+        return restore(backup_id, ids)
+
+    @application.post("/api/vault/delete")
+    def api_vault_delete(payload: Any = Body(...)) -> dict:
+        """Supprime une sauvegarde du coffre."""
+        from .core.configvault import delete_backup
+
+        data = _require_dict(payload)
+        backup_id = data.get("id")
+        if not isinstance(backup_id, str) or not backup_id:
+            raise HTTPException(status_code=400, detail="Le champ 'id' est requis.")
+        return delete_backup(backup_id)
+
+    @application.post("/api/netstab")
+    def api_netstab(payload: Any = Body(default=None)) -> dict:
+        """Test de stabilité réseau (perte de paquets et gigue)."""
+        from .core.netstab import run_stability
+
+        data = payload if isinstance(payload, dict) else {}
+        region = data.get("region")
+        duration = data.get("duration")
+        if region is not None and not isinstance(region, str):
+            raise HTTPException(status_code=400, detail="Le champ 'region' doit être une chaîne.")
+        if duration is not None and not isinstance(duration, int):
+            raise HTTPException(status_code=400, detail="Le champ 'duration' doit être un entier.")
+        return run_stability(region, duration if duration is not None else 20)
+
+    @application.get("/api/netusage")
+    def api_netusage() -> dict:
+        """Activité réseau : débits globaux, connexions par application, suspects."""
+        from .core.netusage import snapshot
+
+        return snapshot()
+
+    @application.get("/api/schedule")
+    def api_schedule_get() -> dict:
+        """État du nettoyage planifié hebdomadaire."""
+        from .core.scheduler import get_schedule
+
+        return get_schedule()
+
+    @application.post("/api/schedule")
+    def api_schedule_set(payload: Any = Body(...)) -> dict:
+        """Active ou désactive le nettoyage planifié hebdomadaire."""
+        from .core.scheduler import set_schedule
+
+        data = _require_dict(payload)
+        enabled = data.get("enabled")
+        if not isinstance(enabled, bool):
+            raise HTTPException(status_code=400, detail="Le champ 'enabled' doit être un booléen.")
+        return set_schedule(enabled)
+
     # ----------------------------------------------------------------- widget
 
     @application.get("/api/widget")
