@@ -429,6 +429,100 @@ def create_app() -> FastAPI:
                 "provider": provider or "",
             }
 
+    # ------------------------------------------------------- vague 3 (outils)
+    # Imports tardifs : ces modules sont déployés progressivement et le
+    # serveur doit démarrer même si l'un d'eux manque encore.
+
+    @application.post("/api/bench")
+    def api_bench_run() -> dict:
+        """Lance le mini-benchmark (10-15 s) et renvoie le résultat."""
+        from .core.bench import run_bench
+
+        return run_bench()
+
+    @application.get("/api/bench/history")
+    def api_bench_history() -> dict:
+        """Historique des benchmarks."""
+        from .core.bench import get_history
+
+        return {"history": get_history()}
+
+    @application.get("/api/insights")
+    def api_insights() -> dict:
+        """Détections intelligentes (écran, overlays, pilotes, alimentation)."""
+        from .core.insights import get_insights
+
+        return {"insights": get_insights()}
+
+    @application.get("/api/debloat")
+    def api_debloat_list() -> dict:
+        """Applications préinstallées supprimables."""
+        from .core.debloat import list_installed
+
+        return {"apps": list_installed()}
+
+    @application.post("/api/debloat/remove")
+    def api_debloat_remove(payload: Any = Body(...)) -> dict:
+        """Supprime les applications préinstallées sélectionnées."""
+        from .core.debloat import remove
+
+        return {"results": remove(_require_ids(payload))}
+
+    @application.get("/api/update/check")
+    def api_update_check() -> dict:
+        """Vérifie si une version plus récente est publiée."""
+        from .core.updater import check_update
+
+        return check_update()
+
+    @application.get("/api/profile/export")
+    def api_profile_export() -> JSONResponse:
+        """Exporte le profil et les réglages dans un fichier JSON."""
+        from datetime import datetime, timezone
+
+        from .core.widgetcfg import get_widget_settings
+
+        settings = get_settings()
+        payload = {
+            "app": APP_NAME,
+            "version": VERSION,
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "profile": settings.get("profile"),
+            "quiz_answers": settings.get("quiz_answers"),
+            "theme": settings.get("theme"),
+            "lang": settings.get("lang", "fr"),
+            "widget": get_widget_settings(),
+        }
+        filename = "overdrive-profil.json"
+        return JSONResponse(
+            content=payload,
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+
+    @application.post("/api/profile/import")
+    def api_profile_import(payload: Any = Body(...)) -> dict:
+        """Importe un profil exporté (profil, réponses, réglages, widget)."""
+        from .core.widgetcfg import update_widget_settings
+
+        data = _require_dict(payload)
+        if data.get("app") != APP_NAME:
+            raise HTTPException(status_code=400, detail="Fichier d'export Overdrive invalide.")
+        updates: dict[str, Any] = {}
+        if isinstance(data.get("profile"), dict):
+            updates["profile"] = data["profile"]
+            updates["first_run"] = False
+        if isinstance(data.get("quiz_answers"), dict):
+            updates["quiz_answers"] = data["quiz_answers"]
+        if data.get("theme") in ("light", "dark"):
+            updates["theme"] = data["theme"]
+        if data.get("lang") in ("fr", "en"):
+            updates["lang"] = data["lang"]
+        if updates:
+            update_settings(**updates)
+        if isinstance(data.get("widget"), dict):
+            update_widget_settings(data["widget"])
+        return {"ok": True, "message": "Profil importé.", "imported": sorted(updates.keys())}
+
     # ----------------------------------------------------------------- widget
 
     @application.get("/api/widget")

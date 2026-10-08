@@ -366,7 +366,10 @@
       ob_always_desc: "Le widget est présent dès l'allumage du PC.",
       ob_game_desc: "Invisible au quotidien, il apparaît quand un de vos jeux démarre et disparaît à sa fermeture.",
       ob_launch_now: "Lancer le widget maintenant",
-      ob_finish: "Terminer"
+      ob_finish: "Terminer",
+      chat_apply: "Appliquer",
+      chat_applied: "Appliqué",
+      chat_apply_fail: "Échec de l'application."
     },
     en: {
       /* Navigation and chrome */
@@ -718,7 +721,10 @@
       ob_always_desc: "The widget is there as soon as the PC boots.",
       ob_game_desc: "Invisible day to day; it appears when one of your games starts and goes away when it closes.",
       ob_launch_now: "Launch the widget now",
-      ob_finish: "Finish"
+      ob_finish: "Finish",
+      chat_apply: "Apply",
+      chat_applied: "Applied",
+      chat_apply_fail: "Could not apply."
     }
   };
 
@@ -2496,14 +2502,40 @@
         '<span class="small">' + esc(t("chat_example")) + "</span></div>";
     } else {
       html = state.chat.map(function (m) {
+        var body = formatChatText(m.content);
+        if (m.role !== "user") {
+          // Marqueurs [[tweak:id]] émis par l'assistant → bouton Appliquer.
+          body = body.replace(/\[\[tweak:([a-z0-9_]+)\]\]/g, function (_, id) {
+            return ' <button class="btn btn-sm chat-apply" type="button" data-apply-tweak="' +
+              id + '">' + esc(t("chat_apply")) + ' <span class="mono mono-inline">' + id + "</span></button>";
+          });
+        }
         return '<div class="msg ' + (m.role === "user" ? "msg-user" : "msg-assistant") + '">' +
-          formatChatText(m.content) + "</div>";
+          body + "</div>";
       }).join("");
       if (state.chatBusy) { html += '<div class="msg-pending">' + esc(t("chat_pending")) + "</div>"; }
       if (state.chatError) { html += '<div class="msg-error">' + esc(state.chatError) + "</div>"; }
     }
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
+    $all("[data-apply-tweak]", box).forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var id = btn.dataset.applyTweak;
+        setBusy(btn, t("chat_apply"));
+        try {
+          var res = await api("/api/tweaks/apply", { body: { ids: [id] } });
+          var r = res && res.results && res.results[0];
+          if (r && r.ok) {
+            btn.textContent = t("chat_applied");
+            btn.disabled = true;
+            showBanner(r.message || t("chat_applied"), "ok");
+            return;
+          }
+          showBanner((r && r.message) || t("chat_apply_fail"), "error");
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(btn);
+      });
+    });
     var send = byId("chat-send");
     if (send) { send.disabled = state.chatBusy; }
   }
