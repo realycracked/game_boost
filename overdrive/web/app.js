@@ -369,7 +369,48 @@
       ob_finish: "Terminer",
       chat_apply: "Appliquer",
       chat_applied: "Appliqué",
-      chat_apply_fail: "Échec de l'application."
+      chat_apply_fail: "Échec de l'application.",
+      insights_group: "Conseils pour votre machine",
+      insights_none: "Rien à signaler : votre configuration ne présente aucun des problèmes courants détectables.",
+      insights_badge_important: "Important",
+      insights_badge_conseil: "Conseil",
+      insights_action: "Ouvrir la page",
+      bench_btn: "Benchmark",
+      bench_title: "Benchmark rapide",
+      bench_intro: "Mesure CPU (mono et multi-cœur), mémoire et disque en une dizaine de secondes. Fermez les applications lourdes pour un résultat fiable. Idéal avant/après l'application d'optimisations.",
+      bench_run: "Lancer la mesure",
+      bench_running: "Mesure en cours (~10 s)…",
+      bench_score: "Score global",
+      bench_cpu_single: "CPU (1 cœur)",
+      bench_cpu_multi: "CPU (multi)",
+      bench_ram: "Mémoire",
+      bench_disk_w: "Disque (écriture)",
+      bench_disk_r: "Disque (lecture)",
+      bench_prev: "Mesure précédente : {s} ({d})",
+      bench_err: "Échec du benchmark.",
+      debloat_group: "Applications préinstallées",
+      debloat_note: "Applications livrées avec Windows et rarement utiles sur un PC de jeu. La suppression ne concerne que votre session et chaque application reste réinstallable depuis le Microsoft Store.",
+      debloat_installed: "Installée",
+      debloat_absent: "Absente",
+      debloat_unknown: "État inconnu",
+      debloat_remove: "Supprimer la sélection ({n})",
+      debloat_removing: "Suppression…",
+      debloat_done: "{n} application(s) supprimée(s).",
+      update_group: "Mise à jour",
+      update_name: "Version de l'application",
+      update_check: "Vérifier",
+      update_checking: "Vérification…",
+      update_available: "Nouvelle version disponible : {t}",
+      update_download: "Télécharger",
+      update_none: "Vous êtes à jour.",
+      backup_group: "Sauvegarde du profil",
+      backup_export: "Exporter",
+      backup_export_desc: "Profil, réponses au questionnaire et réglages du widget dans un fichier JSON.",
+      backup_import: "Importer",
+      backup_imported: "Profil importé.",
+      backup_import_err: "Fichier d'export invalide.",
+      gamemode_name: "Mode jeu automatique",
+      gamemode_desc: "Quand un jeu démarre : plan d'alimentation performance et priorité haute du jeu ; tout est restauré à sa fermeture. Nécessite que le widget tourne."
     },
     en: {
       /* Navigation and chrome */
@@ -724,7 +765,48 @@
       ob_finish: "Finish",
       chat_apply: "Apply",
       chat_applied: "Applied",
-      chat_apply_fail: "Could not apply."
+      chat_apply_fail: "Could not apply.",
+      insights_group: "Advice for your machine",
+      insights_none: "Nothing to report: your setup shows none of the common detectable issues.",
+      insights_badge_important: "Important",
+      insights_badge_conseil: "Tip",
+      insights_action: "Open page",
+      bench_btn: "Benchmark",
+      bench_title: "Quick benchmark",
+      bench_intro: "Measures CPU (single and multi-core), memory and disk in about ten seconds. Close heavy apps for a reliable result. Ideal before/after applying optimizations.",
+      bench_run: "Run benchmark",
+      bench_running: "Measuring (~10 s)…",
+      bench_score: "Overall score",
+      bench_cpu_single: "CPU (1 core)",
+      bench_cpu_multi: "CPU (multi)",
+      bench_ram: "Memory",
+      bench_disk_w: "Disk (write)",
+      bench_disk_r: "Disk (read)",
+      bench_prev: "Previous run: {s} ({d})",
+      bench_err: "Benchmark failed.",
+      debloat_group: "Preinstalled apps",
+      debloat_note: "Apps bundled with Windows and rarely useful on a gaming PC. Removal only affects your account and every app can be reinstalled from the Microsoft Store.",
+      debloat_installed: "Installed",
+      debloat_absent: "Not present",
+      debloat_unknown: "Unknown state",
+      debloat_remove: "Remove selection ({n})",
+      debloat_removing: "Removing…",
+      debloat_done: "{n} app(s) removed.",
+      update_group: "Update",
+      update_name: "Application version",
+      update_check: "Check",
+      update_checking: "Checking…",
+      update_available: "New version available: {t}",
+      update_download: "Download",
+      update_none: "You are up to date.",
+      backup_group: "Profile backup",
+      backup_export: "Export",
+      backup_export_desc: "Profile, questionnaire answers and widget settings in a JSON file.",
+      backup_import: "Import",
+      backup_imported: "Profile imported.",
+      backup_import_err: "Invalid export file.",
+      gamemode_name: "Automatic game mode",
+      gamemode_desc: "When a game starts: performance power plan and high priority for the game; everything is restored when it closes. Requires the widget to be running."
     }
   };
 
@@ -1065,6 +1147,11 @@
     byId("modal-x").addEventListener("click", close);
     byId("modal-cancel").addEventListener("click", close);
     byId("modal-confirm").addEventListener("click", function () {
+      if (opts.keepOpen) {
+        // La modale reste ouverte (ex. benchmark) : onConfirm gère l'affichage.
+        if (opts.onConfirm) { opts.onConfirm(); }
+        return;
+      }
       root.hidden = true;
       root.innerHTML = "";
       if (opts.onConfirm) { opts.onConfirm(); }
@@ -1176,11 +1263,15 @@
       '<div class="quick-actions">' +
       '<button class="btn btn-primary" id="btn-boost" type="button">' + icon("zap") + " " + esc(t("boost_btn")) + "</button>" +
       '<button class="btn" id="btn-quick-clean" type="button">' + icon("search") + " " + esc(t("quick_clean")) + "</button>" +
+      '<button class="btn" id="btn-bench" type="button">' + icon("activity") + " " + esc(t("bench_btn")) + "</button>" +
       "</div>" +
+      '<div class="group-label">' + esc(t("insights_group")) + "</div>" +
+      '<div id="insights-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
       '<div class="group-label">' + esc(t("programs_group")) + "</div>" +
       '<div id="programs-area"><div class="loading-line">' + esc(t("programs_loading")) + "</div></div>";
 
     byId("btn-boost").addEventListener("click", openBoostModal);
+    byId("btn-bench").addEventListener("click", openBenchModal);
     byId("btn-quick-clean").addEventListener("click", function () {
       state.autoScan = true;
       if (currentRoute() === "/clean") { render(); } else { window.location.hash = "#/clean"; }
@@ -1195,6 +1286,89 @@
     loadHardware(seq, false);
     loadHomeStats(seq);
     loadPrograms(seq);
+    loadInsights(seq);
+  }
+
+  /** Charge et affiche les conseils (détections intelligentes). */
+  async function loadInsights(seq) {
+    var area = byId("insights-area");
+    if (!area) { return; }
+    var items = [];
+    try {
+      var res = await api("/api/insights");
+      items = (res && res.insights) || [];
+    } catch (e) {
+      items = [];
+    }
+    if (!alive(seq)) { return; }
+    area = byId("insights-area");
+    if (!area) { return; }
+    if (!items.length) {
+      area.innerHTML = '<div class="card"><p class="muted small" style="margin:0">' +
+        esc(t("insights_none")) + "</p></div>";
+      return;
+    }
+    area.innerHTML = '<div class="card">' + items.map(function (it) {
+      var badge = it.severity === "important" ?
+        '<span class="badge badge-red">' + esc(t("insights_badge_important")) + "</span>" :
+        '<span class="badge badge-yellow">' + esc(t("insights_badge_conseil")) + "</span>";
+      return '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' + badge + " " + esc(tr(it, "title")) + "</div>" +
+        '<div class="set-status">' + esc(tr(it, "detail")) + "</div></div>" +
+        (it.action_url ?
+          '<div class="set-controls"><a class="btn btn-sm" href="' + esc(it.action_url) +
+          '" target="_blank" rel="noopener">' + icon("external") + " " + esc(t("insights_action")) + "</a></div>" : "") +
+        "</div>";
+    }).join("") + "</div>";
+  }
+
+  /** Modale du mini-benchmark avant/après. */
+  function openBenchModal() {
+    var prev = null;
+    api("/api/bench/history").then(function (h) {
+      prev = (h && h.history && h.history[0]) || null;
+    }).catch(function () { /* silencieux */ });
+
+    openModal({
+      title: t("bench_title"),
+      bodyHtml: '<p>' + esc(t("bench_intro")) + '</p><div id="bench-out"></div>',
+      confirmLabel: t("bench_run"),
+      keepOpen: true,
+      onConfirm: async function () {
+        var out = byId("bench-out");
+        var btn = byId("modal-confirm");
+        if (out) { out.innerHTML = '<div class="loading-line">' + esc(t("bench_running")) + "</div>"; }
+        if (btn) { btn.disabled = true; }
+        try {
+          var r = await api("/api/bench", { method: "POST" });
+          var s = r.scores || {};
+          function row(lbl, val, unit) {
+            return '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(lbl) +
+              '</div></div><div class="set-controls"><span class="mono mono-inline">' + val + (unit || "") + "</span></div></div>";
+          }
+          var html =
+            '<div class="card" style="margin-top:12px">' +
+            row(t("bench_score"), '<strong>' + Math.round(r.total) + "</strong>") +
+            row(t("bench_cpu_single"), Math.round(s.cpu_single)) +
+            row(t("bench_cpu_multi"), Math.round(s.cpu_multi)) +
+            row(t("bench_ram"), Math.round(s.ram_mbps), " Mo/s") +
+            row(t("bench_disk_w"), Math.round(s.disk_write_mbps), " Mo/s") +
+            row(t("bench_disk_r"), Math.round(s.disk_read_mbps), " Mo/s") +
+            "</div>";
+          if (prev && prev.total) {
+            var delta = ((r.total - prev.total) / prev.total) * 100;
+            var sign = delta >= 0 ? "+" : "";
+            html += '<p class="muted small">' +
+              esc(tf("bench_prev", { s: Math.round(prev.total), d: sign + delta.toFixed(1) + " %" })) + "</p>";
+          }
+          if (out) { out.innerHTML = html; }
+          prev = r;
+        } catch (e) {
+          if (out) { out.innerHTML = '<p class="muted small">' + esc(t("bench_err")) + "</p>"; }
+        }
+        if (btn) { btn.disabled = false; }
+      }
+    });
   }
 
   function statCard(id, label, value, note) {
@@ -2011,12 +2185,83 @@
     page.innerHTML =
       '<h1 class="page-title">' + esc(t("clean_title")) + "</h1>" +
       '<p class="page-sub">' + esc(t("clean_sub")) + "</p>" +
-      '<div id="clean-area"></div>';
+      '<div id="clean-area"></div>' +
+      '<div class="group-label">' + esc(t("debloat_group")) + "</div>" +
+      '<div id="debloat-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
     buildCleanArea(seq);
+    loadDebloat(seq);
     if (state.autoScan) {
       state.autoScan = false;
       doCleanScan(seq);
     }
+  }
+
+  /** Charge puis affiche les applications préinstallées supprimables. */
+  async function loadDebloat(seq) {
+    try {
+      var res = await api("/api/debloat");
+      state.debloat = (res && res.apps) || [];
+    } catch (e) {
+      state.debloat = [];
+    }
+    if (!alive(seq)) { return; }
+    buildDebloatArea(seq);
+  }
+
+  function buildDebloatArea(seq) {
+    var area = byId("debloat-area");
+    if (!area) { return; }
+    var apps = state.debloat || [];
+    if (!apps.length) {
+      area.innerHTML = "";
+      return;
+    }
+    var rows = apps.map(function (a) {
+      var badge = a.installed === true ?
+        '<span class="badge badge-green">' + esc(t("debloat_installed")) + "</span>" :
+        a.installed === false ?
+          '<span class="badge">' + esc(t("debloat_absent")) + "</span>" :
+          '<span class="badge badge-yellow">' + esc(t("debloat_unknown")) + "</span>";
+      var disabled = a.installed === false ? " disabled" : "";
+      return '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' +
+        '<label class="check-item"><input type="checkbox" data-debloat="' + esc(a.id) + '"' + disabled + "> " +
+        esc(a.name) + "</label> " + badge + "</div>" +
+        '<div class="set-status">' + esc(tr(a, "description")) + "</div></div>" +
+        "</div>";
+    }).join("");
+    area.innerHTML = '<div class="card">' +
+      '<p class="muted small" style="margin-top:0">' + esc(t("debloat_note")) + "</p>" + rows +
+      '<div style="margin-top:12px"><button class="btn btn-danger" id="btn-debloat" type="button" disabled>' +
+      esc(tf("debloat_remove", { n: 0 })) + "</button></div></div>";
+
+    function selected() {
+      return $all("[data-debloat]:checked", area).map(function (c) { return c.dataset.debloat; });
+    }
+    function refreshBtn() {
+      var btn = byId("btn-debloat");
+      var n = selected().length;
+      btn.disabled = n === 0;
+      btn.textContent = tf("debloat_remove", { n: n });
+    }
+    $all("[data-debloat]", area).forEach(function (c) { c.addEventListener("change", refreshBtn); });
+    byId("btn-debloat").addEventListener("click", async function () {
+      var ids = selected();
+      if (!ids.length) { return; }
+      var btn = byId("btn-debloat");
+      setBusy(btn, t("debloat_removing"));
+      try {
+        var res = await api("/api/debloat/remove", { body: { ids: ids } });
+        var results = (res && res.results) || [];
+        var okCount = results.filter(function (r) { return r.ok; }).length;
+        var firstErr = results.find(function (r) { return !r.ok; });
+        if (okCount) { showBanner(tf("debloat_done", { n: okCount }), "ok"); }
+        if (firstErr) { showBanner(firstErr.message, "error"); }
+        loadDebloat(seq);
+        return;
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    });
   }
 
   function buildCleanArea(seq) {
@@ -2644,6 +2889,10 @@
       '<div class="set-status">' + esc(t("widget_click_through_desc")) + "</div></div>" +
       '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-ct"' +
       (cfg.click_through ? " checked" : "") + "></label></div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("gamemode_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("gamemode_desc")) + "</div></div>" +
+      '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-gamemode"' +
+      (cfg.gamemode ? " checked" : "") + "></label></div></div>" +
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_autostart")) + "</div>" +
       '<div class="set-status">' + esc(t("widget_autostart_desc")) + "</div></div>" +
       '<div class="set-controls"><select class="input" id="widget-autostart">' +
@@ -2687,6 +2936,12 @@
     if (ct) {
       ct.addEventListener("change", function () {
         saveWidget({ click_through: ct.checked }, seq, true);
+      });
+    }
+    var gm = byId("widget-gamemode");
+    if (gm) {
+      gm.addEventListener("change", function () {
+        saveWidget({ gamemode: gm.checked }, seq, true);
       });
     }
     var autoSel = byId("widget-autostart");
@@ -2775,6 +3030,24 @@
       '<div class="set-status">' + esc(t("report_desc")) + "</div></div>" +
       '<div class="set-controls"><a class="btn btn-sm" href="/api/report" download>' +
       icon("download") + " " + esc(t("report_download")) + "</a></div></div></div>" +
+
+      '<div class="group-label">' + esc(t("update_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("update_name")) + "</div>" +
+      '<div class="set-status" id="update-status">Overdrive' + (st.version ? " v" + esc(st.version) : "") + "</div></div>" +
+      '<div class="set-controls" id="update-controls">' +
+      '<button class="btn btn-sm" id="btn-update-check" type="button">' + esc(t("update_check")) + "</button>" +
+      "</div></div></div>" +
+
+      '<div class="group-label">' + esc(t("backup_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("backup_export")) + " / " + esc(t("backup_import")) + "</div>" +
+      '<div class="set-status">' + esc(t("backup_export_desc")) + "</div></div>" +
+      '<div class="set-controls">' +
+      '<a class="btn btn-sm" href="/api/profile/export" download>' + icon("download") + " " + esc(t("backup_export")) + "</a>" +
+      '<button class="btn btn-sm" id="btn-import-profile" type="button">' + esc(t("backup_import")) + "</button>" +
+      '<input type="file" id="import-file" accept="application/json" hidden>' +
+      "</div></div></div>" +
 
       widgetSectionHtml() +
 
@@ -2866,6 +3139,63 @@
     updateThemeLabel();
 
     bindWidgetSection(area, seq);
+
+    byId("btn-update-check").addEventListener("click", async function () {
+      var btn = byId("btn-update-check");
+      var status = byId("update-status");
+      setBusy(btn, t("update_checking"));
+      try {
+        var u = await api("/api/update/check");
+        if (status) { status.textContent = u.message || ""; }
+        var controls = byId("update-controls");
+        if (u.update_available && u.download_url && controls && !byId("btn-update-dl")) {
+          var a = document.createElement("a");
+          a.className = "btn btn-sm btn-primary";
+          a.id = "btn-update-dl";
+          a.href = u.download_url;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = t("update_download");
+          controls.appendChild(a);
+        }
+        if (u.update_available === false) { showBanner(t("update_none"), "ok"); }
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    });
+
+    byId("btn-import-profile").addEventListener("click", function () {
+      var input = byId("import-file");
+      if (input) { input.click(); }
+    });
+    var importInput = byId("import-file");
+    if (importInput) {
+      importInput.addEventListener("change", function () {
+        var file = importInput.files && importInput.files[0];
+        if (!file) { return; }
+        var reader = new FileReader();
+        reader.onload = async function () {
+          var data = null;
+          try { data = JSON.parse(String(reader.result)); } catch (e) { data = null; }
+          if (!data || typeof data !== "object") {
+            showBanner(t("backup_import_err"), "error");
+            return;
+          }
+          try {
+            var res = await api("/api/profile/import", { body: data });
+            if (res && res.ok) {
+              showBanner(t("backup_imported"), "ok");
+              state.status = await api("/api/status");
+              state.profile = state.status.profile || null;
+              if (state.status.lang) { applyLang(state.status.lang); }
+              render();
+              return;
+            }
+            showBanner((res && res.message) || t("backup_import_err"), "error");
+          } catch (e) { /* bandeau déjà affiché */ }
+        };
+        reader.readAsText(file);
+      });
+    }
 
     byId("btn-redo-quiz").addEventListener("click", function () { openQuiz(false); });
   }
