@@ -1,0 +1,1 @@
+"""Fournisseurs IA et assistant."""

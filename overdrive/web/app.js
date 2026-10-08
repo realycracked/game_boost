@@ -1,0 +1,3129 @@
+/* Overdrive — application frontend.
+   Vanilla JS, aucune dépendance, aucun CDN. Consomme l'API REST locale. */
+
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ */
+  /* Langue (lue avant le premier rendu pour éviter tout flash)          */
+  /* ------------------------------------------------------------------ */
+
+  var LANG = "fr";
+  try {
+    var _storedLang = localStorage.getItem("overdrive-lang");
+    if (_storedLang === "en" || _storedLang === "fr") { LANG = _storedLang; }
+  } catch (e) { /* stockage indisponible : français par défaut */ }
+
+  /* Dictionnaire de TOUTES les chaînes d'interface. */
+  var I18N = {
+    fr: {
+      /* Navigation et chrome */
+      nav_home: "Accueil",
+      nav_tweaks: "Optimisations",
+      nav_games: "Jeux",
+      nav_clean: "Nettoyage",
+      nav_monitor: "Moniteur",
+      nav_startup: "Démarrage",
+      nav_assistant: "Assistant",
+      nav_settings: "Réglages",
+      theme_to_dark: "Thème sombre",
+      theme_to_light: "Thème clair",
+      loading_ui: "Chargement de l'interface…",
+
+      /* Commun */
+      close: "Fermer",
+      cancel: "Annuler",
+      confirm: "Confirmer",
+      copy: "Copier",
+      copied: "Copié",
+      copy_failed: "Échec de la copie",
+      refresh: "Actualiser",
+      retry: "Réessayer",
+      loading: "Chargement…",
+      err_conn: "Connexion au serveur impossible. Vérifiez qu'Overdrive est en cours d'exécution.",
+      err_server: "Erreur serveur",
+      unit_gb: "Go",
+      unit_mb: "Mo",
+      unit_mbps: "Mo/s",
+
+      /* Accueil */
+      home_title: "Accueil",
+      home_sub: "Vue d'ensemble de la machine et de l'état d'optimisation.",
+      stat_profile: "Profil",
+      stat_tweaks: "Optimisations appliquées",
+      stat_games: "Jeux détectés",
+      stat_profile_note: "Profil issu du questionnaire",
+      stat_none: "Aucun",
+      stat_quiz_link: "Répondre au questionnaire",
+      stat_tweaks_note: "sur l'ensemble du catalogue",
+      stat_games_some: "présents sur cette machine",
+      stat_games_none: "aucun jeu détecté",
+      hw_group: "Matériel",
+      hw_detecting: "Détection du matériel…",
+      hw_unavailable: "Matériel non disponible pour le moment.",
+      hw_missing: "Matériel non disponible.",
+      analyzing: "Analyse…",
+      hw_system: "Système",
+      hw_cpu: "Processeur",
+      hw_ram: "Mémoire",
+      hw_gpu: "Carte graphique",
+      hw_disk: "Stockage",
+      hw_net: "Réseau",
+      hw_cores: "{p} cœurs / {l} threads",
+      hw_up_to: "jusqu'à {m} MHz",
+      hw_load: "charge actuelle {n} %",
+      hw_total: "{g} au total",
+      hw_avail: "{g} disponibles",
+      hw_used: "utilisée à {n} %",
+      hw_driver: "pilote {d}",
+      hw_free: "{f} libres / {t}",
+      hw_none: "Non détecté",
+      quick_actions: "Actions rapides",
+      quick_clean: "Analyser le nettoyage",
+      programs_group: "Programmes recommandés",
+      programs_loading: "Chargement de la liste…",
+      programs_unavailable: "Liste indisponible pour le moment.",
+      programs_none: "Aucun programme recommandé.",
+      prog_install: "Installer",
+      prog_site: "Site officiel",
+      prog_installing: "Installation…",
+      prog_install_failed: "Installation impossible.",
+      winget_missing: "winget n'est pas disponible sur ce système : l'installation directe est désactivée, les liens restent accessibles.",
+      prog_cat_monitoring: "Monitoring",
+      prog_cat_pilotes: "Pilotes",
+      prog_cat_capture: "Capture",
+      prog_cat_utilitaire: "Utilitaire",
+      prog_cat_communication: "Communication",
+      store_multi: "Multi-plateformes",
+
+      /* Boost */
+      boost_btn: "Boost",
+      boost_title: "Boost en un clic",
+      boost_intro: "Overdrive enchaîne trois étapes sûres pour préparer la machine à jouer :",
+      boost_step1: "Point de restauration Windows (optionnel, recommandé)",
+      boost_step2: "Application des optimisations recommandées de votre profil",
+      boost_step3: "Nettoyage des caches sûrs (fichiers temporaires, caches de shaders)",
+      boost_restore_check: "Créer un point de restauration avant le boost",
+      boost_run: "Lancer le boost",
+      boost_running: "Boost en cours…",
+      boost_done: "Boost terminé.",
+      boost_done_issues: "Boost terminé avec des erreurs.",
+      boost_failed: "Le boost n'a pas pu être lancé.",
+      boost_lbl_restore: "Point de restauration",
+      boost_lbl_tweaks: "Tweaks du profil",
+      boost_lbl_clean: "Nettoyage des caches sûrs",
+
+      /* Optimisations */
+      tweaks_title: "Optimisations",
+      tweaks_sub: "Sélectionnez les réglages à appliquer. Chaque optimisation est réversible.",
+      tweaks_loading: "Chargement du catalogue…",
+      tweaks_unavail_title: "Catalogue indisponible",
+      tweaks_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+      notice_not_windows: "Système non Windows détecté : les optimisations sont affichées à titre informatif (mode développement), leur application est désactivée.",
+      notice_not_admin: "Overdrive n'est pas lancé en administrateur : certains réglages (registre machine, services) pourraient échouer. Relancez l'application en tant qu'administrateur pour un résultat complet.",
+      sel_profile: "Sélection profil",
+      sel_profile_hint: "Répondez d'abord au questionnaire",
+      sel_safe: "Tout sûr",
+      sel_none: "Tout désélectionner",
+      restore_point: "Point de restauration",
+      revert_applied: "Annuler les tweaks appliqués",
+      apply_n: "Appliquer ({n})",
+      selected_one: "{n} sélectionné",
+      selected_many: "{n} sélectionnés",
+      chip_all: "Toutes",
+      impact_high: "Impact élevé",
+      impact_medium: "Impact moyen",
+      impact_low: "Impact faible",
+      risk_safe: "Sûr",
+      risk_moderate: "Modéré",
+      risk_advanced: "Avancé",
+      tweak_unsupported: "Non supporté ici",
+      tweak_applied: "Appliqué",
+      tweaks_none_cat: "Aucune optimisation dans cette catégorie.",
+      adv_modal_title: "Tweaks avancés sélectionnés",
+      adv_modal_body: "Les réglages suivants sont marqués avancés : ils modifient des paramètres système sensibles. Un point de restauration est recommandé avant application.",
+      adv_confirm: "Appliquer quand même",
+      applying: "Application…",
+      apply_done: "Application terminée : {ok}",
+      apply_ok_one: "{n} réussie",
+      apply_ok_many: "{n} réussies",
+      apply_fail: " · {n} en échec",
+      revert_none: "Aucun tweak appliqué par Overdrive à annuler.",
+      revert_body_one: "1 réglage appliqué par Overdrive sera remis à sa valeur d'origine.",
+      revert_body_many: "{n} réglages appliqués par Overdrive seront remis à leur valeur d'origine.",
+      revert_all: "Tout annuler",
+      reverting: "Annulation…",
+      revert_done: "Annulation terminée : {ok} / {total}.",
+      creating: "Création…",
+      restore_created: "Point de restauration créé.",
+      restore_failed: "Création impossible.",
+
+      /* Jeux */
+      games_title: "Jeux",
+      games_sub: "Options de lancement et réglages recommandés pour les jeux compétitifs courants.",
+      games_detecting: "Détection des jeux installés…",
+      games_unavailable: "Détection indisponible pour le moment.",
+      games_none: "Aucun jeu détecté automatiquement sur cette machine. Les fiches et recommandations restent consultables.",
+      badge_detected: "Détecté",
+      badge_not_detected: "Non détecté",
+      launch_options: "Options de lancement",
+      recommended_settings: "Réglages recommandés",
+      cs2_loading: "Lecture de la configuration CS2…",
+      cs2_unavailable: "Informations CS2 indisponibles.",
+      cs2_config: "Configuration CS2",
+      cs2_no_profiles: "Aucun profil Steam (userdata) détecté : l'écriture de l'autoexec n'est pas possible pour le moment.",
+      cs2_profile: "Profil",
+      cs2_autoexec_yes: "autoexec présent",
+      cs2_autoexec_no: "aucun autoexec",
+      cs2_write: "Écrire l'autoexec recommandé",
+      writing: "Écriture…",
+      cs2_preview: "Aperçu de l'autoexec recommandé",
+      cs2_video_group: "Réglages vidéo (cs2_video.txt)",
+      cs2_video_not_read: "Fichier cs2_video.txt non lu : recommandations générales.",
+      th_param: "Paramètre",
+      th_current: "Actuel",
+      th_recommended: "Recommandé",
+      th_note: "Note",
+
+      /* Latence */
+      latency_group: "Latence estimée",
+      latency_desc: "Estimation de la latence TCP vers chaque zone (3 connexions par région, aucune donnée envoyée). Ce n'est pas un ping in-game.",
+      latency_measure: "Mesurer",
+      latency_measuring: "Mesure en cours…",
+      latency_failed: "Mesure impossible.",
+      th_region: "Région",
+      th_min: "Min",
+      th_avg: "Moy",
+      th_max: "Max",
+
+      /* Nettoyage */
+      clean_title: "Nettoyage",
+      clean_sub: "Fichiers temporaires, caches de shaders et autres fichiers récupérables.",
+      clean_none_title: "Aucune analyse pour l'instant",
+      clean_none_body: "Lancez une analyse pour mesurer l'espace récupérable.",
+      scan: "Analyser",
+      scanning: "Analyse en cours…",
+      rescan: "Réanalyser",
+      clean_empty_title: "Rien à nettoyer",
+      clean_empty_body: "Aucune cible de nettoyage trouvée sur ce système.",
+      th_target: "Cible",
+      th_path: "Chemin",
+      th_files: "Fichiers",
+      th_size: "Taille",
+      th_result: "Résultat",
+      freed: "{x} libérés",
+      failed: "Échec",
+      clean_total: "Total sélectionné : {x}",
+      clean_n: "Nettoyer ({n})",
+      clean_modal_title: "Confirmer le nettoyage",
+      clean_body_one: "Les fichiers de la cible sélectionnée seront définitivement supprimés.",
+      clean_body_many: "Les fichiers des {n} cibles sélectionnées seront définitivement supprimés.",
+      clean_confirm: "Nettoyer",
+      cleaning: "Nettoyage…",
+      clean_done: "Nettoyage terminé : {x} libérés.",
+
+      /* Moniteur */
+      monitor_title: "Moniteur",
+      monitor_sub: "CPU, mémoire et débits en temps réel, rafraîchis toutes les 2 secondes.",
+      mon_cpu: "Processeur",
+      mon_ram: "Mémoire",
+      mon_disk: "Débit disque",
+      mon_net: "Débit réseau",
+      mon_read: "Lecture",
+      mon_write: "Écriture",
+      mon_up: "Envoi",
+      mon_down: "Réception",
+      mon_top: "Processus les plus actifs",
+      th_process: "Processus",
+      th_cpu: "CPU",
+      th_ram: "RAM",
+      mon_waiting: "Collecte des premières mesures…",
+      mon_unavail_title: "Moniteur indisponible",
+      mon_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+
+      /* Démarrage */
+      startup_title: "Démarrage",
+      startup_sub: "Programmes lancés au démarrage de Windows. Désactiver conserve l'entrée, exactement comme le Gestionnaire des tâches.",
+      startup_loading: "Lecture des programmes au démarrage…",
+      startup_unavailable: "Liste indisponible pour le moment.",
+      startup_empty_title: "Aucun programme au démarrage",
+      startup_empty_windows: "Aucun programme configuré au démarrage de Windows.",
+      startup_empty_other: "Cette fonction repose sur le registre Windows : aucune entrée détectée sur ce système.",
+      th_name: "Nom",
+      th_command: "Commande",
+      th_source: "Source",
+      th_state: "État",
+      state_enabled: "Activé",
+      state_disabled: "Désactivé",
+      src_user_folder: "Dossier utilisateur",
+      src_common_folder: "Dossier commun",
+      hklm_modal_title: "Entrée machine (HKLM)",
+      hklm_modal_body: "Cette entrée s'applique à tous les utilisateurs de la machine (registre HKLM). Confirmez la modification.",
+      startup_toggle_failed: "Modification impossible.",
+
+      /* Assistant */
+      assistant_title: "Assistant",
+      assistant_sub: "Un assistant qui connaît votre matériel, votre profil et vos optimisations.",
+      checking_keys: "Vérification des clés API…",
+      assistant_unavailable: "Assistant indisponible pour le moment.",
+      no_key_title: "Aucune clé API configurée",
+      no_key_body: "Ajoutez une clé (Groq propose une clé gratuite) pour activer l'assistant.",
+      open_settings: "Ouvrir les réglages",
+      provider: "Fournisseur",
+      chat_clear: "Effacer la conversation",
+      chat_placeholder: "Votre question sur l'optimisation…",
+      send: "Envoyer",
+      chat_empty: "Aucun message pour l'instant.",
+      chat_example: "Exemple : « Quels réglages pour gagner des FPS sur ma machine ? »",
+      chat_pending: "L'assistant rédige une réponse…",
+      chat_error_net: "Erreur réseau : la question n'a pas pu être envoyée.",
+      chat_no_reply: "Réponse indisponible.",
+
+      /* Réglages */
+      settings_title: "Réglages",
+      settings_sub: "Clés API, fournisseur par défaut, apparence, langue et questionnaire.",
+      keys_group: "Clés API",
+      keys_note: "Les clés sont chiffrées localement et ne quittent jamais cette machine, sauf vers le fournisseur que vous choisissez.",
+      key_configured: "Configurée",
+      key_not_configured: "Non configurée",
+      key_placeholder: "Clé API",
+      save: "Enregistrer",
+      del: "Supprimer",
+      groq_note: 'Clé gratuite sur <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>',
+      assistant_group: "Assistant",
+      default_provider: "Fournisseur par défaut",
+      default_provider_desc: "Utilisé quand aucun fournisseur n'est précisé.",
+      no_keys_yet: "Aucune clé configurée pour l'instant.",
+      appearance_group: "Apparence",
+      theme: "Thème",
+      theme_desc: "Sombre par défaut, clair disponible.",
+      light: "Clair",
+      dark: "Sombre",
+      language: "Langue",
+      language_desc: "Langue de l'interface. Les catalogues sont traduits automatiquement.",
+      report_group: "Rapport",
+      report_name: "Rapport système",
+      report_desc: "Un fichier texte complet : matériel, profil, optimisations, jeux détectés.",
+      report_download: "Télécharger le rapport système",
+      quiz_group: "Questionnaire",
+      quiz_profile: "Profil d'optimisation",
+      quiz_profile_current: "Profil actuel : {p}",
+      quiz_profile_none: "Aucun profil pour l'instant.",
+      quiz_redo: "Refaire le questionnaire",
+      about_group: "À propos",
+      badge_admin: "administrateur",
+      badge_not_admin: "non administrateur",
+      about_note: "Les clés API sont chiffrées localement et ne quittent jamais cette machine, sauf vers l'API du fournisseur d'IA sélectionné. Les optimisations appliquées sont journalisées et réversibles depuis la page Optimisations.",
+      key_enter_first: "Saisissez une clé API avant d'enregistrer.",
+      saving: "Enregistrement…",
+      key_save_err: "Échec de l'enregistrement de la clé.",
+      key_saved: "Clé {p} enregistrée.",
+      key_del_title: "Supprimer la clé {p}",
+      key_del_body: "La clé sera supprimée du stockage chiffré local.",
+      key_del_err: "Échec de la suppression de la clé.",
+      key_deleted: "Clé {p} supprimée.",
+      default_set: "Fournisseur par défaut : {p}.",
+
+      /* QCM */
+      quiz_progress: "Question {i}/{n}",
+      later: "Plus tard",
+      quiz_multi: "Plusieurs réponses possibles",
+      quiz_single: "Une seule réponse",
+      prev: "Précédent",
+      next: "Suivant",
+      finish: "Terminer",
+      quiz_analyzing: "Analyse…",
+      quiz_profile_prefix: "Profil : {p}",
+      quiz_notes_title: "Conseils personnalisés",
+      quiz_see_tweaks: "Voir mes optimisations",
+      continue_lbl: "Continuer",
+      widget_group: "Widget en jeu",
+      widget_note: "Petite fenêtre déplaçable par-dessus le jeu : FPS et infos système. Chaque réglage s'applique immédiatement.",
+      widget_elements: "Informations affichées",
+      widget_el_fps: "FPS", widget_el_game: "Jeu", widget_el_cpu: "CPU",
+      widget_el_ram: "RAM", widget_el_net: "Réseau", widget_el_clock: "Heure",
+      widget_theme: "Thème du widget",
+      widget_theme_desc: "Minimal = texte seul, sans fond : ne masque rien.",
+      widget_theme_dark: "Sombre", widget_theme_light: "Clair", widget_theme_minimal: "Minimal",
+      widget_layout: "Disposition",
+      widget_layout_row: "Ligne", widget_layout_col: "Colonne",
+      widget_opacity: "Opacité",
+      widget_scale: "Taille",
+      widget_click_through: "Cliquer à travers",
+      widget_click_through_desc: "La souris passe au travers du widget. Désactivable ici à tout moment.",
+      widget_autostart: "Démarrage automatique",
+      widget_autostart_desc: "Quand le widget doit-il se lancer ?",
+      widget_auto_never: "Jamais",
+      widget_auto_always: "Au démarrage de Windows",
+      widget_auto_game: "Quand un jeu se lance",
+      widget_launch: "Lancer le widget",
+      widget_launched: "Widget lancé.",
+      widget_saved: "Réglages du widget enregistrés.",
+      widget_save_err: "Impossible d'enregistrer les réglages du widget.",
+      ob_title: "Démarrage automatique",
+      ob_sub: "Choisissez quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
+      ob_never_desc: "Le widget ne se lance que manuellement.",
+      ob_always_desc: "Le widget est présent dès l'allumage du PC.",
+      ob_game_desc: "Invisible au quotidien, il apparaît quand un de vos jeux démarre et disparaît à sa fermeture.",
+      ob_launch_now: "Lancer le widget maintenant",
+      ob_finish: "Terminer"
+    },
+    en: {
+      /* Navigation and chrome */
+      nav_home: "Home",
+      nav_tweaks: "Optimizations",
+      nav_games: "Games",
+      nav_clean: "Cleanup",
+      nav_monitor: "Monitor",
+      nav_startup: "Startup",
+      nav_assistant: "Assistant",
+      nav_settings: "Settings",
+      theme_to_dark: "Dark theme",
+      theme_to_light: "Light theme",
+      loading_ui: "Loading interface…",
+
+      /* Common */
+      close: "Close",
+      cancel: "Cancel",
+      confirm: "Confirm",
+      copy: "Copy",
+      copied: "Copied",
+      copy_failed: "Copy failed",
+      refresh: "Refresh",
+      retry: "Retry",
+      loading: "Loading…",
+      err_conn: "Cannot reach the server. Make sure Overdrive is running.",
+      err_server: "Server error",
+      unit_gb: "GB",
+      unit_mb: "MB",
+      unit_mbps: "MB/s",
+
+      /* Home */
+      home_title: "Home",
+      home_sub: "Overview of your machine and its optimization status.",
+      stat_profile: "Profile",
+      stat_tweaks: "Applied optimizations",
+      stat_games: "Detected games",
+      stat_profile_note: "Profile from the questionnaire",
+      stat_none: "None",
+      stat_quiz_link: "Take the questionnaire",
+      stat_tweaks_note: "across the whole catalog",
+      stat_games_some: "found on this machine",
+      stat_games_none: "no game detected",
+      hw_group: "Hardware",
+      hw_detecting: "Detecting hardware…",
+      hw_unavailable: "Hardware unavailable right now.",
+      hw_missing: "Hardware unavailable.",
+      analyzing: "Analyzing…",
+      hw_system: "System",
+      hw_cpu: "Processor",
+      hw_ram: "Memory",
+      hw_gpu: "Graphics card",
+      hw_disk: "Storage",
+      hw_net: "Network",
+      hw_cores: "{p} cores / {l} threads",
+      hw_up_to: "up to {m} MHz",
+      hw_load: "current load {n}%",
+      hw_total: "{g} total",
+      hw_avail: "{g} available",
+      hw_used: "{n}% used",
+      hw_driver: "driver {d}",
+      hw_free: "{f} free / {t}",
+      hw_none: "Not detected",
+      quick_actions: "Quick actions",
+      quick_clean: "Scan for cleanup",
+      programs_group: "Recommended programs",
+      programs_loading: "Loading list…",
+      programs_unavailable: "List unavailable right now.",
+      programs_none: "No recommended programs.",
+      prog_install: "Install",
+      prog_site: "Official website",
+      prog_installing: "Installing…",
+      prog_install_failed: "Installation failed.",
+      winget_missing: "winget is not available on this system: direct installation is disabled, links remain available.",
+      prog_cat_monitoring: "Monitoring",
+      prog_cat_pilotes: "Drivers",
+      prog_cat_capture: "Capture",
+      prog_cat_utilitaire: "Utility",
+      prog_cat_communication: "Communication",
+      store_multi: "Multi-platform",
+
+      /* Boost */
+      boost_btn: "Boost",
+      boost_title: "One-click Boost",
+      boost_intro: "Overdrive runs three safe steps to get the machine ready for gaming:",
+      boost_step1: "Windows restore point (optional, recommended)",
+      boost_step2: "Apply your profile's recommended optimizations",
+      boost_step3: "Clean safe caches (temporary files, shader caches)",
+      boost_restore_check: "Create a restore point before boosting",
+      boost_run: "Run boost",
+      boost_running: "Boost running…",
+      boost_done: "Boost finished.",
+      boost_done_issues: "Boost finished with errors.",
+      boost_failed: "The boost could not be started.",
+      boost_lbl_restore: "Restore point",
+      boost_lbl_tweaks: "Profile tweaks",
+      boost_lbl_clean: "Safe cache cleanup",
+
+      /* Optimizations */
+      tweaks_title: "Optimizations",
+      tweaks_sub: "Pick the tweaks to apply. Every optimization is reversible.",
+      tweaks_loading: "Loading catalog…",
+      tweaks_unavail_title: "Catalog unavailable",
+      tweaks_unavail_body: "The server did not respond. Try again in a moment.",
+      notice_not_windows: "Non-Windows system detected: optimizations are shown for reference (development mode) and cannot be applied.",
+      notice_not_admin: "Overdrive is not running as administrator: some tweaks (machine registry, services) may fail. Restart the app as administrator for full results.",
+      sel_profile: "Profile selection",
+      sel_profile_hint: "Take the questionnaire first",
+      sel_safe: "All safe",
+      sel_none: "Deselect all",
+      restore_point: "Restore point",
+      revert_applied: "Revert applied tweaks",
+      apply_n: "Apply ({n})",
+      selected_one: "{n} selected",
+      selected_many: "{n} selected",
+      chip_all: "All",
+      impact_high: "High impact",
+      impact_medium: "Medium impact",
+      impact_low: "Low impact",
+      risk_safe: "Safe",
+      risk_moderate: "Moderate",
+      risk_advanced: "Advanced",
+      tweak_unsupported: "Not supported here",
+      tweak_applied: "Applied",
+      tweaks_none_cat: "No optimization in this category.",
+      adv_modal_title: "Advanced tweaks selected",
+      adv_modal_body: "The following tweaks are marked advanced: they change sensitive system settings. A restore point is recommended before applying.",
+      adv_confirm: "Apply anyway",
+      applying: "Applying…",
+      apply_done: "Apply finished: {ok}",
+      apply_ok_one: "{n} succeeded",
+      apply_ok_many: "{n} succeeded",
+      apply_fail: " · {n} failed",
+      revert_none: "No Overdrive-applied tweak to revert.",
+      revert_body_one: "1 tweak applied by Overdrive will be restored to its original value.",
+      revert_body_many: "{n} tweaks applied by Overdrive will be restored to their original values.",
+      revert_all: "Revert all",
+      reverting: "Reverting…",
+      revert_done: "Revert finished: {ok} / {total}.",
+      creating: "Creating…",
+      restore_created: "Restore point created.",
+      restore_failed: "Creation failed.",
+
+      /* Games */
+      games_title: "Games",
+      games_sub: "Launch options and recommended settings for popular competitive games.",
+      games_detecting: "Detecting installed games…",
+      games_unavailable: "Detection unavailable right now.",
+      games_none: "No game detected automatically on this machine. Game sheets and recommendations remain available.",
+      badge_detected: "Detected",
+      badge_not_detected: "Not detected",
+      launch_options: "Launch options",
+      recommended_settings: "Recommended settings",
+      cs2_loading: "Reading CS2 configuration…",
+      cs2_unavailable: "CS2 information unavailable.",
+      cs2_config: "CS2 configuration",
+      cs2_no_profiles: "No Steam profile (userdata) detected: writing the autoexec is not possible right now.",
+      cs2_profile: "Profile",
+      cs2_autoexec_yes: "autoexec present",
+      cs2_autoexec_no: "no autoexec",
+      cs2_write: "Write recommended autoexec",
+      writing: "Writing…",
+      cs2_preview: "Recommended autoexec preview",
+      cs2_video_group: "Video settings (cs2_video.txt)",
+      cs2_video_not_read: "cs2_video.txt not read: general recommendations.",
+      th_param: "Setting",
+      th_current: "Current",
+      th_recommended: "Recommended",
+      th_note: "Note",
+
+      /* Latency */
+      latency_group: "Estimated latency",
+      latency_desc: "TCP latency estimate toward each zone (3 connections per region, no data sent). Not an in-game ping.",
+      latency_measure: "Measure",
+      latency_measuring: "Measuring…",
+      latency_failed: "Measurement failed.",
+      th_region: "Region",
+      th_min: "Min",
+      th_avg: "Avg",
+      th_max: "Max",
+
+      /* Cleanup */
+      clean_title: "Cleanup",
+      clean_sub: "Temporary files, shader caches and other recoverable files.",
+      clean_none_title: "No scan yet",
+      clean_none_body: "Run a scan to measure recoverable space.",
+      scan: "Scan",
+      scanning: "Scanning…",
+      rescan: "Rescan",
+      clean_empty_title: "Nothing to clean",
+      clean_empty_body: "No cleanup target found on this system.",
+      th_target: "Target",
+      th_path: "Path",
+      th_files: "Files",
+      th_size: "Size",
+      th_result: "Result",
+      freed: "{x} freed",
+      failed: "Failed",
+      clean_total: "Selected total: {x}",
+      clean_n: "Clean ({n})",
+      clean_modal_title: "Confirm cleanup",
+      clean_body_one: "Files from the selected target will be permanently deleted.",
+      clean_body_many: "Files from the {n} selected targets will be permanently deleted.",
+      clean_confirm: "Clean",
+      cleaning: "Cleaning…",
+      clean_done: "Cleanup finished: {x} freed.",
+
+      /* Monitor */
+      monitor_title: "Monitor",
+      monitor_sub: "Live CPU, memory and throughput, refreshed every 2 seconds.",
+      mon_cpu: "Processor",
+      mon_ram: "Memory",
+      mon_disk: "Disk throughput",
+      mon_net: "Network throughput",
+      mon_read: "Read",
+      mon_write: "Write",
+      mon_up: "Upload",
+      mon_down: "Download",
+      mon_top: "Most active processes",
+      th_process: "Process",
+      th_cpu: "CPU",
+      th_ram: "RAM",
+      mon_waiting: "Collecting first samples…",
+      mon_unavail_title: "Monitor unavailable",
+      mon_unavail_body: "The server did not respond. Try again in a moment.",
+
+      /* Startup */
+      startup_title: "Startup",
+      startup_sub: "Programs launched when Windows starts. Disabling keeps the entry, exactly like Task Manager.",
+      startup_loading: "Reading startup programs…",
+      startup_unavailable: "List unavailable right now.",
+      startup_empty_title: "No startup programs",
+      startup_empty_windows: "No program configured to start with Windows.",
+      startup_empty_other: "This feature relies on the Windows registry: no entry detected on this system.",
+      th_name: "Name",
+      th_command: "Command",
+      th_source: "Source",
+      th_state: "State",
+      state_enabled: "Enabled",
+      state_disabled: "Disabled",
+      src_user_folder: "User folder",
+      src_common_folder: "Common folder",
+      hklm_modal_title: "Machine entry (HKLM)",
+      hklm_modal_body: "This entry applies to every user of this machine (HKLM registry). Confirm the change.",
+      startup_toggle_failed: "Change failed.",
+
+      /* Assistant */
+      assistant_title: "Assistant",
+      assistant_sub: "An assistant that knows your hardware, your profile and your optimizations.",
+      checking_keys: "Checking API keys…",
+      assistant_unavailable: "Assistant unavailable right now.",
+      no_key_title: "No API key configured",
+      no_key_body: "Add a key (Groq offers a free one) to enable the assistant.",
+      open_settings: "Open settings",
+      provider: "Provider",
+      chat_clear: "Clear conversation",
+      chat_placeholder: "Your optimization question…",
+      send: "Send",
+      chat_empty: "No messages yet.",
+      chat_example: "Example: \"Which settings will give me more FPS on my machine?\"",
+      chat_pending: "The assistant is writing a reply…",
+      chat_error_net: "Network error: your question could not be sent.",
+      chat_no_reply: "No reply available.",
+
+      /* Settings */
+      settings_title: "Settings",
+      settings_sub: "API keys, default provider, appearance, language and questionnaire.",
+      keys_group: "API keys",
+      keys_note: "Keys are encrypted locally and never leave this machine, except toward the provider you choose.",
+      key_configured: "Configured",
+      key_not_configured: "Not configured",
+      key_placeholder: "API key",
+      save: "Save",
+      del: "Delete",
+      groq_note: 'Free key at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>',
+      assistant_group: "Assistant",
+      default_provider: "Default provider",
+      default_provider_desc: "Used when no provider is specified.",
+      no_keys_yet: "No key configured yet.",
+      appearance_group: "Appearance",
+      theme: "Theme",
+      theme_desc: "Dark by default, light available.",
+      light: "Light",
+      dark: "Dark",
+      language: "Language",
+      language_desc: "Interface language. Catalogs are translated automatically.",
+      report_group: "Report",
+      report_name: "System report",
+      report_desc: "A complete text file: hardware, profile, optimizations, detected games.",
+      report_download: "Download system report",
+      quiz_group: "Questionnaire",
+      quiz_profile: "Optimization profile",
+      quiz_profile_current: "Current profile: {p}",
+      quiz_profile_none: "No profile yet.",
+      quiz_redo: "Retake the questionnaire",
+      about_group: "About",
+      badge_admin: "administrator",
+      badge_not_admin: "not administrator",
+      about_note: "API keys are encrypted locally and never leave this machine, except toward the selected AI provider's API. Applied optimizations are logged and reversible from the Optimizations page.",
+      key_enter_first: "Enter an API key before saving.",
+      saving: "Saving…",
+      key_save_err: "Failed to save the key.",
+      key_saved: "{p} key saved.",
+      key_del_title: "Delete the {p} key",
+      key_del_body: "The key will be removed from the local encrypted storage.",
+      key_del_err: "Failed to delete the key.",
+      key_deleted: "{p} key deleted.",
+      default_set: "Default provider: {p}.",
+
+      /* Quiz */
+      quiz_progress: "Question {i}/{n}",
+      later: "Later",
+      quiz_multi: "Multiple answers possible",
+      quiz_single: "One answer only",
+      prev: "Previous",
+      next: "Next",
+      finish: "Finish",
+      quiz_analyzing: "Analyzing…",
+      quiz_profile_prefix: "Profile: {p}",
+      quiz_notes_title: "Personalized tips",
+      quiz_see_tweaks: "See my optimizations",
+      continue_lbl: "Continue",
+      widget_group: "In-game widget",
+      widget_note: "Small movable window on top of the game: FPS and system info. Every setting applies instantly.",
+      widget_elements: "Displayed information",
+      widget_el_fps: "FPS", widget_el_game: "Game", widget_el_cpu: "CPU",
+      widget_el_ram: "RAM", widget_el_net: "Network", widget_el_clock: "Clock",
+      widget_theme: "Widget theme",
+      widget_theme_desc: "Minimal = text only, no background: hides nothing.",
+      widget_theme_dark: "Dark", widget_theme_light: "Light", widget_theme_minimal: "Minimal",
+      widget_layout: "Layout",
+      widget_layout_row: "Row", widget_layout_col: "Column",
+      widget_opacity: "Opacity",
+      widget_scale: "Size",
+      widget_click_through: "Click-through",
+      widget_click_through_desc: "The mouse passes through the widget. Can be turned off here anytime.",
+      widget_autostart: "Autostart",
+      widget_autostart_desc: "When should the widget launch?",
+      widget_auto_never: "Never",
+      widget_auto_always: "At Windows startup",
+      widget_auto_game: "When a game starts",
+      widget_launch: "Launch widget",
+      widget_launched: "Widget launched.",
+      widget_saved: "Widget settings saved.",
+      widget_save_err: "Could not save widget settings.",
+      ob_title: "Autostart",
+      ob_sub: "Choose when the widget (FPS and info over the game) should launch. You can change this anytime in Settings.",
+      ob_never_desc: "The widget only launches manually.",
+      ob_always_desc: "The widget is there as soon as the PC boots.",
+      ob_game_desc: "Invisible day to day; it appears when one of your games starts and goes away when it closes.",
+      ob_launch_now: "Launch the widget now",
+      ob_finish: "Finish"
+    }
+  };
+
+  /* Chaîne d'interface pour la langue courante (repli : français, puis clé). */
+  function t(key) {
+    var dict = I18N[LANG] || I18N.fr;
+    if (Object.prototype.hasOwnProperty.call(dict, key)) { return dict[key]; }
+    if (Object.prototype.hasOwnProperty.call(I18N.fr, key)) { return I18N.fr[key]; }
+    return key;
+  }
+
+  /* t() + remplacement de gabarits {x}. */
+  function tf(key, repl) {
+    var s = t(key);
+    Object.keys(repl || {}).forEach(function (k) {
+      s = s.split("{" + k + "}").join(String(repl[k]));
+    });
+    return s;
+  }
+
+  /* Singulier / pluriel avec gabarit {n}. */
+  function tp(n, oneKey, manyKey) {
+    return tf(n > 1 ? manyKey : oneKey, { n: n });
+  }
+
+  /* Champ traduit d'un objet de l'API : obj[field + "_en"] si lang=en, sinon obj[field]. */
+  function tr(obj, field) {
+    if (!obj) { return ""; }
+    if (LANG === "en") {
+      var en = obj[field + "_en"];
+      if (en !== undefined && en !== null && en !== "") { return en; }
+    }
+    var v = obj[field];
+    return v === undefined || v === null ? "" : v;
+  }
+
+  /* Textes statiques de index.html (navigation, libellés fixes). */
+  function applyStaticI18n() {
+    document.documentElement.lang = LANG;
+    $all("[data-i18n]").forEach(function (el) {
+      el.textContent = t(el.dataset.i18n);
+    });
+    updateThemeLabel();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* État global                                                         */
+  /* ------------------------------------------------------------------ */
+
+  var state = {
+    status: null,            // GET /api/status
+    profile: null,           // profil QCM courant
+    hardware: null,          // GET /api/hardware
+    tweaks: null,            // GET /api/tweaks → {categories, tweaks}
+    tweakSelection: new Set(),
+    tweakSelectionInit: false,
+    tweakFilter: "all",
+    tweakResults: {},        // id → {ok, message}
+    games: null,             // GET /api/games → liste
+    selectedGame: null,
+    cs2: null,               // GET /api/games/cs2
+    programs: null,          // GET /api/programs
+    cleanTargets: null,      // GET /api/clean/scan (null = pas encore analysé)
+    cleanScanning: false,
+    cleanSelection: new Set(),
+    cleanResults: {},
+    autoScan: false,
+    pendingProfileSelect: false,
+    aiKeys: null,            // GET /api/ai/keys
+    chat: [],
+    chatBusy: false,
+    chatError: null,
+    chatProvider: null,
+    quiz: null,
+    monitorHist: { cpu: [], ram: [], disk: [], net: [] },  // 60 derniers points
+    startupItems: null,      // GET /api/startup → liste
+    latency: null,           // POST /api/latency → résultats
+    latencyBusy: false
+  };
+
+  var renderSeq = 0;
+  function alive(seq) { return seq === renderSeq; }
+
+  /* ------------------------------------------------------------------ */
+  /* Icônes SVG inline (style Lucide, trait 1.5px, currentColor)         */
+  /* ------------------------------------------------------------------ */
+
+  var ICONS = {
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+    left: '<path d="m15 18-6-6 6-6"/>',
+    right: '<path d="m9 18 6-6-6-6"/>',
+    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>'
+  };
+
+  function icon(name) {
+    return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || "") + "</svg>";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Utilitaires                                                         */
+  /* ------------------------------------------------------------------ */
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function byId(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s === null || s === undefined ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  /* Nombre décimal localisé (virgule en français, point en anglais). */
+  function dec(x) {
+    var s = String(x);
+    return LANG === "en" ? s : s.replace(".", ",");
+  }
+
+  function fmtMb(mb) {
+    if (mb === null || mb === undefined) { return "—"; }
+    if (mb >= 1024) { return dec((mb / 1024).toFixed(1)) + " " + t("unit_gb"); }
+    return dec(Math.round(mb * 10) / 10) + " " + t("unit_mb");
+  }
+
+  function fmtGb(gb) {
+    if (gb === null || gb === undefined) { return "—"; }
+    return dec(Math.round(gb * 10) / 10) + " " + t("unit_gb");
+  }
+
+  function fmtRate(mbps) {
+    if (mbps === null || mbps === undefined) { return "—"; }
+    return dec((Math.round(mbps * 10) / 10).toFixed(1)) + " " + t("unit_mbps");
+  }
+
+  function setBusy(btn, label) {
+    if (!btn) { return; }
+    btn.dataset.prev = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = esc(label);
+  }
+
+  function clearBusy(btn) {
+    if (!btn) { return; }
+    if (btn.dataset.prev !== undefined) { btn.innerHTML = btn.dataset.prev; delete btn.dataset.prev; }
+    btn.disabled = false;
+  }
+
+  function fallbackCopy(text) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function copyFeedback(btn, ok) {
+    if (!btn) { return; }
+    var prev = btn.innerHTML;
+    btn.innerHTML = ok ? icon("check") + " " + esc(t("copied")) : esc(t("copy_failed"));
+    btn.disabled = true;
+    setTimeout(function () { btn.innerHTML = prev; btn.disabled = false; }, 1500);
+  }
+
+  function copyText(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { copyFeedback(btn, true); },
+        function () { copyFeedback(btn, fallbackCopy(text)); }
+      );
+    } else {
+      copyFeedback(btn, fallbackCopy(text));
+    }
+  }
+
+  /* Boutons "Copier" : lit le texte du <pre> voisin dans le bloc mono. */
+  function bindCopyButtons(root) {
+    $all(".copy-btn", root).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var block = btn.closest(".mono-block");
+        var pre = block ? block.querySelector("pre") : null;
+        copyText(pre ? pre.textContent : "", btn);
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Libellés                                                            */
+  /* ------------------------------------------------------------------ */
+
+  var IMPACT_META = {
+    eleve: { key: "impact_high", cls: "badge-blue" },
+    moyen: { key: "impact_medium", cls: "badge-gray" },
+    faible: { key: "impact_low", cls: "badge-gray" }
+  };
+
+  var RISK_META = {
+    sur: { key: "risk_safe", cls: "badge-green" },
+    modere: { key: "risk_moderate", cls: "badge-yellow" },
+    avance: { key: "risk_advanced", cls: "badge-red" }
+  };
+
+  var STORE_LABELS = {
+    steam: "Steam", riot: "Riot Client", epic: "Epic Games",
+    battlenet: "Battle.net", ea: "EA App"
+  };
+
+  function storeLabel(id) {
+    if (id === "multi") { return t("store_multi"); }
+    return STORE_LABELS[id] || id || "";
+  }
+
+  function programCategory(id) {
+    var key = "prog_cat_" + id;
+    var label = t(key);
+    return label === key ? (id || "") : label;
+  }
+
+  var PROVIDERS_META = [
+    { id: "groq", name: "Groq", noteKey: "groq_note" },
+    { id: "openai", name: "OpenAI", noteKey: null },
+    { id: "anthropic", name: "Anthropic", noteKey: null },
+    { id: "gemini", name: "Google Gemini", noteKey: null }
+  ];
+
+  function providerName(id) {
+    for (var i = 0; i < PROVIDERS_META.length; i++) {
+      if (PROVIDERS_META[i].id === id) { return PROVIDERS_META[i].name; }
+    }
+    return id;
+  }
+
+  /* Source d'une entrée de démarrage, traduite (HKCU/HKLM restent tels quels). */
+  function startupSourceLabel(source) {
+    if (source === "dossier utilisateur") { return t("src_user_folder"); }
+    if (source === "dossier commun") { return t("src_common_folder"); }
+    return source || "";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Appels API                                                          */
+  /* ------------------------------------------------------------------ */
+
+  async function api(path, opts) {
+    opts = opts || {};
+    var init = { method: opts.method || (opts.body !== undefined ? "POST" : "GET"), headers: {} };
+    if (opts.body !== undefined) {
+      init.headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(opts.body);
+    }
+    var res;
+    try {
+      res = await fetch(path, init);
+    } catch (e) {
+      showBanner(t("err_conn"), "error");
+      throw e;
+    }
+    var data = null;
+    try { data = await res.json(); } catch (e2) { data = null; }
+    if (!res.ok) {
+      var msg = data && data.detail ? String(data.detail) : t("err_server") + " (" + res.status + ")";
+      showBanner(msg, "error");
+      var err = new Error(msg);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Bandeau discret (erreurs réseau, confirmations)                     */
+  /* ------------------------------------------------------------------ */
+
+  var bannerTimer = null;
+
+  function showBanner(message, kind) {
+    var b = byId("banner");
+    if (!b) { return; }
+    b.className = kind === "error" ? "banner-error" : (kind === "ok" ? "banner-ok" : "");
+    b.innerHTML = "<span>" + esc(message) + "</span>" +
+      '<button class="btn btn-ghost btn-sm banner-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button>";
+    b.hidden = false;
+    b.querySelector(".banner-close").addEventListener("click", hideBanner);
+    if (bannerTimer) { clearTimeout(bannerTimer); }
+    bannerTimer = setTimeout(hideBanner, kind === "error" ? 7000 : 4500);
+  }
+
+  function hideBanner() {
+    var b = byId("banner");
+    if (b) { b.hidden = true; b.innerHTML = ""; }
+    if (bannerTimer) { clearTimeout(bannerTimer); bannerTimer = null; }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Modale de confirmation                                              */
+  /* ------------------------------------------------------------------ */
+
+  function openModal(opts) {
+    var root = byId("modal-root");
+    root.hidden = false;
+    root.innerHTML =
+      '<div class="modal-overlay">' +
+      '<div class="modal" role="dialog" aria-modal="true" aria-label="' + esc(opts.title) + '">' +
+      '<div class="modal-head"><h3 class="modal-title">' + esc(opts.title) + "</h3>" +
+      '<button class="btn btn-ghost btn-sm" id="modal-x" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      '<div class="modal-body">' + (opts.bodyHtml || "") + "</div>" +
+      '<div class="modal-foot">' +
+      '<button class="btn" id="modal-cancel" type="button">' + esc(opts.cancelLabel || t("cancel")) + "</button>" +
+      '<button class="btn ' + (opts.danger ? "btn-danger-solid" : "btn-primary") + '" id="modal-confirm" type="button">' +
+      esc(opts.confirmLabel || t("confirm")) + "</button>" +
+      "</div></div></div>";
+
+    function close() {
+      root.hidden = true;
+      root.innerHTML = "";
+      if (opts.onCancel) { opts.onCancel(); }
+    }
+    byId("modal-x").addEventListener("click", close);
+    byId("modal-cancel").addEventListener("click", close);
+    byId("modal-confirm").addEventListener("click", function () {
+      root.hidden = true;
+      root.innerHTML = "";
+      if (opts.onConfirm) { opts.onConfirm(); }
+    });
+    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+      if (e.target === e.currentTarget) { close(); }
+    });
+    byId("modal-confirm").focus();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Thème clair / sombre                                                */
+  /* ------------------------------------------------------------------ */
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem("overdrive-theme", theme); } catch (e) { /* stockage indisponible */ }
+    updateThemeLabel();
+  }
+
+  function updateThemeLabel() {
+    var label = byId("theme-label");
+    if (label) { label.textContent = currentTheme() === "dark" ? t("theme_to_light") : t("theme_to_dark"); }
+    $all(".seg[data-seg='theme'] button").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.theme === currentTheme());
+    });
+  }
+
+  async function setTheme(theme) {
+    applyTheme(theme);
+    try { await api("/api/settings", { body: { theme: theme } }); } catch (e) { /* déjà signalé */ }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Langue FR / EN                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function applyLang(lang) {
+    LANG = lang === "en" ? "en" : "fr";
+    try { localStorage.setItem("overdrive-lang", LANG); } catch (e) { /* stockage indisponible */ }
+    applyStaticI18n();
+  }
+
+  async function setLang(lang) {
+    if (lang === LANG) { return; }
+    applyLang(lang);
+    render();
+    try { await api("/api/settings", { body: { lang: lang } }); } catch (e) { /* déjà signalé */ }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Routeur (hash routing)                                              */
+  /* ------------------------------------------------------------------ */
+
+  var routes = {
+    "/": renderHome,
+    "/tweaks": renderTweaks,
+    "/games": renderGames,
+    "/clean": renderClean,
+    "/monitor": renderMonitor,
+    "/startup": renderStartup,
+    "/assistant": renderAssistant,
+    "/settings": renderSettings
+  };
+
+  function currentRoute() {
+    var h = window.location.hash || "#/";
+    var p = h.replace(/^#/, "");
+    if (!routes[p]) { p = "/"; }
+    return p;
+  }
+
+  function setActiveNav(route) {
+    $all(".nav-item[data-route]").forEach(function (a) {
+      a.classList.toggle("active", a.dataset.route === route);
+    });
+  }
+
+  function render() {
+    renderSeq++;
+    stopMonitor();           /* l'intervalle du moniteur ne survit jamais à la page */
+    var route = currentRoute();
+    setActiveNav(route);
+    routes[route](renderSeq);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Accueil                                                        */
+  /* ------------------------------------------------------------------ */
+
+  function renderHome(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("home_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("home_sub")) + "</p>" +
+      '<div class="stats-row">' +
+      statCard("stat-profile", t("stat_profile"), "…", "") +
+      statCard("stat-tweaks", t("stat_tweaks"), "…", "") +
+      statCard("stat-games", t("stat_games"), "…", "") +
+      "</div>" +
+      '<div class="group-label">' + esc(t("hw_group")) + ' <span class="spacer"></span>' +
+      '<button class="btn btn-ghost btn-sm" id="btn-hw-refresh" type="button">' + icon("refresh") + " " + esc(t("refresh")) + "</button></div>" +
+      '<div id="hw-area"><div class="loading-line">' + esc(t("hw_detecting")) + "</div></div>" +
+      '<div class="group-label">' + esc(t("quick_actions")) + "</div>" +
+      '<div class="quick-actions">' +
+      '<button class="btn btn-primary" id="btn-boost" type="button">' + icon("zap") + " " + esc(t("boost_btn")) + "</button>" +
+      '<button class="btn" id="btn-quick-clean" type="button">' + icon("search") + " " + esc(t("quick_clean")) + "</button>" +
+      "</div>" +
+      '<div class="group-label">' + esc(t("programs_group")) + "</div>" +
+      '<div id="programs-area"><div class="loading-line">' + esc(t("programs_loading")) + "</div></div>";
+
+    byId("btn-boost").addEventListener("click", openBoostModal);
+    byId("btn-quick-clean").addEventListener("click", function () {
+      state.autoScan = true;
+      if (currentRoute() === "/clean") { render(); } else { window.location.hash = "#/clean"; }
+    });
+    byId("btn-hw-refresh").addEventListener("click", function () {
+      var btn = byId("btn-hw-refresh");
+      setBusy(btn, t("analyzing"));
+      loadHardware(seq, true).then(function () { clearBusy(btn); });
+    });
+
+    updateProfileStat();
+    loadHardware(seq, false);
+    loadHomeStats(seq);
+    loadPrograms(seq);
+  }
+
+  function statCard(id, label, value, note) {
+    return '<div class="card stat-card" id="' + id + '">' +
+      '<div class="stat-label">' + esc(label) + "</div>" +
+      '<div class="stat-value">' + esc(value) + "</div>" +
+      '<div class="stat-note">' + esc(note) + "</div></div>";
+  }
+
+  function updateProfileStat() {
+    var card = byId("stat-profile");
+    if (!card) { return; }
+    if (state.profile) {
+      card.querySelector(".stat-value").textContent = tr(state.profile, "label") || state.profile.id;
+      card.querySelector(".stat-note").textContent = t("stat_profile_note");
+    } else {
+      card.querySelector(".stat-value").textContent = t("stat_none");
+      card.querySelector(".stat-note").innerHTML =
+        '<button class="link-btn" id="link-open-quiz" type="button">' + esc(t("stat_quiz_link")) + "</button>";
+      var link = byId("link-open-quiz");
+      if (link) { link.addEventListener("click", function () { openQuiz(false); }); }
+    }
+  }
+
+  async function loadHardware(seq, refresh) {
+    if (!state.hardware || refresh) {
+      try {
+        state.hardware = await api("/api/hardware" + (refresh ? "?refresh=1" : ""));
+      } catch (e) {
+        if (alive(seq) && byId("hw-area")) {
+          byId("hw-area").innerHTML = '<p class="muted small">' + esc(t("hw_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq) || !byId("hw-area")) { return; }
+    byId("hw-area").innerHTML = hardwareHtml(state.hardware);
+  }
+
+  function hwCard(label, lines) {
+    var body = lines.filter(Boolean).map(function (l) {
+      return '<div class="hw-line mono">' + l + "</div>";
+    }).join("");
+    return '<div class="card hw-card"><div class="hw-label">' + esc(label) + "</div>" +
+      (body || '<div class="hw-line muted small">' + esc(t("hw_none")) + "</div>") + "</div>";
+  }
+
+  function hardwareHtml(h) {
+    if (!h) { return '<p class="muted small">' + esc(t("hw_missing")) + "</p>"; }
+    var os = h.os || {}, cpu = h.cpu || {}, ram = h.ram || {};
+    var gpus = h.gpus || [], disks = h.disks || [], net = h.network || {};
+
+    var html = "";
+    if (h.summary) {
+      html += '<div class="mono-block hw-summary"><pre>' + esc(h.summary) + "</pre></div>";
+    }
+    html += '<div class="hw-grid">';
+    html += hwCard(t("hw_system"), [
+      esc([os.name, os.version].filter(Boolean).join(" ")) + (os.build ? ' <span class="muted">(build ' + esc(os.build) + ")</span>" : "")
+    ]);
+    html += hwCard(t("hw_cpu"), [
+      esc(cpu.name || ""),
+      (cpu.cores_physical ? esc(tf("hw_cores", { p: cpu.cores_physical, l: cpu.cores_logical || "?" })) : ""),
+      (cpu.freq_mhz_max ? esc(tf("hw_up_to", { m: Math.round(cpu.freq_mhz_max) })) : ""),
+      (cpu.usage_percent !== undefined && cpu.usage_percent !== null ? esc(tf("hw_load", { n: Math.round(cpu.usage_percent) })) : "")
+    ]);
+    html += hwCard(t("hw_ram"), [
+      ram.total_gb !== undefined ? esc(tf("hw_total", { g: fmtGb(ram.total_gb) })) : "",
+      ram.available_gb !== undefined ? esc(tf("hw_avail", { g: fmtGb(ram.available_gb) })) : "",
+      ram.used_percent !== undefined ? esc(tf("hw_used", { n: Math.round(ram.used_percent) })) : ""
+    ]);
+    html += hwCard(t("hw_gpu"), gpus.length ? gpus.map(function (g) {
+      return esc(g.name || "GPU") +
+        (g.vram_mb ? ' <span class="muted">· ' + esc(fmtMb(g.vram_mb)) + "</span>" : "") +
+        (g.driver ? ' <span class="muted">· ' + esc(tf("hw_driver", { d: g.driver })) + "</span>" : "");
+    }) : []);
+    html += hwCard(t("hw_disk"), disks.map(function (d) {
+      return esc(d.mountpoint || d.device || "") + ' <span class="muted">· ' +
+        esc(tf("hw_free", { f: fmtGb(d.free_gb), t: fmtGb(d.total_gb) })) + "</span>";
+    }));
+    var ifaces = (net.interfaces || []).slice(0, 4);
+    html += hwCard(t("hw_net"), [esc(net.hostname || "")].concat(ifaces.map(function (i) {
+      return esc(i.name || "") + (i.speed_mbps ? ' <span class="muted">· ' + esc(i.speed_mbps) + " Mb/s</span>" : "");
+    })));
+    html += "</div>";
+    return html;
+  }
+
+  async function loadHomeStats(seq) {
+    var tweaksP = state.tweaks ? Promise.resolve(state.tweaks) : api("/api/tweaks").then(function (d) { state.tweaks = d; return d; });
+    var gamesP = state.games ? Promise.resolve(state.games) : api("/api/games").then(function (d) { state.games = d.games || []; return state.games; });
+
+    try {
+      var tw = await tweaksP;
+      if (alive(seq) && byId("stat-tweaks")) {
+        var list = tw.tweaks || [];
+        var applied = list.filter(function (x) { return x.applied === true; }).length;
+        byId("stat-tweaks").querySelector(".stat-value").textContent = applied + " / " + list.length;
+        byId("stat-tweaks").querySelector(".stat-note").textContent = t("stat_tweaks_note");
+      }
+    } catch (e) { /* bandeau déjà affiché */ }
+
+    try {
+      var games = await gamesP;
+      if (alive(seq) && byId("stat-games")) {
+        var n = games.filter(function (g) { return g.installed; }).length;
+        byId("stat-games").querySelector(".stat-value").textContent = n + " / " + games.length;
+        byId("stat-games").querySelector(".stat-note").textContent = n ? t("stat_games_some") : t("stat_games_none");
+      }
+    } catch (e2) { /* idem */ }
+  }
+
+  async function loadPrograms(seq) {
+    if (!state.programs) {
+      try {
+        state.programs = await api("/api/programs");
+      } catch (e) {
+        if (alive(seq) && byId("programs-area")) {
+          byId("programs-area").innerHTML = '<p class="muted small">' + esc(t("programs_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq) || !byId("programs-area")) { return; }
+    byId("programs-area").innerHTML = programsHtml(state.programs);
+    $all("#programs-area [data-install]").forEach(function (btn) {
+      btn.addEventListener("click", onInstallProgram);
+    });
+  }
+
+  function programsHtml(data) {
+    var progs = (data && data.programs) || [];
+    var hasWinget = !!(data && data.winget);
+    if (!progs.length) { return '<p class="muted small">' + esc(t("programs_none")) + "</p>"; }
+    var cards = progs.map(function (p) {
+      var actions = "";
+      if (hasWinget && p.winget_id) {
+        actions += '<button class="btn btn-sm" data-install="' + esc(p.id) + '" type="button">' +
+          icon("download") + " " + esc(t("prog_install")) + "</button>";
+      }
+      if (p.url) {
+        actions += '<a class="btn btn-sm ' + (hasWinget && p.winget_id ? "btn-ghost" : "") +
+          '" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + icon("external") + " " + esc(t("prog_site")) + "</a>";
+      }
+      return '<div class="card program-card">' +
+        '<div class="prog-head"><span class="card-title">' + esc(p.name) + "</span>" +
+        '<span class="badge badge-gray">' + esc(programCategory(p.category)) + "</span></div>" +
+        '<div class="prog-desc">' + esc(tr(p, "description")) + "</div>" +
+        '<div class="prog-foot">' + actions + "</div>" +
+        '<div class="prog-result" id="prog-res-' + esc(p.id) + '"></div>' +
+        "</div>";
+    }).join("");
+    var note = hasWinget ? "" :
+      '<p class="muted small">' + esc(t("winget_missing")) + "</p>";
+    return note + '<div class="grid grid-3">' + cards + "</div>";
+  }
+
+  async function onInstallProgram(e) {
+    var btn = e.currentTarget;
+    var id = btn.dataset.install;
+    setBusy(btn, t("prog_installing"));
+    var box = byId("prog-res-" + id);
+    try {
+      var res = await api("/api/programs/install", { body: { id: id } });
+      if (box) {
+        box.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>";
+      }
+    } catch (err) {
+      if (box) { box.innerHTML = '<span class="err-text">' + esc(t("prog_install_failed")) + "</span>"; }
+    }
+    clearBusy(btn);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Boost en un clic (modale récap → POST /api/boost → résultats)       */
+  /* ------------------------------------------------------------------ */
+
+  function boostStepLabel(step, fallback) {
+    var keys = { restore: "boost_lbl_restore", tweaks: "boost_lbl_tweaks", clean: "boost_lbl_clean" };
+    if (keys[step]) { return t(keys[step]); }
+    return fallback || step;
+  }
+
+  function openBoostModal() {
+    var root = byId("modal-root");
+    root.hidden = false;
+    root.innerHTML =
+      '<div class="modal-overlay">' +
+      '<div class="modal" role="dialog" aria-modal="true" aria-label="' + esc(t("boost_title")) + '">' +
+      '<div class="modal-head"><h3 class="modal-title">' + esc(t("boost_title")) + "</h3>" +
+      '<button class="btn btn-ghost btn-sm" id="boost-x" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      '<div class="modal-body" id="boost-body">' +
+      "<p>" + esc(t("boost_intro")) + "</p>" +
+      '<ul class="boost-steps">' +
+      [t("boost_step1"), t("boost_step2"), t("boost_step3")].map(function (step) {
+        return '<li><span class="step-ic">' + icon("right") + "</span>" +
+          '<span class="step-body">' + esc(step) + "</span></li>";
+      }).join("") +
+      "</ul>" +
+      '<label class="boost-restore">' +
+      '<input type="checkbox" id="boost-restore" checked>' +
+      "<span>" + esc(t("boost_restore_check")) + "</span></label>" +
+      "</div>" +
+      '<div class="modal-foot" id="boost-foot">' +
+      '<button class="btn" id="boost-cancel" type="button">' + esc(t("cancel")) + "</button>" +
+      '<button class="btn btn-primary" id="boost-run" type="button">' + icon("zap") + " " + esc(t("boost_run")) + "</button>" +
+      "</div></div></div>";
+
+    var ran = false;
+
+    function close() {
+      root.hidden = true;
+      root.innerHTML = "";
+      if (ran) {
+        /* Les tweaks et le nettoyage ont pu changer : invalide les caches. */
+        state.tweaks = null;
+        state.cleanTargets = null;
+        state.cleanSelection = new Set();
+        state.cleanResults = {};
+        render();
+      }
+    }
+
+    byId("boost-x").addEventListener("click", close);
+    byId("boost-cancel").addEventListener("click", close);
+    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+      if (e.target === e.currentTarget) { close(); }
+    });
+
+    byId("boost-run").addEventListener("click", async function () {
+      var runBtn = byId("boost-run");
+      var restore = !!(byId("boost-restore") && byId("boost-restore").checked);
+      setBusy(runBtn, t("boost_running"));
+      var cancelBtn = byId("boost-cancel");
+      if (cancelBtn) { cancelBtn.disabled = true; }
+      var res;
+      try {
+        res = await api("/api/boost", { body: { restore_point: restore } });
+      } catch (e) {
+        clearBusy(runBtn);
+        if (cancelBtn) { cancelBtn.disabled = false; }
+        var body = byId("boost-body");
+        if (body) {
+          body.insertAdjacentHTML("beforeend",
+            '<p class="err-text small">' + esc(t("boost_failed")) + "</p>");
+        }
+        return;
+      }
+      ran = true;
+      var steps = (res && res.steps) || [];
+      var stepsHtml = steps.map(function (s) {
+        var details = (s.details || []).map(function (d) {
+          var name = d.name || d.id || "";
+          var msg = d.message || "";
+          var extra = d.freed_mb !== undefined && d.freed_mb !== null ? " · " + fmtMb(d.freed_mb) : "";
+          return '<li class="' + (d.ok === false ? "err-text" : "") + '">' +
+            esc(name) + (name && msg ? " — " : "") + esc(msg) + esc(extra) + "</li>";
+        }).join("");
+        return '<li><span class="step-ic ' + (s.ok ? "ok" : "fail") + '">' +
+          icon(s.ok ? "check" : "x") + "</span>" +
+          '<span class="step-body">' +
+          '<span class="step-name">' + esc(boostStepLabel(s.step, s.label)) + "</span>" +
+          '<span class="step-msg">' + esc(s.message || "") + "</span>" +
+          (details ? '<ul class="boost-details">' + details + "</ul>" : "") +
+          "</span></li>";
+      }).join("");
+      var body2 = byId("boost-body");
+      if (body2) {
+        body2.innerHTML =
+          '<p class="' + (res.ok ? "ok-text" : "err-text") + '" style="margin-top:0">' +
+          esc(res.ok ? t("boost_done") : t("boost_done_issues")) + "</p>" +
+          (stepsHtml ? '<ul class="boost-steps">' + stepsHtml + "</ul>" : "");
+      }
+      var foot = byId("boost-foot");
+      if (foot) {
+        foot.innerHTML = '<button class="btn btn-primary" id="boost-close" type="button">' + esc(t("close")) + "</button>";
+        byId("boost-close").addEventListener("click", close);
+        byId("boost-close").focus();
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Optimisations                                                  */
+  /* ------------------------------------------------------------------ */
+
+  function findTweak(id) {
+    var list = (state.tweaks && state.tweaks.tweaks) || [];
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { return list[i]; } }
+    return null;
+  }
+
+  async function renderTweaks(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("tweaks_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("tweaks_sub")) + "</p>" +
+      '<div id="tweaks-area"><div class="loading-line">' + esc(t("tweaks_loading")) + "</div></div>";
+
+    try {
+      state.tweaks = await api("/api/tweaks");
+    } catch (e) {
+      if (alive(seq) && byId("tweaks-area")) {
+        byId("tweaks-area").innerHTML =
+          '<div class="card empty-state">' + icon("alert") +
+          '<p class="empty-title">' + esc(t("tweaks_unavail_title")) + "</p>" +
+          "<p>" + esc(t("tweaks_unavail_body")) + "</p>" +
+          '<button class="btn" id="btn-tweaks-retry" type="button">' + esc(t("retry")) + "</button></div>";
+        byId("btn-tweaks-retry").addEventListener("click", render);
+      }
+      return;
+    }
+    if (!alive(seq)) { return; }
+
+    var tweaks = state.tweaks.tweaks || [];
+    var supportedIds = {};
+    tweaks.forEach(function (x) { if (x.supported !== false) { supportedIds[x.id] = true; } });
+
+    /* Pré-cocher la sélection du profil (premier passage ou demande explicite). */
+    if (state.profile && (state.pendingProfileSelect || !state.tweakSelectionInit)) {
+      state.tweakSelection = new Set((state.profile.recommended_tweaks || []).filter(function (id) {
+        return supportedIds[id];
+      }));
+      state.pendingProfileSelect = false;
+      state.tweakSelectionInit = true;
+    }
+    /* Retire de la sélection les ids disparus ou non supportés. */
+    Array.from(state.tweakSelection).forEach(function (id) {
+      if (!supportedIds[id]) { state.tweakSelection.delete(id); }
+    });
+
+    buildTweaksArea();
+  }
+
+  function buildTweaksArea() {
+    var area = byId("tweaks-area");
+    if (!area) { return; }
+    var data = state.tweaks || {};
+    var categories = data.categories || [];
+    var tweaks = data.tweaks || [];
+    var st = state.status;
+
+    var note = "";
+    if (st && !st.is_windows) {
+      note = '<div class="notice">' + icon("alert") +
+        "<span>" + esc(t("notice_not_windows")) + "</span></div>";
+    } else if (st && st.is_windows && !st.is_admin) {
+      note = '<div class="notice">' + icon("alert") +
+        "<span>" + esc(t("notice_not_admin")) + "</span></div>";
+    }
+
+    var toolbar =
+      '<div class="tweaks-toolbar">' +
+      '<button class="btn btn-sm" id="btn-sel-profile" type="button"' +
+      (state.profile ? "" : ' disabled title="' + esc(t("sel_profile_hint")) + '"') + ">" + esc(t("sel_profile")) + "</button>" +
+      '<button class="btn btn-sm" id="btn-sel-safe" type="button">' + esc(t("sel_safe")) + "</button>" +
+      '<button class="btn btn-sm btn-ghost" id="btn-sel-none" type="button">' + esc(t("sel_none")) + "</button>" +
+      '<span class="tweaks-count" id="tweak-count"></span>' +
+      '<span class="spacer"></span>' +
+      '<button class="btn btn-sm" id="btn-restore" type="button">' + icon("shield") + " " + esc(t("restore_point")) + "</button>" +
+      '<button class="btn btn-sm btn-danger" id="btn-revert" type="button">' + esc(t("revert_applied")) + "</button>" +
+      '<button class="btn btn-sm btn-primary" id="btn-apply" type="button"></button>' +
+      "</div>";
+
+    var chips = '<div class="chips">' +
+      '<button class="chip' + (state.tweakFilter === "all" ? " active" : "") + '" data-filter="all" type="button">' + esc(t("chip_all")) + "</button>" +
+      categories.map(function (c) {
+        return '<button class="chip' + (state.tweakFilter === c.id ? " active" : "") + '" data-filter="' +
+          esc(c.id) + '" type="button">' + esc(tr(c, "label")) + "</button>";
+      }).join("") + "</div>";
+
+    var groups = categories.map(function (c) {
+      if (state.tweakFilter !== "all" && state.tweakFilter !== c.id) { return ""; }
+      var items = tweaks.filter(function (x) { return x.category === c.id; });
+      if (!items.length) { return ""; }
+      var rows = items.map(tweakRowHtml).join("");
+      return '<div class="tweak-group"><h2 class="tweak-group-head">' + esc(tr(c, "label")) +
+        ' <span class="muted">· ' + items.length + "</span></h2>" + rows + "</div>";
+    }).join("");
+
+    area.innerHTML = note + toolbar + chips + '<div id="tweaks-list">' + (groups ||
+      '<p class="muted small">' + esc(t("tweaks_none_cat")) + "</p>") + "</div>";
+
+    /* Liaisons. */
+    byId("btn-sel-profile").addEventListener("click", function () {
+      if (!state.profile) { return; }
+      var rec = state.profile.recommended_tweaks || [];
+      state.tweakSelection = new Set(rec.filter(function (id) {
+        var x = findTweak(id);
+        return x && x.supported !== false;
+      }));
+      buildTweaksArea();
+    });
+    byId("btn-sel-safe").addEventListener("click", function () {
+      state.tweakSelection = new Set(tweaks.filter(function (x) {
+        return x.supported !== false && x.risk === "sur";
+      }).map(function (x) { return x.id; }));
+      buildTweaksArea();
+    });
+    byId("btn-sel-none").addEventListener("click", function () {
+      state.tweakSelection = new Set();
+      buildTweaksArea();
+    });
+    byId("btn-apply").addEventListener("click", onApplyTweaks);
+    byId("btn-revert").addEventListener("click", onRevertTweaks);
+    byId("btn-restore").addEventListener("click", onRestorePoint);
+
+    $all(".chip", area).forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        state.tweakFilter = chip.dataset.filter;
+        buildTweaksArea();
+      });
+    });
+
+    byId("tweaks-list").addEventListener("change", function (e) {
+      var input = e.target;
+      if (!input.classList.contains("tweak-check")) { return; }
+      var id = input.dataset.id;
+      if (input.checked) { state.tweakSelection.add(id); } else { state.tweakSelection.delete(id); }
+      updateTweakCounts();
+    });
+
+    updateTweakCounts();
+  }
+
+  function tweakRowHtml(x) {
+    var unsupported = x.supported === false;
+    var im = IMPACT_META[x.impact] || IMPACT_META.moyen;
+    var rk = RISK_META[x.risk] || RISK_META.sur;
+    var status = "";
+    if (unsupported) {
+      status = '<span class="tweak-status">' + esc(t("tweak_unsupported")) + "</span>";
+    } else if (x.applied === true) {
+      status = '<span class="tweak-status"><span class="dot dot-green"></span>' + esc(t("tweak_applied")) + "</span>";
+    }
+    var checked = state.tweakSelection.has(x.id) && !unsupported;
+    var res = state.tweakResults[x.id];
+    var resHtml = res ?
+      '<div class="tweak-result ' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</div>" : "";
+
+    return '<label class="tweak-row' + (unsupported ? " unsupported" : "") + '">' +
+      '<input type="checkbox" class="tweak-check" data-id="' + esc(x.id) + '"' +
+      (checked ? " checked" : "") + (unsupported ? " disabled" : "") + ">" +
+      '<span class="tweak-name">' + esc(tr(x, "name")) + "</span>" +
+      '<span class="badge ' + im.cls + '">' + esc(t(im.key)) + "</span>" +
+      '<span class="badge ' + rk.cls + '">' + esc(t(rk.key)) + "</span>" +
+      '<span class="tweak-desc" title="' + esc(tr(x, "description")) + '">' + esc(tr(x, "description")) + "</span>" +
+      status + "</label>" + resHtml;
+  }
+
+  function updateTweakCounts() {
+    var n = state.tweakSelection.size;
+    var count = byId("tweak-count");
+    if (count) { count.textContent = tp(n, "selected_one", "selected_many"); }
+    var apply = byId("btn-apply");
+    if (apply) {
+      apply.textContent = tf("apply_n", { n: n });
+      apply.disabled = n === 0;
+    }
+  }
+
+  function onApplyTweaks() {
+    var ids = Array.from(state.tweakSelection);
+    if (!ids.length) { return; }
+    var advanced = ids.map(findTweak).filter(function (x) { return x && x.risk === "avance"; });
+    if (advanced.length) {
+      openModal({
+        title: t("adv_modal_title"),
+        bodyHtml: "<p>" + esc(t("adv_modal_body")) + "</p><ul>" +
+          advanced.map(function (x) { return "<li>" + esc(tr(x, "name")) + "</li>"; }).join("") + "</ul>",
+        confirmLabel: t("adv_confirm"),
+        danger: true,
+        onConfirm: function () { doApplyTweaks(ids); }
+      });
+    } else {
+      doApplyTweaks(ids);
+    }
+  }
+
+  async function doApplyTweaks(ids) {
+    var btn = byId("btn-apply");
+    setBusy(btn, t("applying"));
+    var results;
+    try {
+      var res = await api("/api/tweaks/apply", { body: { ids: ids } });
+      results = res.results || [];
+    } catch (e) {
+      clearBusy(btn);
+      return;
+    }
+    var okCount = 0;
+    results.forEach(function (r) {
+      state.tweakResults[r.id] = r;
+      if (r.ok) { okCount++; state.tweakSelection.delete(r.id); }
+    });
+    var failCount = results.length - okCount;
+    showBanner(
+      tf("apply_done", { ok: tp(okCount, "apply_ok_one", "apply_ok_many") }) +
+      (failCount ? tf("apply_fail", { n: failCount }) : "") + ".",
+      failCount ? "error" : "ok");
+    try { state.tweaks = await api("/api/tweaks"); } catch (e2) { /* état précédent conservé */ }
+    if (currentRoute() === "/tweaks") { buildTweaksArea(); }
+  }
+
+  function onRevertTweaks() {
+    var tweaks = (state.tweaks && state.tweaks.tweaks) || [];
+    var ids = tweaks.filter(function (x) { return x.tracked; }).map(function (x) { return x.id; });
+    if (!ids.length) {
+      showBanner(t("revert_none"), "");
+      return;
+    }
+    openModal({
+      title: t("revert_applied"),
+      bodyHtml: "<p>" + esc(tp(ids.length, "revert_body_one", "revert_body_many")) + "</p>",
+      confirmLabel: t("revert_all"),
+      danger: true,
+      onConfirm: async function () {
+        var btn = byId("btn-revert");
+        setBusy(btn, t("reverting"));
+        try {
+          var res = await api("/api/tweaks/revert", { body: { ids: ids } });
+          var results = res.results || [];
+          var okCount = results.filter(function (r) { return r.ok; }).length;
+          results.forEach(function (r) { state.tweakResults[r.id] = r; });
+          showBanner(tf("revert_done", { ok: okCount, total: results.length }), "ok");
+          state.tweaks = await api("/api/tweaks");
+        } catch (e) { /* bandeau déjà affiché */ }
+        if (currentRoute() === "/tweaks") { buildTweaksArea(); }
+      }
+    });
+  }
+
+  async function onRestorePoint() {
+    var btn = byId("btn-restore");
+    setBusy(btn, t("creating"));
+    try {
+      var res = await api("/api/restore-point", { method: "POST" });
+      showBanner(res.message || (res.ok ? t("restore_created") : t("restore_failed")), res.ok ? "ok" : "error");
+    } catch (e) { /* bandeau déjà affiché */ }
+    clearBusy(btn);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Jeux                                                           */
+  /* ------------------------------------------------------------------ */
+
+  async function renderGames(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("games_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("games_sub")) + "</p>" +
+      '<div id="games-area"><div class="loading-line">' + esc(t("games_detecting")) + "</div></div>";
+
+    try {
+      var res = await api("/api/games");
+      state.games = res.games || [];
+    } catch (e) {
+      if (alive(seq) && byId("games-area")) {
+        byId("games-area").innerHTML = '<p class="muted small">' + esc(t("games_unavailable")) + "</p>";
+      }
+      return;
+    }
+    if (!alive(seq)) { return; }
+    buildGamesArea(seq);
+  }
+
+  function buildGamesArea(seq) {
+    var area = byId("games-area");
+    if (!area) { return; }
+    var games = state.games || [];
+    var detected = games.filter(function (g) { return g.installed; }).length;
+
+    var note = detected === 0 ?
+      '<p class="muted small">' + esc(t("games_none")) + "</p>" : "";
+
+    var cards = games.map(function (g) {
+      var badge = g.installed ?
+        '<span class="badge badge-green">' + esc(t("badge_detected")) + "</span>" :
+        '<span class="badge badge-gray">' + esc(t("badge_not_detected")) + "</span>";
+      var path = g.installed && g.install_path ?
+        '<div class="game-path mono" title="' + esc(g.install_path) + '">' + esc(g.install_path) + "</div>" : "";
+      return '<div class="card game-card' + (state.selectedGame === g.id ? " selected" : "") +
+        '" data-game="' + esc(g.id) + '" tabindex="0" role="button">' +
+        '<span class="card-title">' + esc(g.name) + "</span>" +
+        '<span class="game-store">' + esc(storeLabel(g.store)) + "</span>" +
+        "<div>" + badge + "</div>" + path + "</div>";
+    }).join("");
+
+    area.innerHTML = note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
+      '<div id="game-detail-area"></div>' +
+      '<div class="group-label">' + esc(t("latency_group")) + "</div>" +
+      '<div class="card" id="latency-card"><div id="latency-inner"></div></div>';
+
+    $all("#games-grid .game-card").forEach(function (card) {
+      function select() {
+        state.selectedGame = card.dataset.game;
+        buildGamesArea(seq);
+        var det = byId("game-detail-area");
+        if (det) { det.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+      }
+      card.addEventListener("click", select);
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); }
+      });
+    });
+
+    updateLatencyCard(seq);
+    if (state.selectedGame) { buildGameDetail(seq); }
+  }
+
+  /* ---- Encart « Latence estimée » ---- */
+
+  function msBadge(v) {
+    if (v === null || v === undefined) { return '<span class="muted">—</span>'; }
+    var cls = v < 30 ? "badge-green" : (v < 70 ? "badge-yellow" : "badge-red");
+    return '<span class="badge ' + cls + '">' + esc(dec(v)) + " ms</span>";
+  }
+
+  function latencyInnerHtml() {
+    var btn = state.latencyBusy ? "" :
+      '<button class="btn btn-sm' + (state.latency ? "" : " btn-primary") +
+      '" id="btn-latency" type="button">' + icon("activity") + " " + esc(t("latency_measure")) + "</button>";
+    var html = '<div class="lat-head">' +
+      '<p class="muted small lat-note">' + esc(t("latency_desc")) + "</p>" + btn + "</div>";
+    if (state.latencyBusy) {
+      return html + '<div class="loading-line">' + esc(t("latency_measuring")) + "</div>";
+    }
+    if (state.latency && state.latency.length) {
+      var rows = state.latency.map(function (r) {
+        var label = "<td>" + esc(tr(r, "label")) +
+          ' <span class="muted small mono">' + esc(r.host || "") + "</span></td>";
+        if (!r.ok) {
+          return "<tr>" + label +
+            '<td colspan="3" class="muted small">' + esc(r.message || t("latency_failed")) + "</td></tr>";
+        }
+        return "<tr>" + label +
+          '<td class="lat-ms">' + msBadge(r.ms_min) + "</td>" +
+          '<td class="lat-ms">' + msBadge(r.ms_avg) + "</td>" +
+          '<td class="lat-ms">' + msBadge(r.ms_max) + "</td></tr>";
+      }).join("");
+      html += '<div class="lat-results"><table class="table"><thead><tr>' +
+        "<th>" + esc(t("th_region")) + "</th><th>" + esc(t("th_min")) + "</th><th>" +
+        esc(t("th_avg")) + "</th><th>" + esc(t("th_max")) + "</th>" +
+        "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+    }
+    return html;
+  }
+
+  function updateLatencyCard(seq) {
+    var inner = byId("latency-inner");
+    if (!inner) { return; }
+    inner.innerHTML = latencyInnerHtml();
+    var btn = byId("btn-latency");
+    if (btn) { btn.addEventListener("click", function () { doMeasureLatency(seq); }); }
+  }
+
+  async function doMeasureLatency(seq) {
+    if (state.latencyBusy) { return; }
+    state.latencyBusy = true;
+    updateLatencyCard(seq);
+    try {
+      var res = await api("/api/latency", { body: {} });
+      state.latency = (res && res.results) || [];
+    } catch (e) { /* bandeau déjà affiché */ }
+    state.latencyBusy = false;
+    updateLatencyCard(seq);
+  }
+
+  function buildGameDetail(seq) {
+    var area = byId("game-detail-area");
+    if (!area) { return; }
+    var game = null;
+    (state.games || []).forEach(function (g) { if (g.id === state.selectedGame) { game = g; } });
+    if (!game) { area.innerHTML = ""; return; }
+
+    var html = '<div class="card game-detail">' +
+      '<div class="game-detail-head"><div><h2>' + esc(game.name) + "</h2>" +
+      '<span class="muted small">' + esc(storeLabel(game.store)) +
+      (game.installed && game.install_path ? ' · <span class="mono mono-inline">' + esc(game.install_path) + "</span>" : "") +
+      "</span></div>" +
+      '<button class="btn btn-ghost btn-sm" id="btn-game-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>";
+
+    if (game.launch_options) {
+      html += '<div class="group-label">' + esc(t("launch_options")) + "</div>" +
+        '<div class="mono-block"><pre>' + esc(game.launch_options) + "</pre>" +
+        '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div>";
+      if (game.launch_options_note) {
+        html += '<p class="muted small">' + esc(tr(game, "launch_options_note")) + "</p>";
+      }
+    }
+
+    var opts = game.optimizations || [];
+    if (opts.length) {
+      html += '<div class="group-label">' + esc(t("recommended_settings")) + '</div><ul class="opt-list">' +
+        opts.map(function (o) {
+          return '<li><div class="opt-title">' + esc(tr(o, "title")) + "</div>" +
+            '<div class="opt-detail">' + esc(tr(o, "detail")) + "</div></li>";
+        }).join("") + "</ul>";
+    }
+
+    if (game.id === "cs2") {
+      html += '<div id="cs2-panel"><div class="loading-line">' + esc(t("cs2_loading")) + "</div></div>";
+    }
+
+    html += "</div>";
+    area.innerHTML = html;
+
+    byId("btn-game-close").addEventListener("click", function () {
+      state.selectedGame = null;
+      buildGamesArea(seq);
+    });
+    bindCopyButtons(area);
+
+    if (game.id === "cs2") { loadCs2Panel(seq); }
+  }
+
+  async function loadCs2Panel(seq) {
+    if (!state.cs2) {
+      try {
+        state.cs2 = await api("/api/games/cs2");
+      } catch (e) {
+        var boxErr = byId("cs2-panel");
+        if (boxErr) { boxErr.innerHTML = '<p class="muted small">' + esc(t("cs2_unavailable")) + "</p>"; }
+        return;
+      }
+    }
+    if (!alive(seq)) { return; }
+    var box = byId("cs2-panel");
+    if (!box) { return; }
+    box.innerHTML = cs2PanelHtml(state.cs2);
+    bindCs2Panel(seq);
+  }
+
+  function cs2PanelHtml(info) {
+    var profiles = (info && info.userdata_profiles) || [];
+    var html = '<div class="group-label">' + esc(t("cs2_config")) + "</div>";
+
+    if (!profiles.length) {
+      html += '<p class="muted small">' + esc(t("cs2_no_profiles")) + "</p>";
+    } else {
+      html += profiles.map(function (p) {
+        return '<div class="cs2-profile-row">' +
+          "<span>" + esc(t("cs2_profile")) + ' <span class="mono mono-inline">' + esc(p.user_id) + "</span></span>" +
+          (p.has_autoexec ?
+            '<span class="badge badge-green">' + esc(t("cs2_autoexec_yes")) + "</span>" :
+            '<span class="badge badge-gray">' + esc(t("cs2_autoexec_no")) + "</span>") +
+          '<span class="muted small mono clean-path" title="' + esc(p.cfg_dir) + '">' + esc(p.cfg_dir) + "</span>" +
+          "</div>";
+      }).join("");
+
+      var select = "";
+      if (profiles.length > 1) {
+        select = '<select class="input" id="cs2-user">' + profiles.map(function (p) {
+          return '<option value="' + esc(p.user_id) + '">' + esc(t("cs2_profile")) + " " + esc(p.user_id) + "</option>";
+        }).join("") + "</select> ";
+      }
+      html += '<div class="quick-actions" style="margin-top:12px">' + select +
+        '<button class="btn btn-primary btn-sm" id="btn-cs2-write" type="button">' + esc(t("cs2_write")) + "</button></div>" +
+        '<div class="small" id="cs2-write-result" style="margin-top:8px"></div>';
+    }
+
+    if (info && info.autoexec_recommended) {
+      html += '<details class="fold"><summary>' + esc(t("cs2_preview")) + "</summary>" +
+        '<div class="fold-body"><div class="mono-block"><pre>' + esc(info.autoexec_recommended) + "</pre>" +
+        '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div></div></details>";
+    }
+
+    var recs = (info && info.video_recommendations) || [];
+    if (recs.length) {
+      html += '<div class="group-label">' + esc(t("cs2_video_group")) + "</div>";
+      if (!info.video_settings) {
+        html += '<p class="muted small">' + esc(t("cs2_video_not_read")) + "</p>";
+      }
+      html += '<table class="table"><thead><tr><th>' + esc(t("th_param")) + "</th><th>" + esc(t("th_current")) +
+        "</th><th>" + esc(t("th_recommended")) + "</th><th>" + esc(t("th_note")) + "</th></tr></thead><tbody>" +
+        recs.map(function (r) {
+          return '<tr><td class="mono">' + esc(r.key) + '</td><td class="mono">' + esc(r.current === null || r.current === undefined ? "—" : r.current) +
+            '</td><td class="mono">' + esc(r.recommended) + '</td><td class="muted small">' + esc(tr(r, "note")) + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    }
+    return html;
+  }
+
+  function bindCs2Panel(seq) {
+    var panel = byId("cs2-panel");
+    if (!panel) { return; }
+    bindCopyButtons(panel);
+    var writeBtn = byId("btn-cs2-write");
+    if (writeBtn) {
+      writeBtn.addEventListener("click", async function () {
+        var sel = byId("cs2-user");
+        var userId = sel ? sel.value : null;
+        setBusy(writeBtn, t("writing"));
+        try {
+          var res = await api("/api/games/cs2/autoexec", { body: { user_id: userId } });
+          var out = byId("cs2-write-result");
+          if (out) {
+            out.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>" +
+              (res.ok && res.path ? ' <span class="mono mono-inline">' + esc(res.path) + "</span>" : "");
+          }
+          if (res.ok) { state.cs2 = null; loadCs2Panel(seq); return; }
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(writeBtn);
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Nettoyage                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function renderClean(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("clean_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("clean_sub")) + "</p>" +
+      '<div id="clean-area"></div>';
+    buildCleanArea(seq);
+    if (state.autoScan) {
+      state.autoScan = false;
+      doCleanScan(seq);
+    }
+  }
+
+  function buildCleanArea(seq) {
+    var area = byId("clean-area");
+    if (!area) { return; }
+
+    if (state.cleanScanning) {
+      area.innerHTML = '<div class="loading-line">' + esc(t("scanning")) + "</div>";
+      return;
+    }
+
+    if (state.cleanTargets === null) {
+      area.innerHTML = '<div class="card empty-state">' + icon("search") +
+        '<p class="empty-title">' + esc(t("clean_none_title")) + "</p>" +
+        "<p>" + esc(t("clean_none_body")) + "</p>" +
+        '<button class="btn btn-primary" id="btn-scan" type="button">' + esc(t("scan")) + "</button></div>";
+      byId("btn-scan").addEventListener("click", function () { doCleanScan(seq); });
+      return;
+    }
+
+    var targets = state.cleanTargets;
+    if (!targets.length) {
+      area.innerHTML = '<div class="card empty-state">' + icon("check") +
+        '<p class="empty-title">' + esc(t("clean_empty_title")) + "</p>" +
+        "<p>" + esc(t("clean_empty_body")) + "</p>" +
+        '<button class="btn" id="btn-rescan" type="button">' + icon("refresh") + " " + esc(t("rescan")) + "</button></div>";
+      byId("btn-rescan").addEventListener("click", function () { doCleanScan(seq); });
+      return;
+    }
+
+    var allChecked = targets.every(function (x) { return state.cleanSelection.has(x.id); });
+    var rows = targets.map(function (x) {
+      var res = state.cleanResults[x.id];
+      var resHtml = res ?
+        '<span class="' + (res.ok ? "ok-text" : "err-text") + ' small">' +
+        esc(res.ok ? tf("freed", { x: fmtMb(res.freed_mb) }) : (res.message || t("failed"))) + "</span>" : "";
+      return "<tr>" +
+        '<td><input type="checkbox" class="clean-check" data-id="' + esc(x.id) + '"' +
+        (state.cleanSelection.has(x.id) ? " checked" : "") + "></td>" +
+        "<td>" + esc(x.name) + "</td>" +
+        '<td><span class="mono mono-inline clean-path" title="' + esc(x.path) + '">' + esc(x.path) + "</span></td>" +
+        '<td class="mono">' + esc(x.files) + "</td>" +
+        '<td class="mono">' + esc(fmtMb(x.size_mb)) + "</td>" +
+        "<td>" + resHtml + "</td></tr>";
+    }).join("");
+
+    area.innerHTML =
+      '<table class="table"><thead><tr>' +
+      '<th><input type="checkbox" id="clean-all"' + (allChecked ? " checked" : "") + "></th>" +
+      "<th>" + esc(t("th_target")) + "</th><th>" + esc(t("th_path")) + "</th><th>" + esc(t("th_files")) +
+      "</th><th>" + esc(t("th_size")) + "</th><th>" + esc(t("th_result")) + "</th>" +
+      "</tr></thead><tbody>" + rows + "</tbody></table>" +
+      '<div class="clean-foot">' +
+      '<span class="muted" id="clean-total"></span>' +
+      '<span class="spacer"></span>' +
+      '<button class="btn" id="btn-rescan" type="button">' + icon("refresh") + " " + esc(t("rescan")) + "</button>" +
+      '<button class="btn btn-primary" id="btn-clean" type="button"></button>' +
+      "</div>";
+
+    byId("btn-rescan").addEventListener("click", function () { doCleanScan(seq); });
+    byId("btn-clean").addEventListener("click", onClean);
+    byId("clean-all").addEventListener("change", function (e) {
+      if (e.target.checked) {
+        state.cleanSelection = new Set(targets.map(function (x) { return x.id; }));
+      } else {
+        state.cleanSelection = new Set();
+      }
+      buildCleanArea(seq);
+    });
+    $all(".clean-check", area).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        if (cb.checked) { state.cleanSelection.add(cb.dataset.id); } else { state.cleanSelection.delete(cb.dataset.id); }
+        updateCleanTotals();
+      });
+    });
+    updateCleanTotals();
+  }
+
+  function updateCleanTotals() {
+    var targets = state.cleanTargets || [];
+    var total = 0;
+    var n = 0;
+    targets.forEach(function (x) {
+      if (state.cleanSelection.has(x.id)) { total += x.size_mb || 0; n++; }
+    });
+    var label = byId("clean-total");
+    if (label) { label.textContent = tf("clean_total", { x: fmtMb(total) }); }
+    var btn = byId("btn-clean");
+    if (btn) {
+      btn.textContent = tf("clean_n", { n: n });
+      btn.disabled = n === 0;
+    }
+  }
+
+  async function doCleanScan(seq) {
+    state.cleanScanning = true;
+    state.cleanResults = {};
+    buildCleanArea(seq);
+    try {
+      var res = await api("/api/clean/scan");
+      state.cleanTargets = res.targets || [];
+      state.cleanSelection = new Set(state.cleanTargets.map(function (x) { return x.id; }));
+    } catch (e) {
+      state.cleanTargets = state.cleanTargets || null;
+    }
+    state.cleanScanning = false;
+    if (alive(seq) && currentRoute() === "/clean") { buildCleanArea(seq); }
+  }
+
+  function onClean() {
+    var ids = Array.from(state.cleanSelection);
+    if (!ids.length) { return; }
+    openModal({
+      title: t("clean_modal_title"),
+      bodyHtml: "<p>" + esc(tp(ids.length, "clean_body_one", "clean_body_many")) + "</p>",
+      confirmLabel: t("clean_confirm"),
+      danger: true,
+      onConfirm: async function () {
+        var btn = byId("btn-clean");
+        setBusy(btn, t("cleaning"));
+        try {
+          var res = await api("/api/clean", { body: { ids: ids } });
+          var results = res.results || [];
+          var freed = 0;
+          results.forEach(function (r) {
+            state.cleanResults[r.id] = r;
+            freed += r.freed_mb || 0;
+          });
+          showBanner(tf("clean_done", { x: fmtMb(freed) }), "ok");
+        } catch (e) { /* bandeau déjà affiché */ }
+        if (currentRoute() === "/clean") { buildCleanArea(renderSeq); }
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Moniteur (rafraîchissement 2 s, sparklines SVG maison)         */
+  /* ------------------------------------------------------------------ */
+
+  var monitorTimer = null;     /* intervalle actif, nettoyé en quittant la page */
+  var monitorInFlight = false;
+
+  function stopMonitor() {
+    if (monitorTimer) { clearInterval(monitorTimer); monitorTimer = null; }
+    monitorInFlight = false;
+  }
+
+  var MON_POINTS = 60;         /* 60 derniers points par sparkline */
+
+  function pushHist(arr, v) {
+    arr.push(v);
+    if (arr.length > MON_POINTS) { arr.shift(); }
+  }
+
+  /* Sparkline SVG inline : trait 1.5px, currentColor, aucune lib. */
+  function sparklineSvg(values, maxValue) {
+    var W = 180, H = 40, PAD = 3;
+    var open = '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" aria-hidden="true">';
+    if (!values || values.length < 2) { return open + "</svg>"; }
+    var max = maxValue;
+    if (max === undefined || max === null) {
+      max = Math.max.apply(null, values);
+    }
+    if (!(max > 0)) { max = 1; }
+    var step = W / (MON_POINTS - 1);
+    var pts = values.map(function (v, i) {
+      var clamped = Math.max(0, Math.min(v, max));
+      var x = i * step;                        /* la courbe grandit depuis la gauche */
+      var y = H - PAD - (clamped / max) * (H - PAD * 2);
+      return (Math.round(x * 10) / 10) + "," + (Math.round(y * 10) / 10);
+    }).join(" ");
+    return open +
+      '<polyline fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" ' +
+      'stroke-linecap="round" stroke-linejoin="round" points="' + pts + '"/></svg>';
+  }
+
+  function monTileHtml(id, label) {
+    return '<div class="card mon-card">' +
+      '<div class="mon-label">' + esc(label) + "</div>" +
+      '<div class="mon-value" id="mon-' + id + '-val">—</div>' +
+      '<div class="mon-sub" id="mon-' + id + '-sub">' + esc(t("mon_waiting")) + "</div>" +
+      '<div class="spark-box" id="mon-' + id + '-spark">' + sparklineSvg([]) + "</div></div>";
+  }
+
+  function renderMonitor(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("monitor_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("monitor_sub")) + "</p>" +
+      '<div class="mon-grid">' +
+      monTileHtml("cpu", t("mon_cpu")) +
+      monTileHtml("ram", t("mon_ram")) +
+      monTileHtml("disk", t("mon_disk")) +
+      monTileHtml("net", t("mon_net")) +
+      "</div>" +
+      '<div class="group-label">' + esc(t("mon_top")) + "</div>" +
+      '<div id="mon-procs"><div class="loading-line">' + esc(t("mon_waiting")) + "</div></div>";
+
+    async function tick() {
+      if (monitorInFlight) { return; }
+      monitorInFlight = true;
+      var sample;
+      try {
+        sample = await api("/api/monitor");
+      } catch (e) {
+        monitorInFlight = false;
+        stopMonitor();
+        if (alive(seq) && byId("page")) {
+          byId("page").innerHTML =
+            '<h1 class="page-title">' + esc(t("monitor_title")) + "</h1>" +
+            '<p class="page-sub">' + esc(t("monitor_sub")) + "</p>" +
+            '<div class="card empty-state">' + icon("alert") +
+            '<p class="empty-title">' + esc(t("mon_unavail_title")) + "</p>" +
+            "<p>" + esc(t("mon_unavail_body")) + "</p>" +
+            '<button class="btn" id="btn-mon-retry" type="button">' + esc(t("retry")) + "</button></div>";
+          var retry = byId("btn-mon-retry");
+          if (retry) { retry.addEventListener("click", render); }
+        }
+        return;
+      }
+      monitorInFlight = false;
+      if (!alive(seq) || !byId("mon-cpu-val")) { return; }
+      updateMonitorDom(sample);
+    }
+
+    tick();
+    monitorTimer = setInterval(tick, 2000);
+  }
+
+  function updateMonitorDom(s) {
+    var hist = state.monitorHist;
+    var cpu = s.cpu_percent || 0;
+    var ram = (s.ram && s.ram.percent) || 0;
+    var diskTotal = ((s.disk_io && s.disk_io.read_mbps) || 0) + ((s.disk_io && s.disk_io.write_mbps) || 0);
+    var netTotal = ((s.net_io && s.net_io.up_mbps) || 0) + ((s.net_io && s.net_io.down_mbps) || 0);
+    pushHist(hist.cpu, cpu);
+    pushHist(hist.ram, ram);
+    pushHist(hist.disk, diskTotal);
+    pushHist(hist.net, netTotal);
+
+    byId("mon-cpu-val").textContent = dec(Math.round(cpu * 10) / 10) + " %";
+    byId("mon-cpu-sub").textContent = (s.per_core || []).length ?
+      (s.per_core || []).length + " threads" : "";
+    byId("mon-cpu-spark").innerHTML = sparklineSvg(hist.cpu, 100);
+
+    var ramObj = s.ram || {};
+    byId("mon-ram-val").textContent = dec(Math.round(ram * 10) / 10) + " %";
+    byId("mon-ram-sub").textContent = fmtGb(ramObj.used_gb) + " / " + fmtGb(ramObj.total_gb);
+    byId("mon-ram-spark").innerHTML = sparklineSvg(hist.ram, 100);
+
+    var dio = s.disk_io || {};
+    byId("mon-disk-val").textContent = fmtRate(diskTotal);
+    byId("mon-disk-sub").textContent =
+      t("mon_read") + " " + fmtRate(dio.read_mbps || 0) + " · " + t("mon_write") + " " + fmtRate(dio.write_mbps || 0);
+    byId("mon-disk-spark").innerHTML = sparklineSvg(hist.disk);
+
+    var nio = s.net_io || {};
+    byId("mon-net-val").textContent = fmtRate(netTotal);
+    byId("mon-net-sub").textContent =
+      t("mon_down") + " " + fmtRate(nio.down_mbps || 0) + " · " + t("mon_up") + " " + fmtRate(nio.up_mbps || 0);
+    byId("mon-net-spark").innerHTML = sparklineSvg(hist.net);
+
+    var procs = s.processes_top || [];
+    var box = byId("mon-procs");
+    if (!box) { return; }
+    if (!procs.length) {
+      box.innerHTML = '<p class="muted small">—</p>';
+      return;
+    }
+    box.innerHTML =
+      '<table class="table"><thead><tr><th>' + esc(t("th_process")) + "</th><th>" +
+      esc(t("th_cpu")) + "</th><th>" + esc(t("th_ram")) + "</th></tr></thead><tbody>" +
+      procs.map(function (p) {
+        return '<tr><td class="mono proc-name" title="' + esc(p.name) + '">' + esc(p.name) + "</td>" +
+          '<td class="mono">' + esc(dec(p.cpu_percent)) + ' %</td>' +
+          '<td class="mono">' + esc(fmtMb(p.ram_mb)) + "</td></tr>";
+      }).join("") + "</tbody></table>";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Démarrage (programmes au démarrage de Windows)                 */
+  /* ------------------------------------------------------------------ */
+
+  async function renderStartup(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("startup_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("startup_sub")) + "</p>" +
+      '<div id="startup-area"><div class="loading-line">' + esc(t("startup_loading")) + "</div></div>";
+
+    try {
+      var res = await api("/api/startup");
+      state.startupItems = res.items || [];
+    } catch (e) {
+      if (alive(seq) && byId("startup-area")) {
+        byId("startup-area").innerHTML = '<p class="muted small">' + esc(t("startup_unavailable")) + "</p>";
+      }
+      return;
+    }
+    if (!alive(seq)) { return; }
+    buildStartupArea(seq);
+  }
+
+  function buildStartupArea(seq) {
+    var area = byId("startup-area");
+    if (!area) { return; }
+    var items = state.startupItems || [];
+    var st = state.status;
+
+    if (!items.length) {
+      var body = st && st.is_windows ? t("startup_empty_windows") : t("startup_empty_other");
+      area.innerHTML = '<div class="card empty-state">' + icon("check") +
+        '<p class="empty-title">' + esc(t("startup_empty_title")) + "</p>" +
+        "<p>" + esc(body) + "</p>" +
+        '<button class="btn" id="btn-startup-reload" type="button">' + icon("refresh") + " " + esc(t("refresh")) + "</button></div>";
+      byId("btn-startup-reload").addEventListener("click", render);
+      return;
+    }
+
+    var rows = items.map(function (it) {
+      var enabled = it.enabled !== false;   /* absent / null = activé */
+      return "<tr>" +
+        '<td class="startup-name">' + esc(it.name) + "</td>" +
+        '<td><span class="mono mono-inline clean-path" title="' + esc(it.command) + '">' + esc(it.command) + "</span></td>" +
+        '<td><span class="badge badge-gray">' + esc(startupSourceLabel(it.source)) + "</span></td>" +
+        '<td><span class="startup-state"><label class="switch">' +
+        '<input type="checkbox" class="startup-check" data-id="' + esc(it.id) + '"' + (enabled ? " checked" : "") + ">" +
+        '<span class="track"></span></label>' +
+        '<span class="state-label" id="su-state-' + esc(it.id) + '">' +
+        esc(enabled ? t("state_enabled") : t("state_disabled")) + "</span></span></td>" +
+        "</tr>";
+    }).join("");
+
+    area.innerHTML =
+      '<table class="table"><thead><tr>' +
+      "<th>" + esc(t("th_name")) + "</th><th>" + esc(t("th_command")) + "</th><th>" +
+      esc(t("th_source")) + "</th><th>" + esc(t("th_state")) + "</th>" +
+      "</tr></thead><tbody>" + rows + "</tbody></table>";
+
+    $all(".startup-check", area).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var id = cb.dataset.id;
+        var item = null;
+        (state.startupItems || []).forEach(function (it) { if (it.id === id) { item = it; } });
+        if (!item) { return; }
+        var desired = cb.checked;
+        if (item.source === "HKLM") {
+          /* Confirmation pour les entrées machine : on remet l'interrupteur en
+             attendant la décision. */
+          cb.checked = !desired;
+          openModal({
+            title: t("hklm_modal_title"),
+            bodyHtml: "<p>" + esc(t("hklm_modal_body")) + "</p>" +
+              '<p class="mono mono-inline">' + esc(item.name) + "</p>",
+            confirmLabel: t("confirm"),
+            danger: true,
+            onConfirm: function () {
+              cb.checked = desired;
+              doToggleStartup(item, desired, cb);
+            }
+          });
+        } else {
+          doToggleStartup(item, desired, cb);
+        }
+      });
+    });
+  }
+
+  async function doToggleStartup(item, enabled, cb) {
+    cb.disabled = true;
+    var ok = false;
+    try {
+      var res = await api("/api/startup/toggle", { body: { id: item.id, enabled: enabled } });
+      ok = !!(res && res.ok);
+      if (ok) {
+        item.enabled = enabled;
+        if (res.message) { showBanner(res.message, "ok"); }
+      } else {
+        showBanner((res && res.message) || t("startup_toggle_failed"), "error");
+      }
+    } catch (e) { /* bandeau déjà affiché */ }
+    if (!ok) { cb.checked = item.enabled !== false; }
+    cb.disabled = false;
+    var stateLabel = byId("su-state-" + item.id);
+    if (stateLabel) {
+      stateLabel.textContent = item.enabled !== false ? t("state_enabled") : t("state_disabled");
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Assistant                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function defaultProviderOf(data) {
+    var dp = data && data.default_provider;
+    if (typeof dp === "string") { return dp; }
+    if (dp && typeof dp === "object" && typeof dp.ai_provider === "string") { return dp.ai_provider; }
+    return null;
+  }
+
+  async function renderAssistant(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("assistant_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("assistant_sub")) + "</p>" +
+      '<div id="assistant-area"><div class="loading-line">' + esc(t("checking_keys")) + "</div></div>";
+
+    try {
+      state.aiKeys = await api("/api/ai/keys");
+    } catch (e) {
+      if (alive(seq) && byId("assistant-area")) {
+        byId("assistant-area").innerHTML = '<p class="muted small">' + esc(t("assistant_unavailable")) + "</p>";
+      }
+      return;
+    }
+    if (!alive(seq)) { return; }
+
+    var configured = ((state.aiKeys && state.aiKeys.keys) || []).filter(function (k) { return k.configured; });
+    var area = byId("assistant-area");
+
+    if (!configured.length) {
+      area.innerHTML = '<div class="card empty-state">' + icon("alert") +
+        '<p class="empty-title">' + esc(t("no_key_title")) + "</p>" +
+        "<p>" + esc(t("no_key_body")) + "</p>" +
+        '<button class="btn btn-primary" id="btn-goto-settings" type="button">' + esc(t("open_settings")) + "</button></div>";
+      byId("btn-goto-settings").addEventListener("click", function () { window.location.hash = "#/settings"; });
+      return;
+    }
+
+    var def = defaultProviderOf(state.aiKeys);
+    var configuredIds = configured.map(function (k) { return k.provider; });
+    if (!state.chatProvider || configuredIds.indexOf(state.chatProvider) === -1) {
+      state.chatProvider = configuredIds.indexOf(def) !== -1 ? def : configuredIds[0];
+    }
+
+    area.innerHTML =
+      '<div class="chat-wrap">' +
+      '<div class="chat-top">' +
+      "<label>" + esc(t("provider")) + " " +
+      '<select class="input" id="chat-provider">' + configured.map(function (k) {
+        return '<option value="' + esc(k.provider) + '"' + (k.provider === state.chatProvider ? " selected" : "") + ">" +
+          esc(providerName(k.provider)) + "</option>";
+      }).join("") + "</select></label>" +
+      '<button class="btn btn-ghost btn-sm" id="chat-clear" type="button">' + esc(t("chat_clear")) + "</button>" +
+      "</div>" +
+      '<div class="chat-messages" id="chat-messages"></div>' +
+      '<div class="chat-input-row">' +
+      '<textarea class="input" id="chat-input" rows="1" placeholder="' + esc(t("chat_placeholder")) + '"></textarea>' +
+      '<button class="btn btn-primary" id="chat-send" type="button">' + icon("send") + " " + esc(t("send")) + "</button>" +
+      "</div></div>";
+
+    byId("chat-provider").addEventListener("change", function (e) { state.chatProvider = e.target.value; });
+    byId("chat-clear").addEventListener("click", function () {
+      state.chat = [];
+      state.chatError = null;
+      renderChatMessages();
+    });
+    byId("chat-send").addEventListener("click", sendChat);
+    byId("chat-input").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+    renderChatMessages();
+  }
+
+  function formatChatText(text) {
+    var safe = esc(text);
+    safe = safe.replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+    var paras = safe.split(/\n{2,}/).map(function (p) {
+      return "<p>" + p.replace(/\n/g, "<br>") + "</p>";
+    });
+    return paras.join("");
+  }
+
+  function renderChatMessages() {
+    var box = byId("chat-messages");
+    if (!box) { return; }
+    var html = "";
+    if (!state.chat.length && !state.chatBusy && !state.chatError) {
+      html = '<div class="chat-empty">' + esc(t("chat_empty")) + "<br>" +
+        '<span class="small">' + esc(t("chat_example")) + "</span></div>";
+    } else {
+      html = state.chat.map(function (m) {
+        return '<div class="msg ' + (m.role === "user" ? "msg-user" : "msg-assistant") + '">' +
+          formatChatText(m.content) + "</div>";
+      }).join("");
+      if (state.chatBusy) { html += '<div class="msg-pending">' + esc(t("chat_pending")) + "</div>"; }
+      if (state.chatError) { html += '<div class="msg-error">' + esc(state.chatError) + "</div>"; }
+    }
+    box.innerHTML = html;
+    box.scrollTop = box.scrollHeight;
+    var send = byId("chat-send");
+    if (send) { send.disabled = state.chatBusy; }
+  }
+
+  async function sendChat() {
+    if (state.chatBusy) { return; }
+    var input = byId("chat-input");
+    var text = input ? input.value.trim() : "";
+    if (!text) { return; }
+    input.value = "";
+    state.chat.push({ role: "user", content: text });
+    state.chatError = null;
+    state.chatBusy = true;
+    renderChatMessages();
+    try {
+      var res = await api("/api/ai/chat", { body: { messages: state.chat, provider: state.chatProvider } });
+      if (res.ok && res.reply) {
+        state.chat.push({ role: "assistant", content: res.reply });
+      } else {
+        state.chatError = res.message || t("chat_no_reply");
+      }
+    } catch (e) {
+      state.chatError = t("chat_error_net");
+    }
+    state.chatBusy = false;
+    renderChatMessages();
+    if (input) { input.focus(); }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page Réglages                                                       */
+  /* ------------------------------------------------------------------ */
+
+  async function renderSettings(seq) {
+    var page = byId("page");
+    page.innerHTML =
+      '<h1 class="page-title">' + esc(t("settings_title")) + "</h1>" +
+      '<p class="page-sub">' + esc(t("settings_sub")) + "</p>" +
+      '<div id="settings-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
+
+    try {
+      state.aiKeys = await api("/api/ai/keys");
+    } catch (e) {
+      state.aiKeys = state.aiKeys || { keys: [] };
+    }
+    try {
+      state.widgetCfg = await api("/api/widget");
+    } catch (e) {
+      state.widgetCfg = state.widgetCfg || null;
+    }
+    if (!alive(seq)) { return; }
+    buildSettingsArea(seq);
+  }
+
+  /** Enregistre un réglage partiel du widget et rafraîchit la section. */
+  async function saveWidget(partial, seq, silent) {
+    try {
+      var res = await api("/api/widget", { body: partial });
+      state.widgetCfg = res;
+      if (res && res.autostart_result && res.autostart_result.ok === false) {
+        showBanner(res.autostart_result.message || t("widget_save_err"), "error");
+      } else if (!silent) {
+        showBanner(t("widget_saved"), "ok");
+      }
+      return res;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** HTML de la section Widget des Réglages. */
+  function widgetSectionHtml() {
+    var cfg = state.widgetCfg && state.widgetCfg.widget;
+    if (!cfg) { return ""; }
+    var els = cfg.elements || {};
+    var elNames = ["fps", "game", "cpu", "ram", "net", "clock"];
+    var checks = elNames.map(function (n) {
+      return '<label class="check-item"><input type="checkbox" data-wel="' + n + '"' +
+        (els[n] ? " checked" : "") + "> " + esc(t("widget_el_" + n)) + "</label>";
+    }).join("");
+    function seg(name, values, labels, current) {
+      return '<div class="seg" data-wseg="' + name + '">' + values.map(function (v, i) {
+        return '<button type="button" data-val="' + v + '"' +
+          (v === current ? ' class="active"' : "") + ">" + esc(labels[i]) + "</button>";
+      }).join("") + "</div>";
+    }
+    return '<div class="group-label">' + esc(t("widget_group")) + "</div>" +
+      '<div class="card">' +
+      '<p class="muted small" style="margin-top:0">' + esc(t("widget_note")) + "</p>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_elements")) + "</div></div>" +
+      '<div class="set-controls check-grid">' + checks + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_theme")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_theme_desc")) + "</div></div>" +
+      '<div class="set-controls">' + seg("theme", ["dark", "light", "minimal"],
+        [t("widget_theme_dark"), t("widget_theme_light"), t("widget_theme_minimal")], cfg.theme) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_layout")) + "</div></div>" +
+      '<div class="set-controls">' + seg("layout", ["row", "column"],
+        [t("widget_layout_row"), t("widget_layout_col")], cfg.layout) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_scale")) + "</div></div>" +
+      '<div class="set-controls">' + seg("scale", ["s", "m", "l"], ["S", "M", "L"], cfg.scale) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_opacity")) + "</div></div>" +
+      '<div class="set-controls"><input type="range" id="widget-opacity" min="10" max="100" step="5" value="' +
+      Math.round((cfg.opacity || 0.92) * 100) + '"> <span class="mono mono-inline" id="widget-opacity-val">' +
+      Math.round((cfg.opacity || 0.92) * 100) + "%</span></div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_click_through")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_click_through_desc")) + "</div></div>" +
+      '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-ct"' +
+      (cfg.click_through ? " checked" : "") + "></label></div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_autostart")) + "</div>" +
+      '<div class="set-status">' + esc(t("widget_autostart_desc")) + "</div></div>" +
+      '<div class="set-controls"><select class="input" id="widget-autostart">' +
+      [["never", t("widget_auto_never")], ["always", t("widget_auto_always")], ["game", t("widget_auto_game")]]
+        .map(function (o) {
+          return '<option value="' + o[0] + '"' + (cfg.autostart === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
+        }).join("") + "</select>" +
+      '<button class="btn btn-sm" id="widget-launch" type="button">' + esc(t("widget_launch")) + "</button>" +
+      "</div></div></div>";
+  }
+
+  /** Liaisons de la section Widget des Réglages. */
+  function bindWidgetSection(area, seq) {
+    if (!state.widgetCfg || !state.widgetCfg.widget) { return; }
+    $all("[data-wel]", area).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var el = {}; el[cb.dataset.wel] = cb.checked;
+        saveWidget({ elements: el }, seq, true);
+      });
+    });
+    $all("[data-wseg]", area).forEach(function (segEl) {
+      $all("button", segEl).forEach(function (b) {
+        b.addEventListener("click", async function () {
+          var partial = {}; partial[segEl.dataset.wseg] = b.dataset.val;
+          await saveWidget(partial, seq, true);
+          $all("button", segEl).forEach(function (x) { x.classList.toggle("active", x === b); });
+        });
+      });
+    });
+    var op = byId("widget-opacity");
+    if (op) {
+      op.addEventListener("input", function () {
+        var lbl = byId("widget-opacity-val");
+        if (lbl) { lbl.textContent = op.value + "%"; }
+      });
+      op.addEventListener("change", function () {
+        saveWidget({ opacity: Number(op.value) / 100 }, seq, true);
+      });
+    }
+    var ct = byId("widget-ct");
+    if (ct) {
+      ct.addEventListener("change", function () {
+        saveWidget({ click_through: ct.checked }, seq, true);
+      });
+    }
+    var autoSel = byId("widget-autostart");
+    if (autoSel) {
+      autoSel.addEventListener("change", function () {
+        saveWidget({ autostart: autoSel.value }, seq);
+      });
+    }
+    var launch = byId("widget-launch");
+    if (launch) {
+      launch.addEventListener("click", async function () {
+        setBusy(launch, t("widget_launch"));
+        try {
+          var res = await api("/api/widget/launch", { method: "POST" });
+          showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+            (res && res.ok) ? "ok" : "error");
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(launch);
+      });
+    }
+  }
+
+  function buildSettingsArea(seq) {
+    var area = byId("settings-area");
+    if (!area) { return; }
+    var keys = {};
+    ((state.aiKeys && state.aiKeys.keys) || []).forEach(function (k) { keys[k.provider] = k; });
+    var configured = PROVIDERS_META.filter(function (p) { return keys[p.id] && keys[p.id].configured; });
+    var def = defaultProviderOf(state.aiKeys);
+    var st = state.status || {};
+
+    var keyRows = PROVIDERS_META.map(function (p) {
+      var k = keys[p.id] || { configured: false, masked: null };
+      var status = k.configured ?
+        esc(t("key_configured")) + (k.masked ? ' · <span class="mono mono-inline">' + esc(k.masked) + "</span>" : "") :
+        esc(t("key_not_configured"));
+      return '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' + esc(p.name) + "</div>" +
+        '<div class="set-status">' + status + "</div>" +
+        (p.noteKey ? '<div class="set-note">' + t(p.noteKey) + "</div>" : "") +
+        "</div>" +
+        '<div class="set-controls">' +
+        '<input class="input" type="password" id="key-in-' + esc(p.id) + '" placeholder="' + esc(t("key_placeholder")) + '" autocomplete="off">' +
+        '<button class="btn btn-sm" data-save-key="' + esc(p.id) + '" type="button">' + esc(t("save")) + "</button>" +
+        (k.configured ? '<button class="btn btn-sm btn-danger" data-del-key="' + esc(p.id) + '" type="button">' + esc(t("del")) + "</button>" : "") +
+        "</div></div>";
+    }).join("");
+
+    var defSelect = configured.length ?
+      '<select class="input" id="default-provider">' + configured.map(function (p) {
+        return '<option value="' + esc(p.id) + '"' + (p.id === def ? " selected" : "") + ">" + esc(p.name) + "</option>";
+      }).join("") + "</select>" :
+      '<span class="muted small">' + esc(t("no_keys_yet")) + "</span>";
+
+    area.innerHTML =
+      '<div class="group-label">' + esc(t("keys_group")) + "</div>" +
+      '<div class="card">' +
+      '<p class="muted small" style="margin-top:0">' + esc(t("keys_note")) + "</p>" +
+      keyRows + "</div>" +
+
+      '<div class="group-label">' + esc(t("assistant_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("default_provider")) + "</div>" +
+      '<div class="set-status">' + esc(t("default_provider_desc")) + "</div></div>" +
+      '<div class="set-controls">' + defSelect + "</div></div></div>" +
+
+      '<div class="group-label">' + esc(t("appearance_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("theme")) + "</div>" +
+      '<div class="set-status">' + esc(t("theme_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="theme">' +
+      '<button type="button" data-theme="light">' + esc(t("light")) + "</button>" +
+      '<button type="button" data-theme="dark">' + esc(t("dark")) + "</button>" +
+      "</div></div></div>" +
+      '<div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("language")) + "</div>" +
+      '<div class="set-status">' + esc(t("language_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="lang">' +
+      '<button type="button" data-lang="fr"' + (LANG === "fr" ? ' class="active"' : "") + ">Français</button>" +
+      '<button type="button" data-lang="en"' + (LANG === "en" ? ' class="active"' : "") + ">English</button>" +
+      "</div></div></div></div>" +
+
+      '<div class="group-label">' + esc(t("report_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("report_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("report_desc")) + "</div></div>" +
+      '<div class="set-controls"><a class="btn btn-sm" href="/api/report" download>' +
+      icon("download") + " " + esc(t("report_download")) + "</a></div></div></div>" +
+
+      widgetSectionHtml() +
+
+      '<div class="group-label">' + esc(t("quiz_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("quiz_profile")) + "</div>" +
+      '<div class="set-status">' + esc(state.profile ?
+        tf("quiz_profile_current", { p: tr(state.profile, "label") || state.profile.id }) :
+        t("quiz_profile_none")) + "</div></div>" +
+      '<div class="set-controls"><button class="btn btn-sm" id="btn-redo-quiz" type="button">' + esc(t("quiz_redo")) + "</button></div>" +
+      "</div></div>" +
+
+      '<div class="group-label">' + esc(t("about_group")) + "</div>" +
+      '<div class="card">' +
+      '<p style="margin-top:0"><strong>Overdrive</strong>' + (st.version ? " v" + esc(st.version) : "") +
+      (st.platform ? ' · <span class="mono mono-inline">' + esc(st.platform) + "</span>" : "") +
+      (st.is_windows ? (st.is_admin ? ' · <span class="badge badge-green">' + esc(t("badge_admin")) + "</span>" :
+        ' · <span class="badge badge-yellow">' + esc(t("badge_not_admin")) + "</span>") : "") +
+      "</p>" +
+      '<p class="muted small" style="margin-bottom:0">' + esc(t("about_note")) + "</p>" +
+      "</div>";
+
+    /* Liaisons. */
+    $all("[data-save-key]", area).forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var provider = btn.dataset.saveKey;
+        var input = byId("key-in-" + provider);
+        var key = input ? input.value.trim() : "";
+        if (!key) {
+          showBanner(t("key_enter_first"), "error");
+          return;
+        }
+        setBusy(btn, t("saving"));
+        try {
+          var saveRes = await api("/api/ai/keys", { body: { provider: provider, key: key } });
+          if (!saveRes || saveRes.ok === false) {
+            showBanner((saveRes && saveRes.message) || t("key_save_err"), "error");
+            clearBusy(btn);
+            return;
+          }
+          showBanner(tf("key_saved", { p: providerName(provider) }), "ok");
+          state.aiKeys = await api("/api/ai/keys");
+          if (currentRoute() === "/settings") { buildSettingsArea(seq); return; }
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(btn);
+      });
+    });
+
+    $all("[data-del-key]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var provider = btn.dataset.delKey;
+        openModal({
+          title: tf("key_del_title", { p: providerName(provider) }),
+          bodyHtml: "<p>" + esc(t("key_del_body")) + "</p>",
+          confirmLabel: t("del"),
+          danger: true,
+          onConfirm: async function () {
+            try {
+              var delRes = await api("/api/ai/keys/" + encodeURIComponent(provider), { method: "DELETE" });
+              if (!delRes || delRes.ok === false) {
+                showBanner((delRes && delRes.message) || t("key_del_err"), "error");
+              } else {
+                showBanner(tf("key_deleted", { p: providerName(provider) }), "ok");
+              }
+              state.aiKeys = await api("/api/ai/keys");
+            } catch (e) { /* bandeau déjà affiché */ }
+            if (currentRoute() === "/settings") { buildSettingsArea(seq); }
+          }
+        });
+      });
+    });
+
+    var defSel = byId("default-provider");
+    if (defSel) {
+      defSel.addEventListener("change", async function () {
+        try {
+          await api("/api/ai/default", { body: { provider: defSel.value } });
+          showBanner(tf("default_set", { p: providerName(defSel.value) }), "ok");
+        } catch (e) { /* bandeau déjà affiché */ }
+      });
+    }
+
+    $all(".seg[data-seg='theme'] button", area).forEach(function (b) {
+      b.addEventListener("click", function () { setTheme(b.dataset.theme); });
+    });
+    $all(".seg[data-seg='lang'] button", area).forEach(function (b) {
+      b.addEventListener("click", function () { setLang(b.dataset.lang); });
+    });
+    updateThemeLabel();
+
+    bindWidgetSection(area, seq);
+
+    byId("btn-redo-quiz").addEventListener("click", function () { openQuiz(false); });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* QCM premier lancement (overlay plein écran)                         */
+  /* ------------------------------------------------------------------ */
+
+  async function openQuiz(firstRun) {
+    var data;
+    try {
+      data = await api("/api/quiz");
+    } catch (e) {
+      return;
+    }
+    state.quiz = {
+      questions: (data && data.questions) || [],
+      index: 0,
+      answers: {},
+      firstRun: !!firstRun,
+      result: null,
+      submitting: false
+    };
+    if (!state.quiz.questions.length) { return; }
+    var root = byId("overlay-root");
+    root.hidden = false;
+    document.body.style.overflow = "hidden";
+    renderQuiz();
+  }
+
+  function closeQuiz() {
+    var root = byId("overlay-root");
+    root.hidden = true;
+    root.innerHTML = "";
+    document.body.style.overflow = "";
+    state.quiz = null;
+  }
+
+  function quizAnswered(q) {
+    var a = state.quiz.answers[q.id];
+    if (q.multi) { return Array.isArray(a) && a.length > 0; }
+    return typeof a === "string" && a.length > 0;
+  }
+
+  function renderQuiz() {
+    var root = byId("overlay-root");
+    var quiz = state.quiz;
+    if (!root || !quiz) { return; }
+
+    if (quiz.result) {
+      renderQuizResult();
+      return;
+    }
+
+    var total = quiz.questions.length;
+    var q = quiz.questions[quiz.index];
+    var answer = quiz.answers[q.id];
+    var pct = Math.round(((quiz.index + 1) / total) * 100);
+
+    var optionsHtml = (q.options || []).map(function (o) {
+      var selected = q.multi ?
+        (Array.isArray(answer) && answer.indexOf(o.id) !== -1) :
+        answer === o.id;
+      var mark = q.multi ?
+        '<span class="opt-mark square">' + icon("check") + "</span>" :
+        '<span class="opt-mark round"><span class="opt-dot-inner"></span></span>';
+      return '<button class="quiz-opt' + (selected ? " selected" : "") + '" data-opt="' + esc(o.id) +
+        '" type="button">' + mark + "<span>" + esc(tr(o, "label")) + "</span></button>";
+    }).join("");
+
+    root.innerHTML =
+      '<div class="quiz-overlay"><div class="quiz-inner">' +
+      '<div class="quiz-head">' +
+      '<span class="quiz-brand">' +
+      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>' +
+      "Overdrive</span>" +
+      '<span class="quiz-progress">' + esc(tf("quiz_progress", { i: quiz.index + 1, n: total })) + "</span>" +
+      '<button class="btn btn-ghost btn-sm" id="quiz-later" type="button">' +
+      esc(quiz.firstRun ? t("later") : t("cancel")) + "</button>" +
+      "</div>" +
+      '<div class="quiz-bar"><div style="width:' + pct + '%"></div></div>' +
+      '<h2 class="quiz-question">' + esc(tr(q, "question")) + "</h2>" +
+      '<p class="quiz-hint">' + esc(q.multi ? t("quiz_multi") : t("quiz_single")) + "</p>" +
+      '<div class="quiz-options">' + optionsHtml + "</div>" +
+      '<div class="quiz-nav">' +
+      '<button class="btn" id="quiz-prev" type="button"' + (quiz.index === 0 ? " disabled" : "") + ">" +
+      icon("left") + " " + esc(t("prev")) + "</button>" +
+      '<button class="btn btn-primary" id="quiz-next" type="button"' +
+      (quizAnswered(q) && !quiz.submitting ? "" : " disabled") + ">" +
+      (quiz.submitting ? esc(t("quiz_analyzing")) :
+        (quiz.index === total - 1 ? esc(t("finish")) : esc(t("next")) + " " + icon("right"))) +
+      "</button></div>" +
+      "</div></div>";
+
+    byId("quiz-later").addEventListener("click", closeQuiz);
+
+    $all(".quiz-opt", root).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var optId = btn.dataset.opt;
+        if (q.multi) {
+          var arr = Array.isArray(quiz.answers[q.id]) ? quiz.answers[q.id].slice() : [];
+          var at = arr.indexOf(optId);
+          if (at === -1) { arr.push(optId); } else { arr.splice(at, 1); }
+          quiz.answers[q.id] = arr;
+        } else {
+          quiz.answers[q.id] = optId;
+        }
+        renderQuiz();
+      });
+    });
+
+    byId("quiz-prev").addEventListener("click", function () {
+      if (quiz.index > 0) { quiz.index--; renderQuiz(); }
+    });
+    byId("quiz-next").addEventListener("click", function () {
+      if (!quizAnswered(q) || quiz.submitting) { return; }
+      if (quiz.index < total - 1) {
+        quiz.index++;
+        renderQuiz();
+      } else {
+        submitQuiz();
+      }
+    });
+  }
+
+  async function submitQuiz() {
+    var quiz = state.quiz;
+    if (!quiz) { return; }
+    quiz.submitting = true;
+    renderQuiz();
+    try {
+      var res = await api("/api/quiz", { body: { answers: quiz.answers } });
+      quiz.result = res.profile || null;
+      state.profile = quiz.result;
+      if (state.status) {
+        state.status.first_run = false;
+        state.status.profile = quiz.result;
+      }
+      state.tweakSelectionInit = false;
+    } catch (e) {
+      quiz.submitting = false;
+      if (state.quiz) { renderQuiz(); }
+      return;
+    }
+    quiz.submitting = false;
+    renderQuiz();
+  }
+
+  function renderQuizResult() {
+    var root = byId("overlay-root");
+    var quiz = state.quiz;
+    if (!root || !quiz || !quiz.result) { return; }
+    var p = quiz.result;
+    var notes = (LANG === "en" && Array.isArray(p.notes_en)) ? p.notes_en : (p.notes || []);
+
+    root.innerHTML =
+      '<div class="quiz-overlay"><div class="quiz-inner"><div class="quiz-result">' +
+      '<div class="result-check">' + icon("check") + "</div>" +
+      "<h2>" + esc(tf("quiz_profile_prefix", { p: tr(p, "label") || p.id })) + "</h2>" +
+      '<p class="result-desc">' + esc(tr(p, "description")) + "</p>" +
+      (notes.length ?
+        '<div class="quiz-notes"><div class="quiz-notes-title">' + esc(t("quiz_notes_title")) + "</div><ul>" +
+        notes.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul></div>" : "") +
+      '<div class="quiz-result-actions">' +
+      (quiz.firstRun ?
+        '<button class="btn btn-primary" id="quiz-continue" type="button">' + esc(t("continue_lbl")) + "</button>" :
+        '<button class="btn btn-primary" id="quiz-goto-tweaks" type="button">' + esc(t("quiz_see_tweaks")) + "</button>" +
+        '<button class="btn" id="quiz-close" type="button">' + esc(t("close")) + "</button>") +
+      "</div></div></div></div>";
+
+    if (quiz.firstRun) {
+      byId("quiz-continue").addEventListener("click", renderAutostartStep);
+      return;
+    }
+    byId("quiz-goto-tweaks").addEventListener("click", function () {
+      closeQuiz();
+      state.pendingProfileSelect = true;
+      if (currentRoute() === "/tweaks") { render(); } else { window.location.hash = "#/tweaks"; }
+    });
+    byId("quiz-close").addEventListener("click", function () {
+      closeQuiz();
+      render();
+    });
+  }
+
+  /** Étape d'onboarding : démarrage automatique du widget (premier lancement). */
+  function renderAutostartStep() {
+    var root = byId("overlay-root");
+    if (!root) { return; }
+    var chosen = "never";
+    var options = [
+      { id: "never", label: t("widget_auto_never"), desc: t("ob_never_desc") },
+      { id: "always", label: t("widget_auto_always"), desc: t("ob_always_desc") },
+      { id: "game", label: t("widget_auto_game"), desc: t("ob_game_desc") }
+    ];
+
+    function optionsHtml() {
+      return options.map(function (o) {
+        var selected = o.id === chosen;
+        return '<button class="quiz-opt' + (selected ? " selected" : "") + '" data-ob="' + o.id + '" type="button">' +
+          '<span class="opt-mark round"><span class="opt-dot-inner"></span></span>' +
+          '<span class="opt-text">' + esc(o.label) +
+          '<span class="opt-desc">' + esc(o.desc) + "</span></span></button>";
+      }).join("");
+    }
+
+    root.innerHTML =
+      '<div class="quiz-overlay"><div class="quiz-inner">' +
+      '<h2 class="quiz-question">' + esc(t("ob_title")) + "</h2>" +
+      '<p class="quiz-hint">' + esc(t("ob_sub")) + "</p>" +
+      '<div class="quiz-options" id="ob-options">' + optionsHtml() + "</div>" +
+      '<div class="quiz-result-actions">' +
+      '<button class="btn" id="ob-launch" type="button">' + esc(t("ob_launch_now")) + "</button>" +
+      '<button class="btn btn-primary" id="ob-finish" type="button">' + esc(t("ob_finish")) + "</button>" +
+      "</div></div></div>";
+
+    function bindOptions() {
+      $all("[data-ob]", root).forEach(function (b) {
+        b.addEventListener("click", function () {
+          chosen = b.dataset.ob;
+          byId("ob-options").innerHTML = optionsHtml();
+          bindOptions();
+        });
+      });
+    }
+    bindOptions();
+
+    byId("ob-launch").addEventListener("click", async function () {
+      var btn = byId("ob-launch");
+      setBusy(btn, t("ob_launch_now"));
+      try {
+        var res = await api("/api/widget/launch", { method: "POST" });
+        showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+          (res && res.ok) ? "ok" : "error");
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    });
+
+    byId("ob-finish").addEventListener("click", async function () {
+      var btn = byId("ob-finish");
+      setBusy(btn, t("ob_finish"));
+      await saveWidget({ autostart: chosen }, 0, true);
+      closeQuiz();
+      state.pendingProfileSelect = true;
+      if (currentRoute() === "/tweaks") { render(); } else { window.location.hash = "#/tweaks"; }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Initialisation                                                      */
+  /* ------------------------------------------------------------------ */
+
+  async function init() {
+    applyStaticI18n();
+
+    byId("theme-toggle").addEventListener("click", function () {
+      setTheme(currentTheme() === "dark" ? "light" : "dark");
+    });
+    updateThemeLabel();
+
+    window.addEventListener("hashchange", render);
+    render();
+
+    try {
+      var st = await api("/api/status");
+      state.status = st;
+      state.profile = st.profile || null;
+      var ver = byId("app-version");
+      if (ver && st.version) { ver.textContent = "v" + st.version; }
+
+      /* Thème : la préférence locale prime, sinon le réglage serveur. */
+      var storedTheme = null;
+      try { storedTheme = localStorage.getItem("overdrive-theme"); } catch (e) { /* stockage indisponible */ }
+      if (!storedTheme && (st.theme === "dark" || st.theme === "light")) { applyTheme(st.theme); }
+
+      /* Langue : la préférence locale prime, sinon le réglage serveur. */
+      var storedLang = null;
+      try { storedLang = localStorage.getItem("overdrive-lang"); } catch (e2) { /* stockage indisponible */ }
+      if (!storedLang && (st.lang === "fr" || st.lang === "en") && st.lang !== LANG) {
+        applyLang(st.lang);
+      }
+
+      render();
+      if (st.first_run) { openQuiz(true); }
+    } catch (e) { /* bandeau déjà affiché, l'interface reste utilisable */ }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

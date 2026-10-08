@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OverdriveWidgetOverlay</title>
+<style>
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: transparent;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-user-select: none; user-select: none;
+    cursor: default;
+  }
+  [hidden] { display: none !important; }
+
+  #root {
+    --k: 1;          /* facteur de taille S/M/L */
+    --alpha: 0.92;   /* opacité du fond */
+    width: max-content;
+    padding: 2px;
+  }
+
+  /* ---------- thèmes ---------- */
+  #root[data-theme="dark"] {
+    --card-bg: rgba(25, 25, 25, var(--alpha));
+    --card-border: rgba(55, 55, 55, var(--alpha));
+    --text: #d4d4d4; --label: #8f8f8f; --sep: rgba(255, 255, 255, 0.09);
+    --halo: none;
+    --panel-bg: #202020; --panel-border: #2f2f2f;
+    --panel-text: #d4d4d4; --panel-label: #9b9b9b;
+    --hover: #2a2a2a; --accent: #529cca; --danger: #e06c66;
+  }
+  #root[data-theme="light"] {
+    --card-bg: rgba(255, 255, 255, var(--alpha));
+    --card-border: rgba(222, 222, 219, var(--alpha));
+    --text: #37352f; --label: #787774; --sep: rgba(0, 0, 0, 0.09);
+    --halo: none;
+    --panel-bg: #ffffff; --panel-border: #e9e9e7;
+    --panel-text: #37352f; --panel-label: #787774;
+    --hover: #f1f1ef; --accent: #2383e2; --danger: #d44c47;
+  }
+  /* minimal : AUCUN fond ni bordure — texte seul avec halo discret,
+     lisible par-dessus n'importe quel jeu. */
+  #root[data-theme="minimal"] {
+    --card-bg: transparent;
+    --card-border: transparent;
+    --text: #f5f5f5; --label: rgba(255, 255, 255, 0.78); --sep: transparent;
+    --halo: 0 0 3px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.75),
+            0 0 10px rgba(0, 0, 0, 0.45);
+    --panel-bg: #202020; --panel-border: #2f2f2f;
+    --panel-text: #d4d4d4; --panel-label: #9b9b9b;
+    --hover: #2a2a2a; --accent: #529cca; --danger: #e06c66;
+  }
+
+  /* ---------- carte des statistiques ---------- */
+  #card {
+    position: relative;
+    width: max-content;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: calc(9px * var(--k)) calc(14px * var(--k));
+    padding-right: calc(28px * var(--k));
+  }
+  #root[data-theme="minimal"] #card { border-color: transparent; background: transparent; }
+  #root[data-theme="minimal"] #stats { opacity: var(--alpha); }
+
+  #stats {
+    display: flex;
+    align-items: flex-end;
+    gap: calc(16px * var(--k));
+  }
+  #root[data-layout="column"] #stats {
+    flex-direction: column;
+    align-items: stretch;
+    gap: calc(7px * var(--k));
+    min-width: calc(148px * var(--k));
+  }
+
+  .item { display: flex; flex-direction: column; gap: calc(3px * var(--k)); }
+  #root[data-layout="row"] .item {
+    border-left: 1px solid var(--sep);
+    padding-left: calc(16px * var(--k));
+  }
+  #root[data-layout="row"] .item.first-vis { border-left: none; padding-left: 0; }
+  #root[data-layout="column"] .item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: calc(18px * var(--k));
+  }
+
+  .lbl {
+    font-size: calc(10px * var(--k));
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--label);
+    text-shadow: var(--halo);
+    white-space: nowrap;
+  }
+  .val {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+    font-size: calc(15px * var(--k));
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    text-shadow: var(--halo);
+    white-space: nowrap;
+  }
+  .item-fps .val {
+    font-size: calc(24px * var(--k));
+    font-weight: 600;
+    line-height: 1;
+  }
+  .item-game .val {
+    max-width: calc(170px * var(--k));
+    overflow: hidden; text-overflow: ellipsis;
+    font-size: calc(13px * var(--k));
+  }
+  #root[data-layout="column"] .item-fps .val { line-height: 1.05; }
+
+  /* ---------- bouton engrenage ---------- */
+  #gear {
+    position: absolute;
+    top: calc(5px * var(--k));
+    right: calc(5px * var(--k));
+    width: 20px; height: 20px;
+    padding: 2px;
+    border: none; border-radius: 5px;
+    background: transparent;
+    color: var(--label);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+  #root:hover #gear, #gear.open { opacity: 0.9; }
+  #gear:hover { background: var(--hover); color: var(--text); }
+  #root[data-theme="minimal"] #gear { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+  #root[data-theme="minimal"] #gear:hover { background: rgba(0, 0, 0, 0.35); }
+  #gear svg { width: 14px; height: 14px; display: block; }
+
+  /* ---------- volet réglages ---------- */
+  #panel {
+    margin-top: 6px;
+    width: max-content;
+    min-width: 236px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 14px 12px;
+    color: var(--panel-text);
+    font-size: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  }
+  .sec { margin-bottom: 11px; }
+  .sec:last-child { margin-bottom: 0; }
+  .sec-t {
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 500; color: var(--panel-label);
+    margin-bottom: 6px;
+  }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 14px; }
+  label.chk {
+    display: flex; align-items: center; gap: 7px;
+    cursor: pointer; white-space: nowrap; line-height: 1.3;
+  }
+  input[type="checkbox"] {
+    width: 13px; height: 13px; margin: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .seg {
+    display: flex; width: max-content;
+    border: 1px solid var(--panel-border); border-radius: 6px;
+    overflow: hidden;
+  }
+  .seg button {
+    border: none; background: transparent;
+    color: var(--panel-text);
+    font: inherit; font-size: 11px;
+    padding: 4px 11px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+  .seg button + button { border-left: 1px solid var(--panel-border); }
+  .seg button:hover { background: var(--hover); }
+  .seg button.on { background: var(--hover); color: var(--accent); font-weight: 600; }
+  .row2 { display: flex; gap: 18px; align-items: flex-start; }
+  .row2 > .grow { flex: 1; min-width: 110px; }
+  input[type="range"] {
+    width: 100%; margin: 6px 0 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .note {
+    margin-top: 4px;
+    font-size: 10.5px; line-height: 1.35;
+    color: var(--panel-label);
+    max-width: 220px;
+  }
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn {
+    flex: 1;
+    border: 1px solid var(--panel-border); border-radius: 6px;
+    background: transparent; color: var(--panel-text);
+    font: inherit; font-size: 12px;
+    padding: 5px 0;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+  .btn:hover { background: var(--hover); }
+  #btn-quit { color: var(--danger); }
+</style>
+</head>
+<body>
+<div id="root" data-theme="dark" data-layout="row">
+  <div id="card">
+    <div id="stats">
+      <div class="item item-fps first-vis" data-el="fps">
+        <span class="lbl">FPS</span><span class="val" id="v-fps">&#8212;</span>
+      </div>
+      <div class="item item-game" data-el="game">
+        <span class="lbl">Jeu</span><span class="val" id="v-game">&#8212;</span>
+      </div>
+      <div class="item" data-el="cpu">
+        <span class="lbl">CPU</span><span class="val" id="v-cpu">&#8212;</span>
+      </div>
+      <div class="item" data-el="ram">
+        <span class="lbl">RAM</span><span class="val" id="v-ram">&#8212;</span>
+      </div>
+      <div class="item" data-el="net">
+        <span class="lbl">R&eacute;seau Mb/s</span><span class="val" id="v-net">&#8212;</span>
+      </div>
+      <div class="item" data-el="clock">
+        <span class="lbl">Heure</span><span class="val" id="v-clock">&#8212;</span>
+      </div>
+    </div>
+    <button id="gear" type="button" title="R&eacute;glages" aria-label="R&eacute;glages">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="panel" hidden>
+    <div class="sec">
+      <div class="sec-t">&Eacute;l&eacute;ments</div>
+      <div class="checks">
+        <label class="chk"><input type="checkbox" data-el-chk="fps"><span>FPS</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="game"><span>Jeu</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="cpu"><span>CPU</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="ram"><span>RAM</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="net"><span>R&eacute;seau</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="clock"><span>Heure</span></label>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">Th&egrave;me</div>
+      <div class="seg" id="seg-theme">
+        <button type="button" data-v="dark">Sombre</button>
+        <button type="button" data-v="light">Clair</button>
+        <button type="button" data-v="minimal">Minimal</button>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">Disposition</div>
+      <div class="seg" id="seg-layout">
+        <button type="button" data-v="row">Ligne</button>
+        <button type="button" data-v="column">Colonne</button>
+      </div>
+    </div>
+    <div class="sec row2">
+      <div>
+        <div class="sec-t">Taille</div>
+        <div class="seg" id="seg-scale">
+          <button type="button" data-v="s">S</button>
+          <button type="button" data-v="m">M</button>
+          <button type="button" data-v="l">L</button>
+        </div>
+      </div>
+      <div class="grow">
+        <div class="sec-t">Opacit&eacute; <span id="op-val"></span></div>
+        <input type="range" id="op-range" min="10" max="100" step="1" value="92">
+      </div>
+    </div>
+    <div class="sec">
+      <label class="chk"><input type="checkbox" id="chk-ct"><span>Cliquer &agrave; travers</span></label>
+      <div class="note">La souris traverse le widget (Windows). R&eacute;activable &agrave; tout moment depuis l&rsquo;application Overdrive.</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btn-hide" type="button">Masquer</button>
+      <button class="btn" id="btn-quit" type="button">Quitter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var api = null;
+  var cfg = null;
+  var started = false;
+  var panelOpen = false;
+  var opDragging = false;
+  var lastW = 0;
+  var lastH = 0;
+  var resizePending = false;
+
+  var root = document.getElementById("root");
+  var panel = document.getElementById("panel");
+  var gear = document.getElementById("gear");
+  var opRange = document.getElementById("op-range");
+  var opVal = document.getElementById("op-val");
+  var ctBox = document.getElementById("chk-ct");
+  var vFps = document.getElementById("v-fps");
+  var vGame = document.getElementById("v-game");
+  var vCpu = document.getElementById("v-cpu");
+  var vRam = document.getElementById("v-ram");
+  var vNet = document.getElementById("v-net");
+  var vClock = document.getElementById("v-clock");
+
+  var DASH = "—";
+  var SCALE_K = { s: 0.85, m: 1, l: 1.2 };
+
+  /* ---------- formatage ---------- */
+
+  function fmtPct(v) {
+    return (v === null || v === undefined) ? DASH : Math.round(v) + "%";
+  }
+  function fmt1(v) {
+    return (v === null || v === undefined) ? DASH : (Math.round(v * 10) / 10).toFixed(1);
+  }
+
+  /* ---------- application de la configuration ---------- */
+
+  function applyConfig(c) {
+    if (!c || !c.elements) { return; }
+    cfg = c;
+    root.setAttribute("data-theme", c.theme || "dark");
+    root.setAttribute("data-layout", c.layout || "row");
+    root.style.setProperty("--k", String(SCALE_K[c.scale] || 1));
+    root.style.setProperty("--alpha", String(typeof c.opacity === "number" ? c.opacity : 0.92));
+    var items = document.querySelectorAll("#stats .item");
+    var firstSeen = false;
+    for (var i = 0; i < items.length; i++) {
+      var el = items[i];
+      var name = el.getAttribute("data-el");
+      var on = !!c.elements[name];
+      el.hidden = !on;
+      el.classList.remove("first-vis");
+      if (on && !firstSeen) { el.classList.add("first-vis"); firstSeen = true; }
+    }
+    syncPanel(c);
+    scheduleResize();
+  }
+
+  function setSeg(id, value) {
+    var buttons = document.getElementById(id).querySelectorAll("button");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].classList.toggle("on", buttons[i].getAttribute("data-v") === value);
+    }
+  }
+
+  function syncPanel(c) {
+    var boxes = document.querySelectorAll("[data-el-chk]");
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].checked = !!c.elements[boxes[i].getAttribute("data-el-chk")];
+    }
+    setSeg("seg-theme", c.theme);
+    setSeg("seg-layout", c.layout);
+    setSeg("seg-scale", c.scale);
+    var pct = Math.round((typeof c.opacity === "number" ? c.opacity : 0.92) * 100);
+    if (!opDragging) { opRange.value = String(pct); }
+    opVal.textContent = pct + " %";
+    ctBox.checked = !!c.click_through;
+  }
+
+  /* ---------- rendu des statistiques ---------- */
+
+  function renderStats(stats, game) {
+    var s = stats || {};
+    var ram = s.ram || {};
+    var net = s.net || {};
+    vFps.textContent = (s.fps === null || s.fps === undefined) ? DASH : String(Math.round(s.fps));
+    vGame.textContent = (game && game.name) ? game.name : DASH;
+    if (game && game.name) { vGame.title = game.name; } else { vGame.removeAttribute("title"); }
+    vCpu.textContent = fmtPct(s.cpu_percent);
+    vRam.textContent = fmtPct(ram.percent);
+    if (ram.used_gb !== null && ram.used_gb !== undefined) {
+      vRam.title = fmt1(ram.used_gb) + " Go";
+    }
+    vNet.textContent = "↓" + fmt1(net.down_mbps) + " ↑" + fmt1(net.up_mbps);
+    vClock.textContent = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  /* ---------- redimensionnement de la fenêtre au contenu ---------- */
+
+  function scheduleResize() {
+    if (resizePending) { return; }
+    resizePending = true;
+    window.requestAnimationFrame(function () {
+      resizePending = false;
+      if (!api || !api.resize_to) { return; }
+      var rect = root.getBoundingClientRect();
+      var w = Math.ceil(rect.width) + 2;
+      var h = Math.ceil(rect.height) + 2;
+      if (Math.abs(w - lastW) > 1 || Math.abs(h - lastH) > 1) {
+        lastW = w; lastH = h;
+        try { api.resize_to(w, h); } catch (e) { /* pont indisponible */ }
+      }
+    });
+  }
+
+  /* ---------- appels au pont (optimistes : appliqués localement d'abord) ---------- */
+
+  function push(method, args, local) {
+    if (local && cfg) { local(cfg); applyConfig(cfg); }
+    if (!api || !api[method]) { return; }
+    try {
+      Promise.resolve(api[method].apply(api, args)).then(function (c) {
+        if (c && c.elements) { applyConfig(c); }
+      }).catch(function () { /* silencieux */ });
+    } catch (e) { /* silencieux */ }
+  }
+
+  /* ---------- boucle de rafraîchissement ---------- */
+
+  function tick() {
+    if (!api || !api.get_state) { return; }
+    try {
+      Promise.resolve(api.get_state()).then(function (st) {
+        if (!st) { return; }
+        applyConfig(st.config);
+        renderStats(st.stats, st.game);
+      }).catch(function () { /* silencieux */ });
+    } catch (e) { /* silencieux */ }
+  }
+
+  function begin() {
+    if (started) { return; }
+    started = true;
+    tick();
+    window.setInterval(tick, 1000);
+  }
+
+  function tryConnect() {
+    if (window.pywebview && window.pywebview.api) {
+      api = window.pywebview.api;
+      begin();
+      return true;
+    }
+    return false;
+  }
+
+  /* ---------- interactions ---------- */
+
+  function togglePanel(open) {
+    panelOpen = (open === undefined) ? !panelOpen : !!open;
+    panel.hidden = !panelOpen;
+    gear.classList.toggle("open", panelOpen);
+    scheduleResize();
+  }
+
+  function stopDrag(el) {
+    // easy_drag (pywebview) écoute mousedown sur le document : on bloque la
+    // propagation pour que le volet et l'engrenage restent cliquables.
+    var events = ["mousedown", "touchstart", "pointerdown"];
+    for (var i = 0; i < events.length; i++) {
+      el.addEventListener(events[i], function (e) { e.stopPropagation(); });
+    }
+  }
+
+  function wire() {
+    stopDrag(panel);
+    stopDrag(gear);
+    gear.addEventListener("click", function () { togglePanel(); });
+
+    var boxes = document.querySelectorAll("[data-el-chk]");
+    for (var i = 0; i < boxes.length; i++) {
+      (function (box) {
+        box.addEventListener("change", function () {
+          var name = box.getAttribute("data-el-chk");
+          push("set_element", [name, box.checked], function (c) { c.elements[name] = box.checked; });
+        });
+      })(boxes[i]);
+    }
+
+    wireSeg("seg-theme", "set_theme", function (c, v) { c.theme = v; });
+    wireSeg("seg-layout", "set_layout", function (c, v) { c.layout = v; });
+    wireSeg("seg-scale", "set_scale", function (c, v) { c.scale = v; });
+
+    opRange.addEventListener("pointerdown", function () { opDragging = true; });
+    window.addEventListener("pointerup", function () { opDragging = false; });
+    opRange.addEventListener("input", function () {
+      var v = Number(opRange.value) / 100;
+      root.style.setProperty("--alpha", String(v));
+      opVal.textContent = opRange.value + " %";
+    });
+    opRange.addEventListener("change", function () {
+      var v = Number(opRange.value) / 100;
+      push("set_opacity", [v], function (c) { c.opacity = v; });
+    });
+
+    ctBox.addEventListener("change", function () {
+      var on = ctBox.checked;
+      push("set_click_through", [on], function (c) { c.click_through = on; });
+      if (on) { togglePanel(false); }
+    });
+
+    document.getElementById("btn-hide").addEventListener("click", function () {
+      togglePanel(false);
+      if (api && api.hide_widget) {
+        try { api.hide_widget(); } catch (e) { /* silencieux */ }
+      }
+    });
+    document.getElementById("btn-quit").addEventListener("click", function () {
+      if (api && api.quit_widget) {
+        try { api.quit_widget(); } catch (e) { /* silencieux */ }
+      }
+    });
+  }
+
+  function wireSeg(id, method, assign) {
+    var buttons = document.getElementById(id).querySelectorAll("button");
+    for (var i = 0; i < buttons.length; i++) {
+      (function (btn) {
+        btn.addEventListener("click", function () {
+          var v = btn.getAttribute("data-v");
+          push(method, [v], function (c) { assign(c, v); });
+        });
+      })(buttons[i]);
+    }
+  }
+
+  /* ---------- démarrage ---------- */
+
+  wire();
+  if (!tryConnect()) {
+    window.addEventListener("pywebviewready", tryConnect);
+    var attempts = 0;
+    var poll = window.setInterval(function () {
+      if (tryConnect() || ++attempts > 40) { window.clearInterval(poll); }
+    }, 250);
+  }
+})();
+</script>
+</body>
+</html>
