@@ -81,6 +81,19 @@ jobs:
           }
           exit 0
 
+      # Injecte le numéro de build CI dans overdrive/_build.py (lu par
+      # overdrive/core/updater.py pour comparer au dernier build publié).
+      - name: Injection du numéro de build
+        shell: pwsh
+        run: |
+          $lines = @(
+            '"""Numéro de build injecté par la CI (généré, ne pas modifier)."""'
+            ''
+            'BUILD: int | None = ${{ github.run_number }}'
+          )
+          Set-Content -Path "overdrive/_build.py" -Value $lines -Encoding utf8
+          python -c "from overdrive._build import BUILD; print('BUILD =', BUILD)"
+
       - name: Construction de l'exécutable
         run: python build_exe.py
 

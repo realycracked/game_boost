@@ -38,6 +38,7 @@ DEFAULTS: dict[str, Any] = {
     "autostart": "never",  # "never" | "always" | "game"
     "position": None,      # None ou {"x": int, "y": int}
     "click_through": False,
+    "gamemode": False,     # mode jeu automatique (plan performant + priorité)
 }
 
 
@@ -108,6 +109,9 @@ def _validate(raw: Any) -> dict[str, Any]:
     if "click_through" in raw:
         cfg["click_through"] = _as_bool(raw.get("click_through"), bool(DEFAULTS["click_through"]))
 
+    if "gamemode" in raw:
+        cfg["gamemode"] = _as_bool(raw.get("gamemode"), bool(DEFAULTS["gamemode"]))
+
     return cfg
 
 
@@ -148,6 +152,8 @@ def update_widget_settings(partial: dict[str, Any]) -> dict[str, Any]:
                 current[key] = _valid_position(value)
             elif key == "click_through":
                 current[key] = _as_bool(value, bool(current["click_through"]))
+            elif key == "gamemode":
+                current[key] = _as_bool(value, bool(current["gamemode"]))
     validated = _validate(current)
     try:
         store.update_settings(widget=validated)

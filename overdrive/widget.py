@@ -91,6 +91,7 @@ class _WidgetRuntime:
         self.user_hidden = False
         self._game_present = False
         self._fps_process: str | None = None
+        self._gamemode_process: str | None = None
         self._ct_applied = False
         self._stop = threading.Event()
         self._move_lock = threading.Lock()
@@ -126,6 +127,24 @@ class _WidgetRuntime:
         wanted_ct = bool(cfg.get("click_through"))
         if wanted_ct != self._ct_applied and _apply_click_through(wanted_ct):
             self._ct_applied = wanted_ct
+
+        # Mode jeu automatique : plan performant + priorité haute quand un jeu
+        # tourne (gamemode.* est best effort et ne lève jamais d'exception).
+        if bool(cfg.get("gamemode")):
+            from .core import gamemode  # noqa: PLC0415 — import tardif léger
+
+            if process is not None and process != self._gamemode_process:
+                gamemode.activate(process)
+                self._gamemode_process = process
+            elif process is None and self._gamemode_process is not None:
+                gamemode.deactivate()
+                self._gamemode_process = None
+        elif self._gamemode_process is not None:
+            # Réglage décoché en cours de partie → plan d'origine restauré.
+            from .core import gamemode  # noqa: PLC0415 — import tardif léger
+
+            gamemode.deactivate()
+            self._gamemode_process = None
 
         # Mode --wait-game : la fenêtre suit la présence d'un jeu.
         if self.wait_game and self.window is not None:
