@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -22,6 +23,9 @@ _ALLOWED_HOSTS: set[str] = {"127.0.0.1", "localhost", "::1"}
 _ACCESS_TOKEN: str | None = None
 
 _TOKEN_COOKIE = "overdrive_token"
+
+#: Un seul mini-benchmark à la fois (voir POST /api/bench).
+_BENCH_LOCK = threading.Lock()
 
 
 def configure_security(token: str | None = None,
@@ -48,6 +52,7 @@ from .core.games.cs2 import (
     write_autoexec,
 )
 from .core.games.detect import detect_games
+from .core.gamewatch import current_game
 from .core.hardware import cached_tier, detect_hardware
 from .core.latency import REGIONS, measure
 from .core.monitor import sample
@@ -68,6 +73,37 @@ from .paths import is_windows, web_dir
 from .store import get_settings, update_settings
 
 _SIMPLE_TYPES = (str, int, float, bool, type(None))
+
+#: Thèmes acceptés par POST /api/settings et /api/profile/import ; les
+#: anciennes valeurs "dark"/"light" sont normalisées (voir _THEME_ALIASES).
+_THEMES = ("midnight", "midnight-ocean", "midnight-emerald", "midnight-rose",
+           "daylight", "dark", "light")
+_THEME_ALIASES = {"dark": "midnight", "light": "daylight"}
+_DEFAULT_THEME = "midnight"
+
+#: Niveaux d'animation de l'interface.
+_MOTIONS = ("max", "reduced", "off")
+_DEFAULT_MOTION = "max"
+
+
+def _normalize_theme(value: Any) -> str | None:
+    """Thème normalisé (dark→midnight, light→daylight), ``None`` si invalide."""
+    if not isinstance(value, str) or value not in _THEMES:
+        return None
+    return _THEME_ALIASES.get(value, value)
+
+
+def _normalize_motion(value: Any) -> str | None:
+    """Niveau d'animation valide, ``None`` sinon."""
+    return value if isinstance(value, str) and value in _MOTIONS else None
+
+
+def _normalized_settings(settings: dict) -> dict:
+    """Copie des réglages avec ``theme`` et ``motion`` normalisés."""
+    out = dict(settings)
+    out["theme"] = _normalize_theme(settings.get("theme")) or _DEFAULT_THEME
+    out["motion"] = _normalize_motion(settings.get("motion")) or _DEFAULT_MOTION
+    return out
 
 
 def _platform_name() -> str:
@@ -178,9 +214,19 @@ def create_app() -> FastAPI:
         inconnu et retente après un chargement de ``/api/hardware``. La
         lecture passe par :func:`cached_tier` qui ne déclenche JAMAIS de
         détection — cette route doit rester instantanée.
+
+        ``game_running`` : un jeu du catalogue tourne
+        (:func:`overdrive.core.gamewatch.current_game`, cache 3 s, scan
+        exécuté hors de la boucle d'événements). ``theme`` et ``motion``
+        sont normalisés (dark→midnight, light→daylight ; motion par défaut
+        "max").
         """
-        settings = get_settings()
+        settings = _normalized_settings(get_settings())
         tier = cached_tier()
+        try:
+            game_running = (await run_in_threadpool(current_game)) is not None
+        except Exception:  # noqa: BLE001 — l'état ne doit jamais échouer
+            game_running = False
         return {
             "app": APP_NAME,
             "version": VERSION,
@@ -189,35 +235,58 @@ def create_app() -> FastAPI:
             "is_admin": _is_admin(),
             "first_run": bool(settings.get("first_run", True)),
             "profile": settings.get("profile"),
-            "theme": settings.get("theme", "light"),
+            "theme": settings["theme"],
+            "motion": settings["motion"],
             "lang": settings.get("lang", "fr"),
             "hardware_tier": tier,
             "tier": tier,
+            "game_running": game_running,
         }
 
     # --------------------------------------------------------------- settings
 
     @application.get("/api/settings")
     async def api_get_settings() -> dict:
-        """Réglages complets (jamais de clés API dedans)."""
-        return get_settings()
+        """Réglages complets (jamais de clés API dedans), thème/motion normalisés."""
+        return _normalized_settings(get_settings())
 
     @application.post("/api/settings")
     async def api_post_settings(payload: Any = Body(...)) -> dict:
-        """Met à jour des réglages simples (liste blanche : thème, langue)."""
+        """Met à jour des réglages simples (liste blanche : thème, animations, langue).
+
+        ``theme`` ∈ midnight, midnight-ocean, midnight-emerald, midnight-rose,
+        daylight (dark/light acceptés et normalisés en midnight/daylight) ;
+        ``motion`` ∈ max, reduced, off.
+        """
         data = _require_dict(payload)
+        updates: dict[str, Any] = {}
         theme = data.get("theme")
-        if theme is not None and theme not in ("light", "dark"):
-            raise HTTPException(status_code=400, detail="Thème invalide : 'light' ou 'dark'.")
+        if theme is not None:
+            normalized = _normalize_theme(theme)
+            if normalized is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Thème invalide : choix possibles : {', '.join(_THEMES)}.",
+                )
+            updates["theme"] = normalized
+        motion = data.get("motion")
+        if motion is not None:
+            if _normalize_motion(motion) is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Animations invalides : choix possibles : {', '.join(_MOTIONS)}.",
+                )
+            updates["motion"] = motion
         lang = data.get("lang")
         if lang is not None and lang not in ("fr", "en"):
             raise HTTPException(status_code=400, detail="Langue invalide : 'fr' ou 'en'.")
+        if lang is not None:
+            updates["lang"] = lang
         # Liste blanche stricte : les clés typées (profile, quiz_answers,
         # ai_provider, first_run) ont leurs propres routes validées.
-        updates = {key: data[key] for key in ("theme", "lang") if data.get(key) is not None}
         if not updates:
-            return get_settings()
-        return update_settings(**updates)
+            return _normalized_settings(get_settings())
+        return _normalized_settings(update_settings(**updates))
 
     # --------------------------------------------------------------- hardware
 
@@ -387,8 +456,29 @@ def create_app() -> FastAPI:
 
     @application.post("/api/clean")
     def api_clean(payload: Any = Body(...)) -> dict:
-        """Nettoie les cibles sélectionnées."""
-        return {"results": clean(_require_ids(payload))}
+        """Nettoie les cibles sélectionnées (Windows uniquement).
+
+        Hors Windows, la seule cible analysée est /tmp (mode développement) :
+        la supprimer emporterait des fichiers ouverts et des sockets d'autres
+        processus. L'analyse reste consultable, le nettoyage est refusé
+        proprement, cible par cible.
+        """
+        ids = _require_ids(payload)
+        if not is_windows():
+            return {
+                "results": [
+                    {
+                        "id": target_id,
+                        "ok": False,
+                        "freed_mb": 0.0,
+                        "message": "Disponible uniquement sous Windows.",
+                        "message_en": "Windows only.",
+                    }
+                    for target_id in ids
+                ],
+                "supported": False,
+            }
+        return {"results": clean(ids)}
 
     # ---------------------------------------------------------------- monitor
 
@@ -463,6 +553,45 @@ def create_app() -> FastAPI:
                 status_code=400, detail="Le champ 'restore_point' doit être un booléen."
             )
         return run_boost(create_restore=restore_point)
+
+    # -------------------------------------------------------- CS2 / AMD (v6)
+    # Imports tardifs (même motif que la vague 3) : le serveur démarre même
+    # si l'un de ces modules venait à manquer.
+
+    @application.get("/api/cs2/boost/plan")
+    def api_cs2_boost_plan(tier: str | None = None) -> dict:
+        """Aperçu du Boost CS2 (``?tier=`` force un tier), aucune modification."""
+        from .core.cs2boost import plan
+
+        return plan(_require_tier(tier))
+
+    @application.post("/api/cs2/boost")
+    def api_cs2_boost(payload: Any = Body(default=None)) -> dict:
+        """Boost CS2 en un clic : restauration, tweaks, vidéo et autoexec du tier.
+
+        Corps optionnel ``{"tier", "apply_video", "write_autoexec",
+        "restore_point"}`` (booléens à ``true`` par défaut). Sous Linux,
+        chaque étape répond par un refus propre.
+        """
+        from .core.cs2boost import run
+
+        data = payload if isinstance(payload, dict) else {}
+        flags: dict[str, bool] = {}
+        for key in ("apply_video", "write_autoexec", "restore_point"):
+            value = data.get(key, True)
+            if not isinstance(value, bool):
+                raise HTTPException(
+                    status_code=400, detail=f"Le champ '{key}' doit être un booléen."
+                )
+            flags[key] = value
+        return run(tier=_require_tier(data.get("tier")), **flags)
+
+    @application.get("/api/amd")
+    def api_amd() -> dict:
+        """Conseils AMD (checklist Adrenalin CS2, Ryzen) pour le matériel détecté."""
+        from .core.amd import amd_overview
+
+        return amd_overview()
 
     # ------------------------------------------------------------------- quiz
 
@@ -562,10 +691,24 @@ def create_app() -> FastAPI:
 
     @application.post("/api/bench")
     def api_bench_run() -> dict:
-        """Lance le mini-benchmark (10-15 s) et renvoie le résultat."""
+        """Lance le mini-benchmark (10-15 s) et renvoie le résultat.
+
+        Un seul benchmark à la fois : deux mesures simultanées se gêneraient
+        (CPU, RAM, disque) et fausseraient l'historique avant/après.
+        """
         from .core.bench import run_bench
 
-        return run_bench()
+        if not _BENCH_LOCK.acquire(blocking=False):
+            return {
+                "ok": False,
+                "busy": True,
+                "message": "Un benchmark est déjà en cours.",
+                "message_en": "A benchmark is already running.",
+            }
+        try:
+            return run_bench()
+        finally:
+            _BENCH_LOCK.release()
 
     @application.get("/api/bench/history")
     def api_bench_history() -> dict:
@@ -609,7 +752,7 @@ def create_app() -> FastAPI:
 
         from .core.widgetcfg import get_widget_settings
 
-        settings = get_settings()
+        settings = _normalized_settings(get_settings())
         payload = {
             "app": APP_NAME,
             "version": VERSION,
@@ -617,6 +760,7 @@ def create_app() -> FastAPI:
             "profile": settings.get("profile"),
             "quiz_answers": settings.get("quiz_answers"),
             "theme": settings.get("theme"),
+            "motion": settings.get("motion"),
             "lang": settings.get("lang", "fr"),
             "widget": get_widget_settings(),
         }
@@ -640,8 +784,14 @@ def create_app() -> FastAPI:
             updates["first_run"] = False
         if isinstance(data.get("quiz_answers"), dict):
             updates["quiz_answers"] = data["quiz_answers"]
-        if data.get("theme") in ("light", "dark"):
-            updates["theme"] = data["theme"]
+        # Même normalisation que POST /api/settings (dark→midnight,
+        # light→daylight) ; valeur inconnue ignorée silencieusement.
+        theme = _normalize_theme(data.get("theme"))
+        if theme is not None:
+            updates["theme"] = theme
+        motion = _normalize_motion(data.get("motion"))
+        if motion is not None:
+            updates["motion"] = motion
         if data.get("lang") in ("fr", "en"):
             updates["lang"] = data["lang"]
         if updates:
@@ -786,10 +936,26 @@ def create_app() -> FastAPI:
         from .core.widgetcfg import update_widget_settings
 
         data = _require_dict(payload)
-        config = update_widget_settings(data)
         autostart_result = None
         if "autostart" in data:
-            autostart_result = set_widget_autostart(config["autostart"])
+            # L'entrée de démarrage est écrite AVANT la persistance : en cas
+            # d'échec (hors Windows, registre inaccessible), le réglage
+            # enregistré reprend le mode réel au lieu du choix refusé.
+            requested = data.get("autostart")
+            real_before = get_autostart()
+            if (
+                requested == "never"
+                and not real_before.get("supported", True)
+                and real_before.get("widget_mode") == "never"
+            ):
+                # Rien à désactiver là où le démarrage auto n'existe pas.
+                autostart_result = {"ok": True, "message": ""}
+            else:
+                autostart_result = set_widget_autostart(requested)
+            if not autostart_result.get("ok"):
+                data = dict(data)
+                data["autostart"] = get_autostart().get("widget_mode", "never")
+        config = update_widget_settings(data)
         return {
             "widget": config,
             "autostart": get_autostart(),
@@ -798,8 +964,32 @@ def create_app() -> FastAPI:
 
     @application.post("/api/widget/launch")
     def api_widget_launch() -> dict:
-        """Lance le widget dans un processus détaché."""
+        """Lance le widget dans un processus détaché (Windows uniquement).
+
+        Hors Windows, ou sans pywebview, le processus enfant quitterait
+        aussitôt : refus propre plutôt qu'un faux succès. Le processus lancé
+        est attendu dans un fil démon pour ne pas laisser de zombie.
+        """
+        import importlib.util
         import subprocess
+
+        if not is_windows():
+            return {
+                "ok": False,
+                "message": "Widget disponible uniquement sous Windows.",
+                "message_en": "The widget is only available on Windows.",
+            }
+        if not getattr(sys, "frozen", False):
+            try:
+                webview_missing = importlib.util.find_spec("webview") is None
+            except (ImportError, ValueError):
+                webview_missing = True
+            if webview_missing:
+                return {
+                    "ok": False,
+                    "message": "Widget indisponible : pywebview n'est pas installé.",
+                    "message_en": "Widget unavailable: pywebview is not installed.",
+                }
 
         if getattr(sys, "frozen", False):
             command = [sys.executable, "--widget"]
@@ -813,17 +1003,23 @@ def create_app() -> FastAPI:
                 | getattr(subprocess, "DETACHED_PROCESS", 0)
             )
         try:
-            subprocess.Popen(
+            proc = subprocess.Popen(
                 command,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 stdin=subprocess.DEVNULL,
                 **kwargs,
             )
-            return {"ok": True, "message": "Widget lancé."}
         except Exception:
             log.exception("Échec du lancement du widget")
-            return {"ok": False, "message": "Impossible de lancer le widget."}
+            return {
+                "ok": False,
+                "message": "Impossible de lancer le widget.",
+                "message_en": "Could not launch the widget.",
+            }
+        # Récupère le code de sortie à la fin du widget (pas de zombie).
+        threading.Thread(target=proc.wait, name="widget-reaper", daemon=True).start()
+        return {"ok": True, "message": "Widget lancé.", "message_en": "Widget launched."}
 
     return application
 

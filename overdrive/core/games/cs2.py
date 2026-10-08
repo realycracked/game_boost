@@ -27,6 +27,7 @@ from pathlib import Path
 import psutil
 
 from ...paths import is_windows
+from ..amd import gpu_arch
 from ..configvault import backup as _vault_backup
 from ..hardware import detect_hardware
 from ..latency import measure as _measure_latency
@@ -174,18 +175,22 @@ _VIDEO_PLAN: list[dict] = [
         "label": "Anticrénelage MSAA",
         "label_en": "MSAA anti-aliasing",
         "keys": ["setting.msaa_samples"],
-        "tiers": {"lowend": "2", "midrange": "2", "highend": "4"},
+        # Petite config (vague 6, plan « au plus bas utile ») : MSAA coupé,
+        # chaque image compte ; 2x dès le milieu de gamme.
+        "tiers": {"lowend": "0", "midrange": "2", "highend": "4"},
         "confidence": "confirmee",
         "menu_path": "Vidéo avancé > Mode d'anticrénelage",
         "menu_path_en": "Advanced video > Anti-aliasing mode",
         # Correction de l'ancienne note : CMAA2 n'est PAS msaa_samples 2.
         # Un joueur en CMAA2 a msaa_samples "1" : choix valide en petite
         # config, on ne « recommande pas mieux » dans ce cas.
-        "note": ("MSAA 2x = compromis FPS/netteté ; 4x en haut de gamme "
-                 "(lisibilité à longue distance). CMAA2 est un mode distinct "
-                 "(msaa_samples vaut alors 1) : valide sur petite config, "
-                 "conservé tel quel."),
-        "note_en": ("MSAA 2x = FPS/clarity trade-off; 4x on high-end machines "
+        "note": ("Petite config : aucun MSAA (le plus rapide). MSAA 2x = "
+                 "compromis FPS/netteté dès le milieu de gamme ; 4x en haut "
+                 "de gamme (lisibilité à longue distance). CMAA2 est un mode "
+                 "distinct (msaa_samples vaut alors 1) : valide sur petite "
+                 "config, conservé tel quel."),
+        "note_en": ("Low-end machine: no MSAA (fastest). MSAA 2x = FPS/clarity "
+                    "trade-off from mid-range up; 4x on high-end machines "
                     "(long-range readability). CMAA2 is a separate mode "
                     "(msaa_samples then reads 1): valid on low-end machines, "
                     "kept as-is."),
@@ -413,10 +418,34 @@ _VIRTUAL_GPU_MARKERS = ("microsoft basic display", "virtual", "remote", "vnc")
 _IGPU_MARKERS = ("intel(r) hd graphics", "intel hd graphics",
                  "intel(r) uhd graphics", "intel uhd graphics", "iris")
 
-_GPU_FLOOR_HIGH_RE = re.compile(r"rtx\s*[45]0\d{2}|rx\s*7[89]\d0", re.IGNORECASE)
-_GPU_FLOOR_MID_RE = re.compile(r"rtx\s*[23]0\d{2}|rx\s*6[6-9]\d0", re.IGNORECASE)
-_GPU_CAP_MID_RE = re.compile(r"gtx\s*(9\d{2}|10\d{2}|16\d{2})|rx\s*[45]\d0\b",
+# Planchers / plafonds par nom commercial (la VRAM seule ne suffit pas :
+# une RX 580 8 Go n'est pas un GPU haut de gamme).
+#   - plancher haut : RTX 40/50, RX 7800-7900 (RDNA 3), RX 9070/9070 XT/
+#     9070 GRE (RDNA 4) ;
+#   - plancher milieu : RTX 20/30, RX 6600-6950 (RDNA 2), RX 7600-7700
+#     (RDNA 3), RX 9060/9060 XT (RDNA 4), Intel Arc A7xx/B5xx ;
+#   - plafond milieu : GTX 9xx/10xx/16xx, Polaris RX 4x0/5x0, RX 5300/5500
+#     (RDNA 1 d'entrée), RX 6400/6500 (RDNA 2 d'entrée) ;
+#   - plafond bas : RX 460/550/560, GT 710/730/1030 (entrée de gamme,
+#     VRAM éventuellement inconnue).
+_GPU_FLOOR_HIGH_RE = re.compile(r"rtx\s*[45]0\d{2}|rx\s*7[89]\d0|rx\s*90[7-9]0",
+                                re.IGNORECASE)
+_GPU_FLOOR_MID_RE = re.compile(
+    r"rtx\s*[23]0\d{2}|rx\s*6[6-9]\d0|rx\s*7[67]\d0|rx\s*90[0-6]0"
+    r"|arc\s*(a7\d{2}|b5\d{2})\b",
+    re.IGNORECASE)
+_GPU_CAP_MID_RE = re.compile(
+    r"gtx\s*(9\d{2}|10\d{2}|16\d{2})|rx\s*[45]\d0\b|rx\s*(5[35]00|6[45]00)\b",
+    re.IGNORECASE)
+_GPU_CAP_LOW_RE = re.compile(r"\brx\s*(460|550|560)\b|\bgt\s*(7[1-3]0|1030)\b",
                              re.IGNORECASE)
+#: Polaris RX 470/570 : très majoritairement en 4 Go ; VRAM inconnue =>
+#: classées GPU faible par prudence (une RX 570 reste d'entrée de gamme
+#: pour CS2).
+_GPU_POLARIS_4GB_LIKELY_RE = re.compile(r"\brx\s*[45]70\b", re.IGNORECASE)
+#: VRAM (Mo) jusqu'à laquelle un GPU est classé faible (4 Go inclus : la
+#: VRAM registre d'une carte de 4 Go vaut exactement 4096).
+_GPU_LOW_VRAM_MAX_MB = 4096
 _AMD_APU_RE = re.compile(r"radeon(\(tm\))?\s+(r[2-7]\s+)?graphics$")
 
 
@@ -453,11 +482,14 @@ def detect_tier(hw: dict | None = None) -> dict:
     """Classe la machine pour CS2 en « maillon faible » GPU/CPU/RAM.
 
     Retour : ``{"tier", "label", "label_en", "reasons", "reasons_en",
-    "cpu_strong", "gpu_vendor", "vram_mb", "ram_gb"}``. Fonction pure sur
-    le dict de :func:`detect_hardware` (``hw=None`` => détection), donc
-    testable sous Linux avec des fixtures. VRAM/GPU indéterminables
-    (Linux, AdapterRAM nul) => composant classé ``midrange`` prudent avec
-    raison explicite. Jamais d'exception.
+    "cpu_strong", "gpu_vendor", "vram_mb", "ram_gb", "gpu_name",
+    "gpu_arch"}`` (``gpu_name``/``gpu_arch`` additifs, ``gpu_arch`` =
+    :func:`overdrive.core.amd.gpu_arch`). Fonction pure sur le dict de
+    :func:`detect_hardware` (``hw=None`` => détection), donc testable sous
+    Linux avec des fixtures. VRAM/GPU indéterminables (Linux, AdapterRAM
+    saturé) => composant classé ``midrange`` prudent avec raison explicite,
+    sauf modèle d'entrée de gamme reconnu par son nom. VRAM <= 4 Go => GPU
+    faible. Jamais d'exception.
     """
     fallback = {
         "tier": "midrange",
@@ -469,6 +501,8 @@ def detect_tier(hw: dict | None = None) -> dict:
         "gpu_vendor": None,
         "vram_mb": None,
         "ram_gb": None,
+        "gpu_name": None,
+        "gpu_arch": None,
     }
     try:
         if hw is None:
@@ -497,6 +531,7 @@ def detect_tier(hw: dict | None = None) -> dict:
         gpu_vendor: str | None = None
         vram_mb: int | None = None
         gpu_name = ""
+        gpu_note: tuple[str, str] | None = None
         if real_gpus:
             # GPU dédié prioritaire sur l'iGPU pour la classification.
             chosen = next((g for g in real_gpus
@@ -509,7 +544,10 @@ def detect_tier(hw: dict | None = None) -> dict:
             if _is_igpu(gpu_name):
                 gpu_score = 0
             elif vram_mb is not None:
-                if vram_mb < 4096:
+                # 4 Go inclus : RX 570 4 Go, GTX 1050 Ti / 1650 4 Go => GPU
+                # faible pour CS2 (même classement qu'avec l'ancienne lecture
+                # AdapterRAM, qui remontait 4095 Mo pour ces cartes).
+                if vram_mb <= _GPU_LOW_VRAM_MAX_MB:
                     gpu_score = 0
                 elif vram_mb < 8192:
                     gpu_score = 1
@@ -519,8 +557,17 @@ def detect_tier(hw: dict | None = None) -> dict:
                 gpu_score = 2 if gpu_score is None else max(gpu_score, 2)
             elif _GPU_FLOOR_MID_RE.search(gpu_name):
                 gpu_score = 1 if gpu_score is None else max(gpu_score, 1)
+            elif _GPU_CAP_LOW_RE.search(gpu_name):
+                gpu_score = 0
             elif _GPU_CAP_MID_RE.search(gpu_name):
-                gpu_score = 1 if gpu_score is None else min(gpu_score, 1)
+                if vram_mb is None and _GPU_POLARIS_4GB_LIKELY_RE.search(gpu_name):
+                    gpu_score = 0
+                    gpu_note = ("RX 470/570 à VRAM illisible : classée GPU "
+                                "faible par prudence (le plus souvent 4 Go).",
+                                "RX 470/570 with unreadable VRAM: cautiously "
+                                "classed as a weak GPU (usually 4 GB).")
+                else:
+                    gpu_score = 1 if gpu_score is None else min(gpu_score, 1)
         if gpu_score is None:
             reasons.append("GPU ou VRAM non identifiables : classé milieu de "
                            "gamme prudent (corrigez le tier à la main si besoin).")
@@ -533,6 +580,9 @@ def detect_tier(hw: dict | None = None) -> dict:
             vram_txt_en = f"{vram_mb} MB of VRAM" if vram_mb else "unknown VRAM"
             reasons.append(f"GPU : {gpu_name or 'inconnu'} ({vram_txt}).")
             reasons_en.append(f"GPU: {gpu_name or 'unknown'} ({vram_txt_en}).")
+            if gpu_note is not None:
+                reasons.append(gpu_note[0])
+                reasons_en.append(gpu_note[1])
 
         # --- CPU : cœurs physiques, modulés par la fréquence maximale. ---
         cores = _positive(cpu.get("cores_physical"))
@@ -595,6 +645,8 @@ def detect_tier(hw: dict | None = None) -> dict:
             "gpu_vendor": gpu_vendor,
             "vram_mb": vram_mb,
             "ram_gb": ram_gb,
+            "gpu_name": gpu_name or None,
+            "gpu_arch": gpu_arch(gpu_name) if gpu_name else None,
         }
     except Exception:  # jamais d'exception vers l'appelant
         return fallback
@@ -1162,15 +1214,34 @@ def machine_advice(tier_info: dict, hw: dict, info: dict) -> list[dict]:
                 "mostly useful on high-end machines.",
                 "reco"))
         elif vendor == "amd":
-            advice.append(_advice(
-                "antilag", "⚡",
-                "AMD Anti-Lag 2 : à activer dans Adrenalin",
-                "AMD Anti-Lag 2: enable it in Adrenalin",
-                "CS2 prend en charge AMD Anti-Lag 2 : activez-le dans AMD "
-                "Software Adrenalin (équivalent de Reflex pour votre GPU).",
-                "CS2 supports AMD Anti-Lag 2: enable it in AMD Software "
-                "Adrenalin (the Reflex equivalent for your GPU).",
-                "info"))
+            arch = tinfo.get("gpu_arch")
+            if arch in ("polaris", "vega"):
+                # Anti-Lag 2 n'est pas pris en charge sur ces générations GCN.
+                advice.append(_advice(
+                    "antilag", "⚡",
+                    "Radeon Anti-Lag (pilote) : à activer si présent",
+                    "Radeon Anti-Lag (driver): enable it if present",
+                    "AMD Anti-Lag 2 n'est pas pris en charge sur votre GPU : "
+                    "activez Radeon Anti-Lag dans le profil CS2 d'AMD Software "
+                    "Adrenalin si l'option y figure (voir la checklist AMD).",
+                    "AMD Anti-Lag 2 is not supported on your GPU: enable "
+                    "Radeon Anti-Lag in the CS2 profile of AMD Software "
+                    "Adrenalin if the option is there (see the AMD checklist).",
+                    "info"))
+            else:
+                advice.append(_advice(
+                    "antilag", "⚡",
+                    "AMD Anti-Lag 2 : à activer dans CS2 si présent",
+                    "AMD Anti-Lag 2: enable it in CS2 if present",
+                    "Si CS2 affiche « AMD Anti-Lag 2 » dans Vidéo avancé, "
+                    "activez-le dans le jeu (équivalent de Reflex pour votre "
+                    "GPU) ; sinon, activez Radeon Anti-Lag dans le profil CS2 "
+                    "d'AMD Software Adrenalin.",
+                    "If CS2 shows “AMD Anti-Lag 2” under Advanced Video, "
+                    "enable it in the game (the Reflex equivalent for your "
+                    "GPU); otherwise, enable Radeon Anti-Lag in the CS2 "
+                    "profile of AMD Software Adrenalin.",
+                    "info"))
 
         # 4. Écran sous-cadencé (réutilise la détection des Constats).
         if (isinstance(hz_now, int) and isinstance(hz_max, int)
@@ -1564,6 +1635,72 @@ def write_autoexec(user_id: str | None = None, content: str | None = None,
         return {"ok": True, "message": message, "path": str(target)}
     except Exception as exc:  # jamais d'exception vers l'appelant
         return {"ok": False, "message": f"Échec de l'écriture de l'autoexec : {exc}", "path": None}
+
+
+def read_current_video_settings(user_id: str | None = None) -> dict[str, str] | None:
+    """Réglages actuels du cs2_video.txt du profil que viserait une écriture.
+
+    Même choix de profil que :func:`apply_video_settings` et
+    :func:`write_autoexec` : ``user_id`` s'il est donné, sinon le premier
+    profil CS2 de Steam/userdata — l'aperçu correspond donc au fichier
+    réellement modifié. Lecture seule, ``None`` si Steam, le profil ou le
+    fichier est introuvable. Jamais d'exception.
+    """
+    try:
+        steam_root = find_steam_root()
+        if steam_root is None:
+            return None
+        profiles = _userdata_profiles(steam_root)
+        if user_id is not None:
+            profile = next((p for p in profiles if p["user_id"] == str(user_id)), None)
+        else:
+            profile = profiles[0] if profiles else None
+        if profile is None:
+            return None
+        return _read_video_settings(profile["cfg_dir"])
+    except Exception:  # jamais d'exception vers l'appelant
+        return None
+
+
+#: Marqueur des autoexec générés par Overdrive (en-tête de generate_autoexec
+#: et de son repli minimal).
+_AUTOEXEC_MARKER = "// Overdrive"
+
+
+def autoexec_status(user_id: str | None = None) -> dict:
+    """État de l'autoexec.cfg du profil CS2 (lecture seule).
+
+    Retour : ``{"profile", "path", "exists", "by_overdrive"}`` —
+    ``by_overdrive`` vrai si le fichier porte l'en-tête généré par
+    Overdrive (un autoexec personnel, avec binds, ne doit pas être écrasé
+    sans demande explicite). ``profile`` vaut ``None`` si Steam ou le
+    profil est introuvable. Jamais d'exception.
+    """
+    result: dict = {"profile": None, "path": None, "exists": False,
+                    "by_overdrive": False}
+    try:
+        steam_root = find_steam_root()
+        if steam_root is None:
+            return result
+        profiles = _userdata_profiles(steam_root)
+        if user_id is not None:
+            profile = next((p for p in profiles if p["user_id"] == str(user_id)), None)
+        else:
+            profile = profiles[0] if profiles else None
+        if profile is None:
+            return result
+        target = Path(profile["cfg_dir"]) / "autoexec.cfg"
+        result["profile"] = profile["user_id"]
+        result["path"] = str(target)
+        if not target.is_file():
+            return result
+        result["exists"] = True
+        with open(target, encoding="utf-8", errors="replace") as handle:
+            head = handle.read(4096)
+        result["by_overdrive"] = _AUTOEXEC_MARKER in head
+        return result
+    except Exception:  # jamais d'exception vers l'appelant
+        return result
 
 
 # ---------------------------------------------------------------------------

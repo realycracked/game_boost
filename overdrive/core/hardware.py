@@ -4,6 +4,13 @@ Le dict retourné par :func:`detect_hardware` porte aussi la clé ``"tier"``
 (:func:`hardware_tier`) : classification « petite config » / milieu de
 gamme / haut de gamme utilisée par le profil ``petite_config`` du quiz et
 par la bannière de la page Optimisations.
+
+VRAM sous Windows : ``Win32_VideoController.AdapterRAM`` est un uint32
+plafonné à 4 Go (une carte de 16 Go remonte ≈ 4095 Mo). La VRAM réelle est
+lue dans le registre de la classe d'affichage
+(``HardwareInformation.qwMemorySize``, repli ``HardwareInformation.MemorySize``),
+chaque sous-clé étant associée à son GPU par ``DriverDesc`` ; AdapterRAM
+n'est plus qu'un dernier recours, traité comme inconnu s'il est saturé.
 """
 
 from __future__ import annotations
@@ -17,6 +24,7 @@ import threading
 
 import psutil
 
+from overdrive.core.amd import gpu_arch
 from overdrive.paths import is_windows
 
 _CACHE: dict | None = None
@@ -26,6 +34,20 @@ _POWERSHELL_GPU_COMMAND = (
     "Get-CimInstance Win32_VideoController | "
     "Select-Object Name, AdapterRAM, DriverVersion | ConvertTo-Json -Compress"
 )
+
+#: Classe de périphériques « Carte graphique » (GUID_DEVCLASS_DISPLAY) : une
+#: sous-clé NNNN par adaptateur/pilote installé.
+_DISPLAY_CLASS_KEY = (
+    r"SYSTEM\CurrentControlSet\Control\Class"
+    r"\{4d36e968-e325-11ce-bfc1-08002be10318}"
+)
+_REG_QW_MEMORY = "HardwareInformation.qwMemorySize"
+_REG_MEMORY = "HardwareInformation.MemorySize"
+
+#: Au-delà de ce seuil (Mo), une valeur 32 bits (AdapterRAM, MemorySize en
+#: DWORD) est saturée : la VRAM réelle est inconnue (>= 4 Go).
+_SATURATED_32BIT_MB = 4095
+_UINT32_MAX = 0xFFFFFFFF
 
 
 def _creation_flags() -> int:
@@ -92,8 +114,174 @@ def _ram_info() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# VRAM réelle (registre de la classe d'affichage) — fonctions pures testables
+# ---------------------------------------------------------------------------
+
+
+def normalize_gpu_name(name: object) -> str:
+    """Nom de GPU comparable : minuscules, sans (TM)/(R)/™/®, espaces réduits."""
+    if not isinstance(name, str):
+        return ""
+    low = re.sub(r"\((tm|r)\)|[™®]", " ", name.lower())
+    return re.sub(r"\s+", " ", low).strip()
+
+
+def _registry_number(value: object) -> tuple[int, bool] | None:
+    """(valeur, source 64 bits ?) d'une valeur registre numérique ou binaire.
+
+    ``int`` (REG_DWORD / REG_QWORD) ou ``bytes`` (REG_BINARY, petit-boutiste,
+    8 octets au plus). Une source est « 64 bits » si elle fait plus de 4
+    octets ou dépasse la plage uint32. ``None`` si inexploitable.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return (value, value > _UINT32_MAX) if value > 0 else None
+    if isinstance(value, (bytes, bytearray)):
+        raw = bytes(value)
+        if not raw or len(raw) > 8:
+            return None
+        number = int.from_bytes(raw, "little")
+        return (number, len(raw) > 4) if number > 0 else None
+    return None
+
+
+def vram_mb_from_registry(qw_memory_size: object = None,
+                          memory_size: object = None) -> int | None:
+    """VRAM (Mo) depuis les valeurs registre d'une sous-clé de la classe d'affichage.
+
+    ``HardwareInformation.qwMemorySize`` (QWORD, octets) est prioritaire ;
+    repli sur ``HardwareInformation.MemorySize`` (DWORD ou binaire). Une
+    valeur 32 bits >= 4095 Mo est saturée => ``None`` (inconnue). Pure,
+    jamais d'exception.
+    """
+    try:
+        qword = _registry_number(qw_memory_size)
+        if qword is not None:
+            return round(qword[0] / 2**20) or None
+        dword = _registry_number(memory_size)
+        if dword is None:
+            return None
+        value_mb = round(dword[0] / 2**20)
+        if not dword[1] and value_mb >= _SATURATED_32BIT_MB:
+            return None
+        return value_mb or None
+    except Exception:
+        return None
+
+
+def vram_mb_from_adapter_ram(adapter_ram: object) -> int | None:
+    """VRAM (Mo) depuis ``Win32_VideoController.AdapterRAM`` (dernier recours).
+
+    uint32 : toute valeur >= 4095 Mo est saturée (cartes de 4 Go et plus)
+    et traitée comme inconnue (``None``). Pure, jamais d'exception.
+    """
+    if isinstance(adapter_ram, bool) or not isinstance(adapter_ram, (int, float)):
+        return None
+    if adapter_ram <= 0:
+        return None
+    value_mb = round(float(adapter_ram) / 2**20)
+    if value_mb >= _SATURATED_32BIT_MB:
+        return None
+    return value_mb or None
+
+
+def parse_display_class_entries(entries: list[dict]) -> dict[str, int]:
+    """Associe chaque GPU (nom normalisé) à sa VRAM d'après les sous-clés registre.
+
+    ``entries`` : ``[{"DriverDesc": str, "HardwareInformation.qwMemorySize":
+    int|bytes|None, "HardwareInformation.MemorySize": int|bytes|None}]``.
+    Plusieurs sous-clés pour un même nom (pilote réinstallé) => valeur
+    maximale. Pure (testable sous Linux), jamais d'exception.
+    """
+    result: dict[str, int] = {}
+    try:
+        for entry in entries if isinstance(entries, list) else []:
+            if not isinstance(entry, dict):
+                continue
+            key = normalize_gpu_name(entry.get("DriverDesc"))
+            if not key:
+                continue
+            vram = vram_mb_from_registry(entry.get(_REG_QW_MEMORY),
+                                         entry.get(_REG_MEMORY))
+            if vram is not None and vram > result.get(key, 0):
+                result[key] = vram
+    except Exception:
+        return result
+    return result
+
+
+def _read_display_class_entries() -> list[dict]:
+    """Sous-clés NNNN de la classe d'affichage (Windows), jamais d'exception."""
+    entries: list[dict] = []
+    try:
+        import winreg  # noqa: PLC0415 — import Windows uniquement
+
+        access = winreg.KEY_READ | getattr(winreg, "KEY_WOW64_64KEY", 0)
+        with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, _DISPLAY_CLASS_KEY,
+                              0, access) as root:
+            index = 0
+            while index < 256:  # garde-fou
+                try:
+                    sub_name = winreg.EnumKey(root, index)
+                except OSError:
+                    break
+                index += 1
+                if not re.fullmatch(r"\d{4}", sub_name):
+                    continue  # « Properties » et autres sous-clés non adaptateur
+                try:
+                    with winreg.OpenKeyEx(root, sub_name, 0, access) as sub:
+                        entry: dict = {}
+                        for value_name in ("DriverDesc", _REG_QW_MEMORY, _REG_MEMORY):
+                            try:
+                                entry[value_name] = winreg.QueryValueEx(sub, value_name)[0]
+                            except OSError:
+                                entry[value_name] = None
+                        entries.append(entry)
+                except OSError:
+                    continue
+    except Exception:
+        return entries
+    return entries
+
+
+def _registry_vram_by_name() -> dict[str, int]:
+    """VRAM réelle par nom de GPU normalisé (registre Windows), ``{}`` si échec."""
+    try:
+        return parse_display_class_entries(_read_display_class_entries())
+    except Exception:
+        return {}
+
+
+def resolve_gpu_vram(name: object, adapter_ram: object,
+                     registry: dict[str, int],
+                     single_adapter: bool = False) -> tuple[int | None, str | None]:
+    """(VRAM en Mo, source) d'un GPU : registre d'abord, AdapterRAM en dernier recours.
+
+    Association par nom normalisé (``DriverDesc`` = ``Name``). Si
+    ``single_adapter`` (un seul GPU réel côté CIM) et une seule VRAM
+    connue côté registre, elle lui est attribuée même si les noms
+    diffèrent légèrement. Source : ``"registry"`` | ``"adapter_ram"`` |
+    ``None``. Pure, jamais d'exception.
+    """
+    try:
+        registry = registry if isinstance(registry, dict) else {}
+        key = normalize_gpu_name(name)
+        if key and key in registry:
+            return registry[key], "registry"
+        real_entries = [vram for reg_name, vram in registry.items()
+                        if not any(m in reg_name for m in _VIRTUAL_GPU_MARKERS)]
+        if single_adapter and len(real_entries) == 1:
+            return real_entries[0], "registry"
+        fallback = vram_mb_from_adapter_ram(adapter_ram)
+        return (fallback, "adapter_ram") if fallback is not None else (None, None)
+    except Exception:
+        return None, None
+
+
 def _gpus_windows() -> list[dict]:
-    """GPU via PowerShell CIM Win32_VideoController (timeout 10 s)."""
+    """GPU via PowerShell CIM Win32_VideoController (timeout 10 s) + VRAM registre."""
     try:
         proc = subprocess.run(
             ["powershell.exe", "-NoProfile", "-Command", _POWERSHELL_GPU_COMMAND],
@@ -108,16 +296,25 @@ def _gpus_windows() -> list[dict]:
         data = json.loads(proc.stdout)
         if isinstance(data, dict):
             data = [data]
+        entries = [e for e in data if isinstance(e, dict) and e.get("Name")]
+        registry = _registry_vram_by_name()
+        real_count = sum(
+            1 for e in entries
+            if not any(m in str(e["Name"]).lower() for m in _VIRTUAL_GPU_MARKERS)
+        )
         gpus: list[dict] = []
-        for entry in data:
-            if not isinstance(entry, dict) or not entry.get("Name"):
-                continue
-            vram = entry.get("AdapterRAM")
-            vram_mb = round(int(vram) / 2**20) if isinstance(vram, (int, float)) and vram > 0 else None
+        for entry in entries:
+            name = str(entry["Name"]).strip()
+            vram_mb, source = resolve_gpu_vram(
+                name, entry.get("AdapterRAM"), registry,
+                single_adapter=real_count == 1
+                and not any(m in name.lower() for m in _VIRTUAL_GPU_MARKERS),
+            )
             gpus.append(
                 {
-                    "name": str(entry["Name"]).strip(),
+                    "name": name,
                     "vram_mb": vram_mb,
+                    "vram_source": source,
                     "driver": str(entry["DriverVersion"]).strip() if entry.get("DriverVersion") else None,
                 }
             )
@@ -237,6 +434,30 @@ def _as_positive_number(value: object) -> float | None:
     return float(value) if value > 0 else None
 
 
+#: GPU dédiés d'entrée de gamme reconnus par leur nom (VRAM éventuellement
+#: inconnue) : Radeon RX 460/550/560, GeForce GT 710/730/1030.
+_ENTRY_DGPU_RE = re.compile(r"\brx\s*(460|550|560)\b|\bgt\s*(7[1-3]0|1030)\b")
+
+#: Sous ce seuil de VRAM connue (Mo), un GPU dédié ne peut pas classer la
+#: machine en haut de gamme (cohérent avec overdrive.core.games.cs2).
+_HIGHEND_MIN_VRAM_MB = 6144
+
+
+def _is_weak_dgpu(gpu: dict) -> bool:
+    """Vrai si un GPU dédié est trop modeste pour un classement haut de gamme.
+
+    VRAM connue sous 6 Go, génération Polaris (RX 400/500) ou modèle
+    d'entrée de gamme reconnu par son nom.
+    """
+    name = normalize_gpu_name(gpu.get("name"))
+    vram = _as_positive_number(gpu.get("vram_mb"))
+    if vram is not None and vram < _HIGHEND_MIN_VRAM_MB:
+        return True
+    if gpu_arch(name) == "polaris":
+        return True
+    return _ENTRY_DGPU_RE.search(name) is not None
+
+
 def hardware_tier(hw: dict | None = None) -> str:
     """Classe la machine : ``"lowend"`` | ``"midrange"`` | ``"highend"`` | ``"unknown"``.
 
@@ -249,11 +470,13 @@ def hardware_tier(hw: dict | None = None) -> str:
       logiques indisponibles (le GPU seul ne suffit pas à classer) ;
     * ``lowend`` si au moins un signal : RAM <= 8,5 Go (8 Go = minimum CS2,
       psutil remonte 7,8–8,0 pour 8 Go physiques) ; iGPU uniquement ; tous
-      les GPU réels à VRAM connue et <= 2048 Mo (AdapterRAM fiable sous
-      4 Go) ; <= 2 cœurs physiques ; <= 4 cœurs physiques à moins de
-      2600 MHz de fréquence de base ;
+      les GPU réels à VRAM connue et <= 2048 Mo (VRAM lue dans le registre,
+      AdapterRAM saturé traité comme inconnu) ; <= 2 cœurs physiques ;
+      <= 4 cœurs physiques à moins de 2600 MHz de fréquence de base ;
     * ``highend`` : aucun signal lowend, RAM >= 31 Go, >= 8 cœurs physiques
-      et au moins un GPU dédié (VRAM volontairement ignorée : uint32) ;
+      et au moins un GPU dédié qui n'est pas « modeste » (VRAM connue
+      < 6 Go, Polaris RX 400/500 ou entrée de gamme reconnue par son nom) —
+      cohérent avec le tier CS2 (:func:`overdrive.core.games.cs2.detect_tier`) ;
     * ``midrange`` sinon.
 
     Ajustement documenté par rapport à la spécification : le repli
@@ -298,6 +521,10 @@ def hardware_tier(hw: dict | None = None) -> str:
         _is_igpu(str(gpu.get("name") or "")) for gpu in real_gpus
     )
     has_dgpu = any(not _is_igpu(str(gpu.get("name") or "")) for gpu in real_gpus)
+    has_capable_dgpu = any(
+        not _is_igpu(str(gpu.get("name") or "")) and not _is_weak_dgpu(gpu)
+        for gpu in real_gpus
+    )
 
     lowend = False
     # L1 — 8 Go de RAM ou moins (seuil 8,5 : inclut 8 Go, exclut 12 Go).
@@ -325,7 +552,7 @@ def hardware_tier(hw: dict | None = None) -> str:
     # 31 et non 32 : 32 Go physiques remontent ~31,8 via psutil.
     if (ram_gb is not None and ram_gb >= 31
             and cores_physical is not None and cores_physical >= 8
-            and has_dgpu):
+            and has_dgpu and has_capable_dgpu):
         return "highend"
 
     return "midrange"

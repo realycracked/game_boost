@@ -26,8 +26,6 @@
       nav_startup: "Démarrage",
       nav_assistant: "Assistant",
       nav_settings: "Réglages",
-      theme_to_dark: "Thème sombre",
-      theme_to_light: "Thème clair",
       loading_ui: "Chargement de l'interface…",
 
       /* Commun */
@@ -327,9 +325,7 @@
       no_keys_yet: "Aucune clé configurée pour l'instant.",
       appearance_group: "Apparence",
       theme: "Thème",
-      theme_desc: "Sombre par défaut, clair disponible.",
-      light: "Clair",
-      dark: "Sombre",
+      theme_desc: "Quatre variantes sombres « Midnight » et un thème clair. Changement instantané.",
       language: "Langue",
       language_desc: "Langue de l'interface. Les catalogues sont traduits automatiquement.",
       report_group: "Rapport",
@@ -513,7 +509,100 @@
       maintenance_group: "Maintenance",
       sched_name: "Nettoyage automatique hebdomadaire (dimanche 11 h)",
       sched_desc: "Nettoie les caches sûrs via le Planificateur de tâches Windows, sans ouvrir l'interface.",
-      sched_unavailable: "Planification indisponible pour le moment."
+      sched_unavailable: "Planification indisponible pour le moment.",
+
+      /* Vague 6 : thèmes, animations, pause en jeu */
+      theme_name_midnight: "Midnight",
+      theme_name_ocean: "Océan",
+      theme_name_emerald: "Émeraude",
+      theme_name_rose: "Rose",
+      theme_name_daylight: "Clair",
+      theme_sub_midnight: "Violet → bleu",
+      theme_sub_ocean: "Bleu → cyan",
+      theme_sub_emerald: "Vert → turquoise",
+      theme_sub_rose: "Rose → violet",
+      theme_sub_daylight: "Fond clair, accent violet",
+      theme_label: "Thème : {t}",
+      theme_next: "Thème suivant : {t}",
+      motion_name: "Animations",
+      motion_max: "Max",
+      motion_reduced: "Réduites",
+      motion_off: "Désactivées",
+      motion_max_desc: "Effets complets : 3D, halos, compteurs et transitions. Tout se fige pendant que vous jouez.",
+      motion_reduced_desc: "Fondus courts uniquement, sans 3D ni mouvement continu.",
+      motion_off_desc: "Aucune animation : l'interface change instantanément.",
+      game_pause_ind: "En jeu — animations en pause",
+      game_pause_title: "Un jeu est en cours : les effets visuels sont suspendus pour ne rien coûter au processeur ni à la carte graphique.",
+
+      /* Vague 6 : jauges de l'accueil */
+      gauge_threads: "{n} threads",
+      gauge_unavailable: "Mesure indisponible",
+
+      /* Vague 6 : palette de commandes */
+      pal_boost: "Boost",
+      pal_boost_sub: "Optimiser la machine en un clic",
+      pal_boost_cs2_sub: "Aperçu puis optimisation ciblée de Counter-Strike 2",
+      pal_bench_sub: "Mini-benchmark avant / après",
+      pal_clean_sub: "Rechercher les fichiers inutiles",
+      pal_widget_sub: "Overlay FPS, CPU et RAM en jeu",
+      pal_motion_max: "Animations maximales",
+      pal_motion_reduced: "Animations réduites",
+      pal_motion_off: "Animations désactivées",
+      pal_lang_fr: "Langue : français",
+      pal_lang_en: "Langue : anglais (English)",
+      pal_lang_sub: "Langue de l'interface",
+
+      /* Vague 6 : Boost CS2 */
+      cs2b_btn: "Boost CS2",
+      cs2b_hero_title: "Boost CS2 en un clic",
+      cs2b_hero_sub: "Tweaks Windows ciblés, réglages vidéo et autoexec adaptés à votre machine. Aperçu détaillé avant toute modification, tout reste réversible.",
+      cs2b_title: "Boost CS2",
+      cs2b_loading: "Préparation de l'aperçu…",
+      cs2b_plan_failed: "Aperçu du Boost CS2 indisponible pour le moment.",
+      cs2b_tier_detected: "Plan pour votre machine",
+      cs2b_tier_forced: "Plan choisi dans le panneau CS2",
+      cs2b_steps_title: "Étapes",
+      cs2b_planned: "Prévu",
+      cs2b_not_planned: "Rien à faire",
+      cs2b_waiting: "En attente",
+      cs2b_step_running: "En cours…",
+      cs2b_step_ok: "Terminé",
+      cs2b_step_fail: "Échec",
+      cs2b_step_skipped: "Ignoré",
+      cs2b_details: "Détail ({n})",
+      cs2b_tw_pending: "à appliquer",
+      cs2b_tw_already: "déjà en place",
+      cs2b_tw_skipped: "écarté",
+      cs2b_tw_unsupported: "non pris en charge",
+      cs2b_tw_applied: "appliqué",
+      cs2b_tw_failed: "échec",
+      cs2b_opt_title: "Options",
+      cs2b_opt_restore: "Créer un point de restauration avant de commencer",
+      cs2b_opt_video: "Appliquer les réglages vidéo du plan",
+      cs2b_opt_autoexec: "Écrire l'autoexec du plan",
+      cs2b_manual_preview: "Ensuite : {n} étape(s) à faire vous-même (Adrenalin, options de lancement…), listées après le Boost.",
+      cs2b_run: "Lancer le Boost CS2",
+      cs2b_running: "Boost CS2 en cours…",
+      cs2b_failed: "Le Boost CS2 n'a pas pu être lancé.",
+      cs2b_reboot: "Redémarrez le PC pour terminer (accélération GPU matérielle).",
+      cs2b_manual_title: "À faire vous-même",
+      cs2b_manual_sub: "Cochez au fur et à mesure : la progression est mémorisée sur ce PC.",
+      cs2b_kind_adrenalin: "Adrenalin",
+      cs2b_kind_launch_options: "Steam",
+      cs2b_kind_insight: "Constat",
+      cs2b_kind_cpu: "Processeur",
+      cs2b_kind_lowend: "Petite config",
+      cs2b_kind_option: "Option",
+      cs2b_optional: "optionnel",
+
+      /* Vague 6 : réglages AMD Adrenalin */
+      amd_title: "Réglages AMD Adrenalin",
+      amd_ryzen_only_title: "Conseils AMD Ryzen",
+      amd_sub: "Profil de jeu Counter-Strike 2 dans AMD Software. Cochez chaque réglage une fois fait.",
+      amd_ryzen_title: "Processeur Ryzen",
+      amd_progress: "{d} / {n} faits",
+      amd_arch_other: "GPU AMD",
+      amd_reset: "Tout décocher"
     },
     en: {
       /* Navigation and chrome */
@@ -525,8 +614,6 @@
       nav_startup: "Startup",
       nav_assistant: "Assistant",
       nav_settings: "Settings",
-      theme_to_dark: "Dark theme",
-      theme_to_light: "Light theme",
       loading_ui: "Loading interface…",
 
       /* Common */
@@ -826,9 +913,7 @@
       no_keys_yet: "No key configured yet.",
       appearance_group: "Appearance",
       theme: "Theme",
-      theme_desc: "Dark by default, light available.",
-      light: "Light",
-      dark: "Dark",
+      theme_desc: "Four dark “Midnight” variants and a light theme. Switches instantly.",
       language: "Language",
       language_desc: "Interface language. Catalogs are translated automatically.",
       report_group: "Report",
@@ -1012,7 +1097,100 @@
       maintenance_group: "Maintenance",
       sched_name: "Weekly automatic cleanup (Sunday 11 AM)",
       sched_desc: "Cleans safe caches via the Windows Task Scheduler, without opening the interface.",
-      sched_unavailable: "Scheduling unavailable right now."
+      sched_unavailable: "Scheduling unavailable right now.",
+
+      /* Wave 6: themes, animations, in-game pause */
+      theme_name_midnight: "Midnight",
+      theme_name_ocean: "Ocean",
+      theme_name_emerald: "Emerald",
+      theme_name_rose: "Rose",
+      theme_name_daylight: "Light",
+      theme_sub_midnight: "Violet → blue",
+      theme_sub_ocean: "Blue → cyan",
+      theme_sub_emerald: "Green → teal",
+      theme_sub_rose: "Pink → violet",
+      theme_sub_daylight: "Light, violet accent",
+      theme_label: "Theme: {t}",
+      theme_next: "Next theme: {t}",
+      motion_name: "Animations",
+      motion_max: "Max",
+      motion_reduced: "Reduced",
+      motion_off: "Off",
+      motion_max_desc: "Full effects: 3D, glows, counters and transitions. Everything freezes while you play.",
+      motion_reduced_desc: "Short fades only, no 3D or continuous motion.",
+      motion_off_desc: "No animation: the interface changes instantly.",
+      game_pause_ind: "In game — animations paused",
+      game_pause_title: "A game is running: visual effects are suspended so they cost no CPU or GPU time.",
+
+      /* Wave 6: home gauges */
+      gauge_threads: "{n} threads",
+      gauge_unavailable: "Reading unavailable",
+
+      /* Wave 6: command palette */
+      pal_boost: "Boost",
+      pal_boost_sub: "One-click machine optimization",
+      pal_boost_cs2_sub: "Preview, then targeted Counter-Strike 2 optimization",
+      pal_bench_sub: "Before / after mini benchmark",
+      pal_clean_sub: "Look for unneeded files",
+      pal_widget_sub: "In-game FPS, CPU and RAM overlay",
+      pal_motion_max: "Maximum animations",
+      pal_motion_reduced: "Reduced animations",
+      pal_motion_off: "Animations off",
+      pal_lang_fr: "Language: French (français)",
+      pal_lang_en: "Language: English",
+      pal_lang_sub: "Interface language",
+
+      /* Wave 6: CS2 Boost */
+      cs2b_btn: "CS2 Boost",
+      cs2b_hero_title: "One-click CS2 Boost",
+      cs2b_hero_sub: "Targeted Windows tweaks, video settings and autoexec tailored to your machine. Detailed preview before any change, everything stays revertible.",
+      cs2b_title: "CS2 Boost",
+      cs2b_loading: "Preparing the preview…",
+      cs2b_plan_failed: "CS2 Boost preview unavailable right now.",
+      cs2b_tier_detected: "Plan for your machine",
+      cs2b_tier_forced: "Plan chosen in the CS2 panel",
+      cs2b_steps_title: "Steps",
+      cs2b_planned: "Planned",
+      cs2b_not_planned: "Nothing to do",
+      cs2b_waiting: "Waiting",
+      cs2b_step_running: "Running…",
+      cs2b_step_ok: "Done",
+      cs2b_step_fail: "Failed",
+      cs2b_step_skipped: "Skipped",
+      cs2b_details: "Details ({n})",
+      cs2b_tw_pending: "to apply",
+      cs2b_tw_already: "already in place",
+      cs2b_tw_skipped: "left out",
+      cs2b_tw_unsupported: "unsupported",
+      cs2b_tw_applied: "applied",
+      cs2b_tw_failed: "failed",
+      cs2b_opt_title: "Options",
+      cs2b_opt_restore: "Create a restore point first",
+      cs2b_opt_video: "Apply the plan's video settings",
+      cs2b_opt_autoexec: "Write the plan's autoexec",
+      cs2b_manual_preview: "Then: {n} step(s) to do yourself (Adrenalin, launch options…), listed after the Boost.",
+      cs2b_run: "Run CS2 Boost",
+      cs2b_running: "CS2 Boost running…",
+      cs2b_failed: "CS2 Boost could not be started.",
+      cs2b_reboot: "Restart the PC to finish (hardware-accelerated GPU scheduling).",
+      cs2b_manual_title: "To do yourself",
+      cs2b_manual_sub: "Tick them off as you go: progress is saved on this PC.",
+      cs2b_kind_adrenalin: "Adrenalin",
+      cs2b_kind_launch_options: "Steam",
+      cs2b_kind_insight: "Finding",
+      cs2b_kind_cpu: "CPU",
+      cs2b_kind_lowend: "Low-end",
+      cs2b_kind_option: "Option",
+      cs2b_optional: "optional",
+
+      /* Wave 6: AMD Adrenalin settings */
+      amd_title: "AMD Adrenalin settings",
+      amd_ryzen_only_title: "AMD Ryzen tips",
+      amd_sub: "Counter-Strike 2 game profile in AMD Software. Tick each setting once done.",
+      amd_ryzen_title: "Ryzen CPU",
+      amd_progress: "{d} / {n} done",
+      amd_arch_other: "AMD GPU",
+      amd_reset: "Uncheck all"
     }
   };
 
@@ -1056,6 +1234,7 @@
       el.textContent = t(el.dataset.i18n);
     });
     updateThemeLabel();
+    updatePauseIndicator();
   }
 
   /* ------------------------------------------------------------------ */
@@ -1103,7 +1282,10 @@
     crosshairs: null,        // GET /api/crosshairs → liste
     vault: null,             // GET /api/vault → {targets, backups}
     vaultSelection: new Set(),
-    schedule: null           // GET /api/schedule → {enabled, supported, detail}
+    schedule: null,          // GET /api/schedule → {enabled, supported, detail}
+    amd: null,               // GET /api/amd → {arch, gpu, cpu, tier, checklist, ryzen_tips}
+    amdLoading: false,
+    amdOpen: false           // encart Adrenalin déplié (mémorisé pendant la session)
   };
 
   var renderSeq = 0;
@@ -1128,7 +1310,18 @@
     shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
     trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
     zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
-    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>'
+    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    cpu: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+    memory: '<path d="M6 19v-3"/><path d="M10 19v-3"/><path d="M14 19v-3"/><path d="M18 19v-3"/><path d="M8 11V9"/><path d="M16 11V9"/><path d="M12 11V9"/><path d="M2 15h20"/><path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z"/>',
+    crosshair: '<circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/>',
+    globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    widget: '<path d="M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h4"/><rect width="10" height="7" x="12" y="13" rx="2"/>',
+    sparkles: '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>',
+    waves: '<path d="M2 8c.6.5 1.2 1 2.5 1C7 9 7 7 9.5 7c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 15c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>',
+    pause: '<circle cx="12" cy="12" r="10"/><line x1="10" x2="10" y1="15" y2="9"/><line x1="14" x2="14" y1="15" y2="9"/>',
+    list: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+    loader: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
+    minus: '<path d="M5 12h14"/>'
   };
 
   function icon(name) {
@@ -1169,7 +1362,8 @@
 
   function fmtRate(mbps) {
     if (mbps === null || mbps === undefined) { return "—"; }
-    return dec((Math.round(mbps * 10) / 10).toFixed(1)) + " " + t("unit_mbps");
+    /* Espace insécable : l'unité ne se retrouve jamais seule à la ligne. */
+    return dec((Math.round(mbps * 10) / 10).toFixed(1)) + "\u00a0" + t("unit_mbps");
   }
 
   function setBusy(btn, label) {
@@ -1382,31 +1576,312 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Thème clair / sombre                                                */
+  /* Moteur d'effets (motion.js, chargé en defer : lu à chaque appel)    */
   /* ------------------------------------------------------------------ */
 
+  /** window.OverdriveMotion s'il est disponible, sinon null (replis directs). */
+  function motionApi() {
+    var m = window.OverdriveMotion;
+    return m && typeof m === "object" ? m : null;
+  }
+
+  /** Navigation vers un hash avec transition de page quand motion.js est là. */
+  function go(hash) {
+    var m = motionApi();
+    if (m && typeof m.navigate === "function") {
+      try { m.navigate(hash); return; } catch (e) { /* repli : hash direct */ }
+    }
+    window.location.hash = hash;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Thèmes (4 variantes Midnight + clair)                               */
+  /* ------------------------------------------------------------------ */
+
+  /* Couleurs d'aperçu (vignettes des Réglages, pastilles de la palette),
+     alignées sur les jetons de style.css. Anciennes valeurs reprises :
+     dark → midnight, light → daylight (localStorage ET réglage serveur). */
+  var THEMES = [
+    { id: "midnight", key: "midnight", bg: "#0a0a0f", surface: "#111117", surface2: "#1b1b25",
+      text: "#ececf1", text2: "#8a8a98", line: "rgba(255,255,255,.09)", a1: "#8b5cf6", a2: "#3b82f6" },
+    { id: "midnight-ocean", key: "ocean", bg: "#090c12", surface: "#0f141c", surface2: "#18212d",
+      text: "#ececf1", text2: "#8790a0", line: "rgba(255,255,255,.09)", a1: "#3b82f6", a2: "#22b8cf" },
+    { id: "midnight-emerald", key: "emerald", bg: "#090d0c", surface: "#0f1513", surface2: "#17211d",
+      text: "#ececf1", text2: "#87938e", line: "rgba(255,255,255,.09)", a1: "#22b58a", a2: "#36c2b0" },
+    { id: "midnight-rose", key: "rose", bg: "#0d0a0d", surface: "#151015", surface2: "#211921",
+      text: "#ececf1", text2: "#958a95", line: "rgba(255,255,255,.09)", a1: "#e85a77", a2: "#a66be8" },
+    { id: "daylight", key: "daylight", bg: "#f1f1f5", surface: "#ffffff", surface2: "#e9e9ef",
+      text: "#17171c", text2: "#686874", line: "rgba(16,16,36,.1)", a1: "#6d4aff", a2: "#2563eb" }
+  ];
+  var THEME_ALIASES = { dark: "midnight", light: "daylight" };
+
+  function themeMeta(id) {
+    for (var i = 0; i < THEMES.length; i++) { if (THEMES[i].id === id) { return THEMES[i]; } }
+    return null;
+  }
+
+  /** Identifiant de thème valide (alias dark/light normalisés), sinon null. */
+  function normTheme(value) {
+    var id = Object.prototype.hasOwnProperty.call(THEME_ALIASES, value) ? THEME_ALIASES[value] : value;
+    return themeMeta(id) ? id : null;
+  }
+
   function currentTheme() {
-    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    return normTheme(document.documentElement.getAttribute("data-theme")) || "midnight";
   }
 
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    try { localStorage.setItem("overdrive-theme", theme); } catch (e) { /* stockage indisponible */ }
-    updateThemeLabel();
+  function themeName(id) {
+    var m = themeMeta(id);
+    return m ? t("theme_name_" + m.key) : String(id || "");
   }
 
+  /** Thème suivant dans le cycle du bouton de la barre latérale. */
+  function nextTheme(id) {
+    for (var i = 0; i < THEMES.length; i++) {
+      if (THEMES[i].id === id) { return THEMES[(i + 1) % THEMES.length].id; }
+    }
+    return THEMES[0].id;
+  }
+
+  /* Dernier thème demandé : une transition encore en vol applique toujours
+     le choix le plus récent (clics rapprochés, palette + Réglages). */
+  var wantedTheme = null;
+
+  /** Applique un thème (fondu enchaîné si animate et motion.js présents). */
+  function applyTheme(theme, animate) {
+    var id = normTheme(theme) || "midnight";
+    wantedTheme = id;
+    function apply() {
+      var target = wantedTheme || id;
+      document.documentElement.setAttribute("data-theme", target);
+      try { localStorage.setItem("overdrive-theme", target); } catch (e) { /* stockage indisponible */ }
+      updateThemeLabel();
+    }
+    var m = motionApi();
+    if (animate && id !== currentTheme() && m && typeof m.transition === "function") {
+      try {
+        var p = m.transition(apply, "theme");
+        if (p && typeof p.catch === "function") { p.catch(function () { apply(); }); }
+        /* Filet : le thème est appliqué même si la transition n'aboutit pas. */
+        setTimeout(function () { if (currentTheme() !== wantedTheme) { apply(); } }, 900);
+        return;
+      } catch (e) { /* repli : application directe */ }
+    }
+    apply();
+  }
+
+  /** Libellé du bouton de thème (barre latérale) et état des vignettes. */
   function updateThemeLabel() {
+    var cur = currentTheme();
     var label = byId("theme-label");
-    if (label) { label.textContent = currentTheme() === "dark" ? t("theme_to_light") : t("theme_to_dark"); }
-    $all(".seg[data-seg='theme'] button").forEach(function (b) {
-      b.classList.toggle("active", b.dataset.theme === currentTheme());
+    if (label) { label.textContent = tf("theme_label", { t: themeName(cur) }); }
+    var btn = byId("theme-toggle");
+    if (btn) {
+      var tip = tf("theme_next", { t: themeName(nextTheme(cur)) });
+      btn.title = tip;
+      btn.setAttribute("aria-label", tf("theme_label", { t: themeName(cur) }) + " — " + tip);
+      if (!btn.querySelector(".theme-swatch") && label) {
+        var sw = document.createElement("i");
+        sw.className = "theme-swatch";
+        sw.setAttribute("aria-hidden", "true");
+        btn.insertBefore(sw, label);
+      }
+    }
+    $all(".theme-tile[data-theme-id]").forEach(function (tile) {
+      var on = tile.dataset.themeId === cur;
+      tile.classList.toggle("is-active", on);
+      tile.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
 
   async function setTheme(theme) {
-    applyTheme(theme);
-    try { await api("/api/settings", { body: { theme: theme } }); } catch (e) { /* déjà signalé */ }
+    var id = normTheme(theme);
+    if (!id) { return; }
+    applyTheme(id, true);
+    try { await api("/api/settings", { body: { theme: id } }); } catch (e) { /* déjà signalé */ }
   }
+
+  /** Grille des 5 vignettes (Réglages > Apparence) : mini-interface aux couleurs du thème. */
+  function themeGridHtml() {
+    var cur = currentTheme();
+    return '<div class="theme-grid" role="group" aria-label="' + esc(t("theme")) + '">' + THEMES.map(function (th) {
+      var on = th.id === cur;
+      var style = "--tp-bg:" + th.bg + ";--tp-surface:" + th.surface + ";--tp-surface-2:" + th.surface2 +
+        ";--tp-text:" + th.text + ";--tp-text-2:" + th.text2 + ";--tp-line:" + th.line +
+        ";--tp-a1:" + th.a1 + ";--tp-a2:" + th.a2;
+      return '<button type="button" class="theme-tile' + (on ? " is-active" : "") + '" data-theme-id="' + th.id +
+        '" aria-pressed="' + (on ? "true" : "false") + '" style="' + style + '">' +
+        '<span class="theme-preview" aria-hidden="true">' +
+        '<span class="tp-glow"></span>' +
+        '<span class="tp-side"><span class="tp-logo"></span><span class="tp-nav tp-nav-on"></span>' +
+        '<span class="tp-nav"></span><span class="tp-nav"></span><span class="tp-nav"></span></span>' +
+        '<span class="tp-main"><span class="tp-title"></span><span class="tp-line"></span>' +
+        '<span class="tp-cards"><span class="tp-card"><span class="tp-ring"></span></span>' +
+        '<span class="tp-card"><span class="tp-bar"></span><span class="tp-bar tp-bar-2"></span></span></span>' +
+        '<span class="tp-btn"></span></span>' +
+        "</span>" +
+        '<span class="theme-meta"><span class="theme-name">' + esc(themeName(th.id)) + "</span>" +
+        '<span class="theme-check" aria-hidden="true">' + icon("check") + "</span></span>" +
+        '<span class="theme-sub">' + esc(t("theme_sub_" + th.key)) + "</span>" +
+        "</button>";
+    }).join("") + "</div>";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Niveau d'animation (max / réduites / désactivées)                   */
+  /* ------------------------------------------------------------------ */
+
+  var MOTION_LEVELS = ["max", "reduced", "off"];
+  var MOTION_ICONS = { max: "sparkles", reduced: "waves", off: "pause" };
+
+  function currentMotion() {
+    var m = document.documentElement.getAttribute("data-motion");
+    return MOTION_LEVELS.indexOf(m) >= 0 ? m : "max";
+  }
+
+  /** Applique le niveau tout de suite (motion.js le persiste dans localStorage). */
+  function applyMotion(level) {
+    if (MOTION_LEVELS.indexOf(level) < 0) { return; }
+    var m = motionApi();
+    var done = false;
+    if (m && typeof m.setLevel === "function") {
+      try { m.setLevel(level); done = true; } catch (e) { done = false; }
+    }
+    if (!done) {
+      document.documentElement.setAttribute("data-motion", level);
+      try { localStorage.setItem("overdrive-motion", level); } catch (e2) { /* stockage indisponible */ }
+    }
+    updateMotionUi();
+  }
+
+  /** Contrôle segmenté et description du niveau dans les Réglages. */
+  function updateMotionUi() {
+    var cur = currentMotion();
+    $all(".seg[data-seg='motion'] button").forEach(function (b) {
+      var on = b.dataset.level === cur;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var desc = byId("motion-desc");
+    if (desc) { desc.textContent = t("motion_" + cur + "_desc"); }
+  }
+
+  async function setMotion(level) {
+    if (MOTION_LEVELS.indexOf(level) < 0) { return; }
+    applyMotion(level);
+    try { await api("/api/settings", { body: { motion: level } }); } catch (e) { /* déjà signalé */ }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Pause des animations pendant le jeu (GET /api/status toutes les 5 s) */
+  /* ------------------------------------------------------------------ */
+
+  var gameRunning = false;
+  var statusPollTimer = null;
+  var statusPollBusy = false;
+
+  /** Petit indicateur discret en bas de la barre latérale (créé à la demande). */
+  function ensurePauseIndicator() {
+    var el = byId("game-pause");
+    if (el) { return el; }
+    var foot = $(".sidebar-foot");
+    if (!foot) { return null; }
+    el = document.createElement("div");
+    el.id = "game-pause";
+    el.className = "game-pause";
+    el.setAttribute("role", "status");
+    el.hidden = true;
+    el.innerHTML = '<span class="game-pause-dot" aria-hidden="true"></span><span class="game-pause-text"></span>';
+    foot.insertBefore(el, foot.firstChild);
+    return el;
+  }
+
+  function updatePauseIndicator() {
+    var el = ensurePauseIndicator();
+    if (!el) { return; }
+    el.querySelector(".game-pause-text").textContent = t("game_pause_ind");
+    el.title = t("game_pause_title");
+    el.hidden = !gameRunning;
+  }
+
+  /** Jeu détecté → effets figés (motion.js), indicateur affiché. */
+  function applyGameRunning(running) {
+    gameRunning = !!running;
+    var root = document.documentElement;
+    if (root.hasAttribute("data-motion-paused") !== gameRunning) {
+      var m = motionApi();
+      var done = false;
+      if (m && typeof m.setPaused === "function") {
+        try { m.setPaused(gameRunning); done = true; } catch (e) { done = false; }
+      }
+      if (!done) {
+        if (gameRunning) { root.setAttribute("data-motion-paused", ""); } else { root.removeAttribute("data-motion-paused"); }
+      }
+    }
+    updatePauseIndicator();
+  }
+
+  /** Interrogation silencieuse (aucun bandeau : elle tourne en arrière-plan). */
+  async function pollStatus() {
+    if (statusPollBusy) { return; }
+    statusPollBusy = true;
+    try {
+      var res = await fetch("/api/status", { cache: "no-store" });
+      if (res.ok) {
+        var st = await res.json();
+        if (st && typeof st === "object") {
+          if (state.status) { state.status.game_running = !!st.game_running; }
+          applyGameRunning(st.game_running);
+        }
+      }
+    } catch (e) { /* serveur momentanément injoignable : prochain passage */ }
+    statusPollBusy = false;
+  }
+
+  function startStatusPoll() {
+    if (statusPollTimer) { return; }
+    statusPollTimer = setInterval(pollStatus, 5000);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Jauges anneaux et compteurs animés (Accueil, Moniteur)              */
+  /* ------------------------------------------------------------------ */
+
+  /* Même gabarit que motion.js (classes stylées par style.css) : motion.js
+     ne réinjecte pas d'anneau là où il en trouve déjà un. */
+  var RING_SVG =
+    '<svg class="od-ring" viewBox="0 0 44 44" aria-hidden="true" focusable="false">' +
+    '<circle class="od-ring-track" cx="22" cy="22" r="18"/>' +
+    '<circle class="od-ring-bar" cx="22" cy="22" r="18" pathLength="100"/></svg>';
+
+  /** Remplit l'anneau d'un conteneur (0-100 %) ; rouge à partir de 90 %. */
+  function setRing(host, pct) {
+    var ring = host ? host.querySelector(".od-ring") : null;
+    var bar = ring ? ring.querySelector(".od-ring-bar") : null;
+    if (!bar) { return; }
+    var p = Math.max(0, Math.min(100, Number(pct) || 0));
+    if (!ring.__odInit) {
+      /* Style calculé avant le premier remplissage : la jauge part de 0. */
+      ring.__odInit = true;
+      try { void window.getComputedStyle(bar).strokeDashoffset; } catch (e) { /* sans effet */ }
+    }
+    bar.style.strokeDashoffset = String(100 - p);
+    ring.classList.toggle("od-hot", p >= 90);
+  }
+
+  /** Valeur numérique animée (OverdriveMotion.countUp), repli : texte direct. */
+  function setCount(el, value, fmt) {
+    if (!el) { return; }
+    var v = Number(value);
+    var m = motionApi();
+    if (isFinite(v) && m && typeof m.countUp === "function") {
+      try { m.countUp(el, v, fmt); return; } catch (e) { /* repli : texte direct */ }
+    }
+    el.textContent = fmt(isFinite(v) ? v : 0);
+  }
+
+  function fmtPctInt(v) { return Math.round(v) + " %"; }
+  function fmtPct1(v) { return dec(Math.round(v * 10) / 10) + " %"; }
 
   /* ------------------------------------------------------------------ */
   /* Langue FR / EN                                                      */
@@ -1453,9 +1928,42 @@
     });
   }
 
+  /* Rendu planifié (transition de page en cours) : les appels suivants s'y
+     rattachent, il lit l'état et la route au moment où il s'exécute. */
+  var renderQueued = false;
+
+  /** Rendu de la route courante, via OverdriveMotion.transition si disponible. */
   function render() {
+    if (renderQueued) { return; }
+    var m = motionApi();
+    if (!m || typeof m.transition !== "function") { renderNow(); return; }
+    renderQueued = true;
+    var done = false;
+    function run() {
+      if (done) { return; }
+      done = true;
+      renderQueued = false;
+      renderNow();
+    }
+    var p = null;
+    try {
+      p = m.transition(run, "page");
+    } catch (e) {
+      if (done) { throw e; }   /* erreur du rendu lui-même : on ne la masque pas */
+      run();
+      return;
+    }
+    if (p && typeof p.catch === "function") {
+      p.catch(function (err) { if (window.console) { console.error(err); } });
+    }
+    /* Filet : le rendu a toujours lieu, même si la transition ne rappelle jamais. */
+    if (!done) { setTimeout(run, 1000); }
+  }
+
+  function renderNow() {
     renderSeq++;
     stopMonitor();           /* l'intervalle du moniteur ne survit jamais à la page */
+    stopHomeLive();          /* idem pour les jauges en direct de l'accueil */
     var route = currentRoute();
     setActiveNav(route);
     routes[route](renderSeq);
@@ -1475,6 +1983,10 @@
       statCard("stat-tweaks", t("stat_tweaks"), "…", "") +
       statCard("stat-games", t("stat_games"), "…", "") +
       "</div>" +
+      '<div class="gauge-row">' +
+      gaugeCardHtml("cpu", t("mon_cpu")) +
+      gaugeCardHtml("ram", t("mon_ram")) +
+      "</div>" +
       '<div class="group-label">' + esc(t("hw_group")) + ' <span class="spacer"></span>' +
       '<button class="btn btn-ghost btn-sm" id="btn-hw-refresh" type="button">' + icon("refresh") + " " + esc(t("refresh")) + "</button></div>" +
       '<div id="hw-area"><div class="loading-line">' + esc(t("hw_detecting")) + "</div></div>" +
@@ -1491,10 +2003,7 @@
 
     byId("btn-boost").addEventListener("click", openBoostModal);
     byId("btn-bench").addEventListener("click", openBenchModal);
-    byId("btn-quick-clean").addEventListener("click", function () {
-      state.autoScan = true;
-      if (currentRoute() === "/clean") { render(); } else { window.location.hash = "#/clean"; }
-    });
+    byId("btn-quick-clean").addEventListener("click", quickClean);
     byId("btn-hw-refresh").addEventListener("click", function () {
       var btn = byId("btn-hw-refresh");
       setBusy(btn, t("analyzing"));
@@ -1506,6 +2015,87 @@
     loadHomeStats(seq);
     loadPrograms(seq);
     loadInsights(seq);
+    startHomeLive(seq);
+  }
+
+  /** « Analyser le nettoyage » : page Nettoyage avec analyse automatique. */
+  function quickClean() {
+    state.autoScan = true;
+    if (currentRoute() === "/clean") { render(); } else { go("#/clean"); }
+  }
+
+  /* ---- Jauges CPU / RAM en direct (accueil) ---- */
+
+  var homeLiveTimer = null;
+  var homeLiveBusy = false;
+  var homeLiveHasData = false;
+
+  function gaugeCardHtml(id, label) {
+    return '<div class="card stat-card gauge-card" id="gauge-' + id + '">' +
+      '<div class="stat-label">' + esc(label) + "</div>" +
+      '<div class="stat-value" id="gauge-' + id + '-val">—</div>' +
+      '<div class="stat-note" id="gauge-' + id + '-note">' + esc(t("mon_waiting")) + "</div>" +
+      '<div class="gauge-ring">' + RING_SVG +
+      '<span class="gauge-ic">' + icon(id === "cpu" ? "cpu" : "memory") + "</span></div></div>";
+  }
+
+  function stopHomeLive() {
+    if (homeLiveTimer) { clearTimeout(homeLiveTimer); homeLiveTimer = null; }
+  }
+
+  /** Premier relevé tout de suite (psutil renvoie 0 % au tout premier appel :
+      un second relevé suit vite), puis toutes les 4 s tant que l'accueil est affiché. */
+  function startHomeLive(seq) {
+    stopHomeLive();
+    homeLiveHasData = false;
+    function loop(delay) {
+      homeLiveTimer = setTimeout(function () {
+        homeLiveTimer = null;
+        if (!alive(seq) || !byId("gauge-cpu")) { return; }
+        homeLiveTick(seq).then(function () {
+          if (alive(seq) && byId("gauge-cpu")) { loop(4000); }
+        });
+      }, delay);
+    }
+    homeLiveTick(seq).then(function () {
+      if (alive(seq) && byId("gauge-cpu")) { loop(1200); }
+    });
+  }
+
+  /** Relevé silencieux de /api/monitor (aucun bandeau) ; rien en jeu, rien fenêtre cachée. */
+  async function homeLiveTick(seq) {
+    if (homeLiveBusy) { return; }
+    if (homeLiveHasData && (gameRunning || document.hidden)) { return; }
+    homeLiveBusy = true;
+    var s = null;
+    try {
+      var res = await fetch("/api/monitor", { cache: "no-store" });
+      if (res.ok) { s = await res.json(); }
+    } catch (e) { s = null; }
+    homeLiveBusy = false;
+    if (!alive(seq) || !byId("gauge-cpu")) { return; }
+    if (!s || typeof s !== "object") {
+      if (!homeLiveHasData) {
+        ["cpu", "ram"].forEach(function (id) {
+          var note = byId("gauge-" + id + "-note");
+          if (note) { note.textContent = t("gauge_unavailable"); }
+        });
+      }
+      return;
+    }
+    homeLiveHasData = true;
+    var cpu = Number(s.cpu_percent) || 0;
+    var ramObj = s.ram || {};
+    var ram = Number(ramObj.percent) || 0;
+    setCount(byId("gauge-cpu-val"), cpu, fmtPctInt);
+    setRing(byId("gauge-cpu"), cpu);
+    var cores = (s.per_core || []).length;
+    var cpuNote = byId("gauge-cpu-note");
+    if (cpuNote) { cpuNote.textContent = cores ? tf("gauge_threads", { n: cores }) : ""; }
+    setCount(byId("gauge-ram-val"), ram, fmtPctInt);
+    setRing(byId("gauge-ram"), ram);
+    var ramNote = byId("gauge-ram-note");
+    if (ramNote) { ramNote.textContent = fmtGb(ramObj.used_gb) + " / " + fmtGb(ramObj.total_gb); }
   }
 
   /** Charge et affiche les conseils (détections intelligentes). */
@@ -1600,11 +2190,15 @@
   function updateProfileStat() {
     var card = byId("stat-profile");
     if (!card) { return; }
+    var valueEl = card.querySelector(".stat-value");
     if (state.profile) {
-      card.querySelector(".stat-value").textContent = tr(state.profile, "label") || state.profile.id;
+      var label = tr(state.profile, "label") || state.profile.id;
+      valueEl.textContent = label;
+      valueEl.title = label;   /* cas extrême : libellé complet au survol */
       card.querySelector(".stat-note").textContent = t("stat_profile_note");
     } else {
-      card.querySelector(".stat-value").textContent = t("stat_none");
+      valueEl.textContent = t("stat_none");
+      valueEl.removeAttribute("title");
       card.querySelector(".stat-note").innerHTML =
         '<button class="link-btn" id="link-open-quiz" type="button">' + esc(t("stat_quiz_link")) + "</button>";
       var link = byId("link-open-quiz");
@@ -1968,10 +2562,13 @@
       '<button class="btn btn-sm btn-ghost" id="btn-sel-none" type="button">' + esc(t("sel_none")) + "</button>" +
       '<span class="tweaks-count" id="tweak-count"></span>' +
       '<span class="spacer"></span>' +
+      /* Les 3 actions restent groupées : si la barre passe sur 2 lignes, elles
+         descendent ensemble, alignées à droite, « Appliquer » en dernier. */
+      '<div class="toolbar-actions">' +
       '<button class="btn btn-sm" id="btn-restore" type="button">' + icon("shield") + " " + esc(t("restore_point")) + "</button>" +
       '<button class="btn btn-sm btn-danger" id="btn-revert" type="button">' + esc(t("revert_applied")) + "</button>" +
       '<button class="btn btn-sm btn-primary" id="btn-apply" type="button"></button>' +
-      "</div>";
+      "</div></div>";
 
     var chips = '<div class="chips">' +
       '<button class="chip' + (state.tweakFilter === "all" ? " active" : "") + '" data-filter="all" type="button">' + esc(t("chip_all")) + "</button>" +
@@ -2227,7 +2824,7 @@
         "<div>" + badge + "</div>" + path + "</div>";
     }).join("");
 
-    area.innerHTML = note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
+    area.innerHTML = cs2HeroHtml() + note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
       '<div id="game-detail-area"></div>' +
       '<div class="group-label">' + esc(t("latency_group")) + "</div>" +
       '<div class="card" id="latency-card"><div id="latency-inner"></div></div>' +
@@ -2251,6 +2848,7 @@
       });
     });
 
+    bindCs2Hero(seq);
     updateLatencyCard(seq);
     loadSensCard(seq);
     loadCrosshairs(seq);
@@ -2656,7 +3254,7 @@
 
     var html =
       '<p class="muted small" style="margin-top:0">' + esc(t("vault_desc")) + "</p>" +
-      '<table class="table"><thead><tr><th></th><th>' + esc(t("th_game")) + "</th><th>" +
+      '<table class="table vault-targets"><thead><tr><th></th><th>' + esc(t("th_game")) + "</th><th>" +
       esc(t("th_state")) + "</th><th>" + esc(t("th_size")) + "</th></tr></thead><tbody>" +
       targetRows + "</tbody></table>" +
       '<div class="vault-foot">' +
@@ -3095,6 +3693,605 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Boost CS2 (bandeau de la page Jeux + modale par étapes) et AMD      */
+  /* ------------------------------------------------------------------ */
+
+  /* Cases cochées des checklists (Adrenalin, Ryzen, étapes manuelles du
+     Boost CS2), mémorisées sur ce PC. Les ids suivent ceux de manual_steps
+     (« adrenalin_<id> », « ryzen_<id> »…) : une case cochée dans l'encart
+     AMD l'est aussi dans le compte rendu du Boost CS2, et inversement. */
+  var CHECKS_KEY = "overdrive-cs2-checklist";
+
+  function loadChecks() {
+    try {
+      var o = JSON.parse(localStorage.getItem(CHECKS_KEY) || "{}");
+      return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveCheck(id, on) {
+    var o = loadChecks();
+    if (on) { o[id] = 1; } else { delete o[id]; }
+    try { localStorage.setItem(CHECKS_KEY, JSON.stringify(o)); } catch (e) { /* stockage indisponible */ }
+  }
+
+  /** Barre de progression d'une checklist (« 3 / 9 faits »). */
+  function checkProgressHtml(done, total) {
+    var r = total ? done / total : 0;
+    return '<span class="check-progress' + (total && done >= total ? " is-complete" : "") + '">' +
+      '<span class="check-progress-bar"><span class="check-progress-fill" style="transform:scaleX(' + r.toFixed(3) + ')"></span></span>' +
+      '<span class="check-progress-txt">' + esc(tf("amd_progress", { d: done, n: total })) + "</span></span>";
+  }
+
+  /** Checklist cochable : {id, title, value, code, detail, where, optional, badge}. */
+  function checklistHtml(items, checks, animate) {
+    return '<ul class="check-list">' + items.map(function (it, i) {
+      var on = !!checks[it.id];
+      var value = "";
+      if (it.value) {
+        value = it.code ?
+          '<span class="check-row-code"><code>' + esc(it.value) + "</code>" +
+          '<button class="btn btn-ghost btn-sm" type="button" data-copy="' + esc(it.value) + '">' + icon("copy") + " " + esc(t("copy")) + "</button></span>" :
+          '<span class="check-row-value">' + esc(it.value) + "</span>";
+      }
+      return '<li class="check-row' + (on ? " is-done" : "") + (animate ? " cs2b-in" : "") + '"' +
+        (animate ? ' style="--i:' + Math.min(i, 16) + '"' : "") + ">" +
+        '<label class="check-row-label">' +
+        '<input type="checkbox" data-check-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" +
+        '<span class="check-row-body">' +
+        '<span class="check-row-title">' +
+        (it.badge ? '<span class="badge ' + it.badge.cls + '">' + esc(it.badge.label) + "</span>" : "") +
+        '<span class="check-row-name">' + esc(it.title) + "</span>" +
+        (it.optional ? '<span class="badge badge-outline">' + esc(t("cs2b_optional")) + "</span>" : "") + "</span>" +
+        value +
+        (it.detail ? '<span class="check-row-detail">' + esc(it.detail) + "</span>" : "") +
+        (it.where ? '<span class="check-row-where">' + icon("right") + "<span>" + esc(it.where) + "</span></span>" : "") +
+        "</span></label></li>";
+    }).join("") + "</ul>";
+  }
+
+  /** Recalcule les barres de progression de chaque groupe [data-check-group]. */
+  function refreshCheckProgress() {
+    $all("[data-check-group]").forEach(function (group) {
+      var boxes = $all("input[data-check-id]", group);
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      var prog = $(".check-progress", group);
+      if (!prog) { return; }
+      var r = boxes.length ? done / boxes.length : 0;
+      var fill = $(".check-progress-fill", prog);
+      if (fill) { fill.style.transform = "scaleX(" + r.toFixed(3) + ")"; }
+      var txt = $(".check-progress-txt", prog);
+      if (txt) { txt.textContent = tf("amd_progress", { d: done, n: boxes.length }); }
+      prog.classList.toggle("is-complete", boxes.length > 0 && done >= boxes.length);
+    });
+  }
+
+  /** Cases (mémorisées + synchronisées entre encart et modale) et boutons Copier. */
+  function bindChecklist(scope) {
+    $all("input[data-check-id]", scope).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var id = cb.dataset.checkId;
+        saveCheck(id, cb.checked);
+        $all("input[data-check-id]").forEach(function (other) {
+          if (other.dataset.checkId !== id) { return; }
+          other.checked = cb.checked;
+          var row = other.closest(".check-row");
+          if (row) { row.classList.toggle("is-done", cb.checked); }
+        });
+        refreshCheckProgress();
+      });
+    });
+    $all("[data-copy]", scope).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        copyText(btn.getAttribute("data-copy") || "", btn);
+      });
+    });
+  }
+
+  /* ---- Encart « Réglages AMD Adrenalin » (GET /api/amd) ---- */
+
+  var AMD_ARCH_LABELS = {
+    rdna4: "RDNA 4", rdna3: "RDNA 3", rdna2: "RDNA 2", rdna1: "RDNA 1", vega: "Vega", polaris: "Polaris"
+  };
+
+  function amdGpuItems(d) {
+    var list = Array.isArray(d && d.checklist) ? d.checklist : [];
+    return list.filter(function (it) { return it && it.id; }).map(function (it) {
+      return {
+        id: "adrenalin_" + it.id, title: tr(it, "title"), value: tr(it, "value"),
+        detail: tr(it, "why"), where: tr(it, "where"), optional: !!it.optional
+      };
+    });
+  }
+
+  function amdCpuItems(d) {
+    var list = Array.isArray(d && d.ryzen_tips) ? d.ryzen_tips : [];
+    return list.filter(function (it) { return it && it.id; }).map(function (it) {
+      return { id: "ryzen_" + it.id, title: tr(it, "title"), detail: tr(it, "detail") };
+    });
+  }
+
+  /** Encart repliable ; vide si ni GPU Radeon ni Ryzen récent. */
+  function amdSectionHtml() {
+    var d = state.amd;
+    if (!d || typeof d !== "object") { return ""; }
+    var gpuItems = amdGpuItems(d);
+    var cpuItems = amdCpuItems(d);
+    if (!gpuItems.length && !cpuItems.length) { return ""; }
+    var checks = loadChecks();
+    var all = gpuItems.concat(cpuItems);
+    var done = all.filter(function (x) { return !!checks[x.id]; }).length;
+    var arch = d.arch ? (AMD_ARCH_LABELS[d.arch] || t("amd_arch_other")) : "";
+    return '<details class="fold amd-fold" id="amd-fold" data-check-group="amd"' + (state.amdOpen ? " open" : "") + ">" +
+      '<summary><span class="amd-sum-title">' + esc(gpuItems.length ? t("amd_title") : t("amd_ryzen_only_title")) + "</span>" +
+      (arch ? '<span class="badge badge-gray">' + esc(arch) + "</span>" : "") +
+      '<span class="spacer"></span>' + checkProgressHtml(done, all.length) + "</summary>" +
+      '<div class="fold-body">' +
+      (gpuItems.length ?
+        '<p class="muted small amd-intro">' + esc(t("amd_sub")) +
+        (d.gpu ? ' <span class="mono mono-inline">' + esc(d.gpu) + "</span>" : "") + "</p>" +
+        checklistHtml(gpuItems, checks) : "") +
+      (cpuItems.length ?
+        '<div class="amd-subhead">' + esc(t("amd_ryzen_title")) +
+        (d.cpu ? ' <span class="mono mono-inline">' + esc(d.cpu) + "</span>" : "") + "</div>" +
+        checklistHtml(cpuItems, checks) : "") +
+      '<div class="amd-foot"><button class="btn btn-ghost btn-sm" id="amd-reset" type="button">' +
+      esc(t("amd_reset")) + "</button></div>" +
+      "</div></details>";
+  }
+
+  function bindAmdSection() {
+    var area = byId("amd-area");
+    if (!area) { return; }
+    var fold = byId("amd-fold");
+    if (fold) { fold.addEventListener("toggle", function () { state.amdOpen = fold.open; }); }
+    bindChecklist(area);
+    var reset = byId("amd-reset");
+    if (reset) {
+      reset.addEventListener("click", function () {
+        $all("input[data-check-id]", area).forEach(function (cb) {
+          if (!cb.checked) { return; }
+          cb.checked = false;
+          cb.dispatchEvent(new Event("change"));
+        });
+      });
+    }
+  }
+
+  /** Lecture silencieuse (pas de bandeau) : l'encart n'apparaît que s'il y a du contenu. */
+  async function loadAmd(seq) {
+    if (state.amdLoading) { return; }
+    state.amdLoading = true;
+    var data = null;
+    try {
+      var res = await fetch("/api/amd", { cache: "no-store" });
+      if (res.ok) { data = await res.json(); }
+    } catch (e) { data = null; }
+    state.amdLoading = false;
+    if (data && typeof data === "object") { state.amd = data; }
+    if (!alive(seq) || !state.amd) { return; }
+    var area = byId("amd-area");
+    if (!area) { return; }
+    area.innerHTML = amdSectionHtml();
+    bindAmdSection();
+  }
+
+  /* ---- Bandeau « Boost CS2 » en tête de la page Jeux ---- */
+
+  function cs2HeroHtml() {
+    return '<div class="card cs2-hero" id="cs2-hero">' +
+      '<div class="cs2-hero-main">' +
+      '<span class="cs2-hero-ic" aria-hidden="true">' + icon("crosshair") + "</span>" +
+      '<div class="cs2-hero-text">' +
+      '<div class="cs2-hero-kicker">Counter-Strike 2</div>' +
+      '<h2 class="cs2-hero-title">' + esc(t("cs2b_hero_title")) + "</h2>" +
+      '<p class="cs2-hero-sub">' + esc(t("cs2b_hero_sub")) + "</p></div>" +
+      '<button class="btn btn-primary cs2-boost-btn" id="btn-cs2-boost" type="button">' +
+      icon("zap") + " " + esc(t("cs2b_btn")) + "</button>" +
+      "</div>" +
+      '<div id="amd-area">' + amdSectionHtml() + "</div></div>";
+  }
+
+  function bindCs2Hero(seq) {
+    var btn = byId("btn-cs2-boost");
+    if (btn) { btn.addEventListener("click", openCs2BoostModal); }
+    if (state.amd) { bindAmdSection(); } else { loadAmd(seq); }
+  }
+
+  /* ---- Modale Boost CS2 : aperçu (GET plan) → exécution (POST) → compte rendu ---- */
+
+  var CS2B_KIND_BADGE = {
+    adrenalin: "badge-blue", launch_options: "badge-gray", insight: "badge-yellow",
+    cpu: "badge-gray", lowend: "badge-blue", option: "badge-gray"
+  };
+
+  /** Tier à transmettre : seulement s'il diffère du tier détecté (choix du panneau CS2). */
+  function cs2bForcedTier() {
+    var detected = state.cs2 && state.cs2.tier ? state.cs2.tier.tier : null;
+    return state.cs2Tier && detected && state.cs2Tier !== detected ? state.cs2Tier : null;
+  }
+
+  /** Délai entre deux étapes révélées (aucun sans animation ou en jeu). */
+  function cs2bRevealDelay() {
+    if (document.documentElement.hasAttribute("data-motion-paused")) { return 0; }
+    var lvl = currentMotion();
+    return lvl === "max" ? 320 : (lvl === "reduced" ? 120 : 0);
+  }
+
+  function cs2bStepIcon(st, index) {
+    if (st === "ok") { return icon("check"); }
+    if (st === "fail") { return icon("x"); }
+    if (st === "skipped") { return icon("minus"); }
+    if (st === "running") { return '<span class="cs2b-spin">' + icon("loader") + "</span>"; }
+    return '<span class="cs2b-num">' + (index + 1) + "</span>";
+  }
+
+  function cs2bPill(st) {
+    var map = {
+      planned: ["cs2b_planned", "is-planned"], idle: ["cs2b_not_planned", "is-idle"],
+      running: ["cs2b_step_running", "is-running"], ok: ["cs2b_step_ok", "is-ok"],
+      fail: ["cs2b_step_fail", "is-fail"], skipped: ["cs2b_step_skipped", "is-idle"]
+    };
+    var m = map[st] || map.idle;
+    return '<span class="cs2b-pill ' + m[1] + '">' + esc(t(m[0])) + "</span>";
+  }
+
+  function cs2bFoldHtml(listHtml, count) {
+    return '<details class="fold cs2b-fold"><summary>' + esc(tf("cs2b_details", { n: count })) + "</summary>" +
+      '<div class="fold-body"><ul class="cs2b-dl">' + listHtml + "</ul></div></details>";
+  }
+
+  /** Lignes de tweaks (aperçu et compte rendu). */
+  function cs2bTweakRows(rows) {
+    var cls = { pending: "is-planned", applied: "is-ok", already: "is-ok", failed: "is-fail" };
+    return rows.map(function (r) {
+      var st = String(r.status || "");
+      var label = t("cs2b_tw_" + st);
+      if (label === "cs2b_tw_" + st) { label = st; }
+      var note = st === "already" || st === "unsupported" ? "" : (r.message ? String(r.message) : tr(r, "reason"));
+      return '<li><span class="cs2b-dl-name">' + esc(tr(r, "name") || r.id) + "</span>" +
+        '<span class="cs2b-tag ' + (cls[st] || "is-idle") + '">' + esc(label) + "</span>" +
+        (note ? '<span class="cs2b-dl-note">' + esc(note) + "</span>" : "") + "</li>";
+    }).join("");
+  }
+
+  function cs2bValue(v) {
+    return '<code>' + esc(v === null || v === undefined || v === "" ? "—" : v) + "</code>";
+  }
+
+  function cs2bStepHtml(o) {
+    return '<li class="cs2b-step cs2b-in" data-step="' + esc(o.step) + '" data-index="' + o.index + '" data-state="' + o.state +
+      '" style="--i:' + o.index + '">' +
+      '<span class="cs2b-step-ic">' + cs2bStepIcon(o.state, o.index) + "</span>" +
+      '<div class="cs2b-step-body"><div class="cs2b-step-head">' +
+      '<span class="cs2b-step-name">' + esc(o.label) + "</span>" + cs2bPill(o.state) + "</div>" +
+      '<div class="cs2b-step-msg">' + esc(o.msg || "") + "</div>" +
+      (o.detailsHtml ? cs2bFoldHtml(o.detailsHtml, o.count) : "") +
+      "</div></li>";
+  }
+
+  /** Étape de l'aperçu (GET /api/cs2/boost/plan). */
+  function cs2bPlanStep(s, i) {
+    var html = "", count = 0;
+    var details = Array.isArray(s.details) ? s.details : [];
+    if (s.step === "tweaks" && details.length) {
+      html = cs2bTweakRows(details);
+      count = details.length;
+    } else if (s.step === "video") {
+      var changes = details.filter(function (r) { return r && r.will_change; });
+      html = changes.map(function (r) {
+        return '<li><span class="cs2b-dl-name">' + esc(tr(r, "label") || r.id) + "</span>" +
+          '<span class="cs2b-dl-val">' + cs2bValue(r.current) + " → " + cs2bValue(r.recommended) + "</span></li>";
+      }).join("");
+      count = changes.length;
+    }
+    return cs2bStepHtml({
+      step: s.step, index: i, state: s.will_run ? "planned" : "idle",
+      label: tr(s, "label"), msg: tr(s, "description"), detailsHtml: html, count: count
+    });
+  }
+
+  /** Détail d'une étape exécutée (POST /api/cs2/boost). */
+  function cs2bResultDetails(s) {
+    var d = Array.isArray(s.details) ? s.details : [];
+    if (!d.length) { return { html: "", n: 0 }; }
+    if (s.step === "tweaks") { return { html: cs2bTweakRows(d), n: d.length }; }
+    if (s.step === "video") {
+      return {
+        html: d.map(function (c) {
+          return '<li><span class="cs2b-dl-name"><code>' + esc(c.key) + "</code></span>" +
+            '<span class="cs2b-dl-val">' + cs2bValue(c.old) + " → " + cs2bValue(c["new"]) + "</span></li>";
+        }).join(""),
+        n: d.length
+      };
+    }
+    var paths = d.filter(function (x) { return x && x.path; });
+    return {
+      html: paths.map(function (x) { return '<li><span class="mono mono-inline">' + esc(x.path) + "</span></li>"; }).join(""),
+      n: paths.length
+    };
+  }
+
+  function cs2bResultState(s) {
+    if (s.skipped) { return "skipped"; }
+    return s.ok ? "ok" : "fail";
+  }
+
+  /** Met à jour une étape (icône qui rebondit, pastille, message, détail). */
+  function cs2bSetStep(li, st, msg, detailsHtml, count) {
+    var idx = Number(li.getAttribute("data-index")) || 0;
+    li.setAttribute("data-state", st);
+    var ic = li.querySelector(".cs2b-step-ic");
+    if (ic) {
+      ic.innerHTML = cs2bStepIcon(st, idx);
+      ic.classList.remove("cs2b-pop");
+      void ic.offsetWidth;
+      ic.classList.add("cs2b-pop");
+    }
+    var pill = li.querySelector(".cs2b-pill");
+    if (pill) { pill.outerHTML = cs2bPill(st); }
+    if (msg !== undefined) {
+      var m = li.querySelector(".cs2b-step-msg");
+      if (m) { m.textContent = msg; }
+    }
+    if (detailsHtml !== undefined) {
+      var old = li.querySelector(".cs2b-fold");
+      if (old) { old.parentNode.removeChild(old); }
+      var body = li.querySelector(".cs2b-step-body");
+      if (detailsHtml && body) { body.insertAdjacentHTML("beforeend", cs2bFoldHtml(detailsHtml, count)); }
+    }
+  }
+
+  /** Étapes manuelles (manual_steps) → éléments de checklist. */
+  function cs2bManualItems(list) {
+    return (Array.isArray(list) ? list : []).map(function (m) {
+      var kind = String((m && m.kind) || "");
+      var label = t("cs2b_kind_" + kind);
+      if (label === "cs2b_kind_" + kind) { label = ""; }
+      var cls = CS2B_KIND_BADGE[kind] || "badge-gray";
+      if (kind === "insight" && m.severity === "important") { cls = "badge-red"; }
+      return {
+        id: String((m && m.id) || ""), title: tr(m, "title"), value: tr(m, "value"),
+        code: kind === "launch_options", detail: tr(m, "detail"), where: tr(m, "where"),
+        optional: !!(m && m.optional), badge: label ? { cls: cls, label: label } : null
+      };
+    }).filter(function (it) { return it.id && it.title; });
+  }
+
+  function cs2bOptHtml(id, label) {
+    return '<label class="cs2b-opt"><input type="checkbox" id="' + id + '" checked><span>' + esc(label) + "</span></label>";
+  }
+
+  function openCs2BoostModal() {
+    var root = byId("modal-root");
+    if (!root) { return; }
+    var forced = cs2bForcedTier();
+    var plan = null;
+    var phase = "loading";    /* loading → preview → running → done (ou error) */
+    var ran = false;
+    var closed = false;
+
+    root.hidden = false;
+    root.innerHTML =
+      '<div class="modal-overlay">' +
+      '<div class="modal modal-wide cs2b-modal" role="dialog" aria-modal="true" aria-labelledby="cs2b-title">' +
+      '<div class="modal-head"><h3 class="modal-title" id="cs2b-title">' +
+      '<span class="cs2b-title-ic" aria-hidden="true">' + icon("zap") + "</span>" + esc(t("cs2b_title")) + "</h3>" +
+      '<button class="btn btn-ghost btn-sm" id="cs2b-x" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      '<div class="modal-body" id="cs2b-body"><div class="loading-line">' + esc(t("cs2b_loading")) + "</div></div>" +
+      '<div class="modal-foot" id="cs2b-foot">' +
+      '<button class="btn" id="cs2b-cancel" type="button">' + esc(t("cancel")) + "</button>" +
+      '<button class="btn btn-primary" id="cs2b-run" type="button" disabled>' + icon("zap") + " " + esc(t("cs2b_run")) + "</button>" +
+      "</div></div></div>";
+
+    /* La modale a-t-elle été remplacée (autre modale ouverte entre-temps) ? */
+    function mine() { return !closed && !!byId("cs2b-body"); }
+
+    function close() {
+      if (closed || phase === "running") { return; }
+      closed = true;
+      document.removeEventListener("keydown", onKey, true);
+      if (byId("cs2b-body")) {
+        root.hidden = true;
+        root.innerHTML = "";
+      }
+      if (ran) {
+        /* Tweaks, cs2_video.txt et autoexec ont pu changer : caches invalidés. */
+        state.tweaks = null;
+        state.cs2 = null;
+        state.cs2VideoResult = null;
+        render();
+      }
+    }
+
+    function onKey(e) {
+      if (!mine()) { document.removeEventListener("keydown", onKey, true); return; }
+      if (e.key === "Escape" && !e.defaultPrevented && phase !== "running") {
+        e.preventDefault();
+        close();
+      }
+    }
+    document.addEventListener("keydown", onKey, true);
+
+    byId("cs2b-x").addEventListener("click", close);
+    byId("cs2b-cancel").addEventListener("click", close);
+    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+      if (e.target === e.currentTarget) { close(); }
+    });
+    byId("cs2b-run").addEventListener("click", runBoost);
+
+    function showPreview() {
+      var body = byId("cs2b-body");
+      if (!body) { return; }
+      var steps = Array.isArray(plan.steps) ? plan.steps : [];
+      var info = plan.tier_info || {};
+      var gpu = plan.gpu || {};
+      var notes = Array.isArray(plan.notes) ? plan.notes : [];
+      var manual = Array.isArray(plan.manual_steps) ? plan.manual_steps : [];
+      var warn = plan.ok === false || !plan.supported || !!plan.cs2_running;
+      var message = tr(plan, "message");
+      body.innerHTML =
+        '<div class="cs2b-head">' +
+        '<div class="cs2b-tier"><span class="cs2b-tier-kicker">' +
+        esc(plan.tier_source === "forced" ? t("cs2b_tier_forced") : t("cs2b_tier_detected")) + "</span>" +
+        '<span class="cs2b-tier-label">' + esc(tr(info, "label") || cs2TierLabel(plan.tier) || "—") + "</span></div>" +
+        (gpu.name ? '<span class="badge badge-gray cs2b-gpu" title="' + esc(gpu.name) + '">' + esc(gpu.name) + "</span>" : "") +
+        "</div>" +
+        (message ? (warn ?
+          '<div class="notice cs2b-notice cs2b-pre">' + icon("alert") + "<span>" + esc(message) + "</span></div>" :
+          '<p class="cs2b-msg cs2b-pre">' + esc(message) + "</p>") : "") +
+        (notes.length && tr(notes[0], "text") ? '<p class="cs2b-note">' + esc(tr(notes[0], "text")) + "</p>" : "") +
+        (steps.length ?
+          '<div class="cs2b-section-title">' + esc(t("cs2b_steps_title")) + "</div>" +
+          '<ol class="cs2b-steps" id="cs2b-steps">' + steps.map(cs2bPlanStep).join("") + "</ol>" +
+          '<div class="cs2b-section-title cs2b-pre">' + esc(t("cs2b_opt_title")) + "</div>" +
+          '<div class="cs2b-options cs2b-pre">' +
+          cs2bOptHtml("cs2b-opt-restore", t("cs2b_opt_restore")) +
+          cs2bOptHtml("cs2b-opt-video", t("cs2b_opt_video")) +
+          cs2bOptHtml("cs2b-opt-autoexec", t("cs2b_opt_autoexec")) +
+          "</div>" : "") +
+        (manual.length ?
+          '<p class="cs2b-manual-hint cs2b-pre">' + icon("list") + "<span>" +
+          esc(tf("cs2b_manual_preview", { n: manual.length })) + "</span></p>" : "");
+
+      /* Décocher une option grise l'étape correspondante. */
+      var planState = {};
+      steps.forEach(function (s) { planState[s.step] = s.will_run ? "planned" : "idle"; });
+      [["cs2b-opt-restore", "restore"], ["cs2b-opt-video", "video"], ["cs2b-opt-autoexec", "autoexec"]].forEach(function (pair) {
+        var cb = byId(pair[0]);
+        if (!cb) { return; }
+        cb.addEventListener("change", function () {
+          var li = $('#cs2b-steps .cs2b-step[data-step="' + pair[1] + '"]');
+          if (li) { cs2bSetStep(li, cb.checked ? (planState[pair[1]] || "idle") : "skipped"); }
+        });
+      });
+
+      var runBtn = byId("cs2b-run");
+      if (runBtn) {
+        /* Aperçu seul hors Windows : rien ne peut s'appliquer, pas de « Lancer ». */
+        runBtn.disabled = plan.ok === false || plan.supported === false || !steps.length;
+        if (!runBtn.disabled) { runBtn.focus(); }
+      }
+    }
+
+    function checked(id) {
+      var cb = byId(id);
+      return cb ? !!cb.checked : true;
+    }
+
+    async function runBoost() {
+      if (phase !== "preview" || !mine()) { return; }
+      phase = "running";
+      var opts = {
+        restore_point: checked("cs2b-opt-restore"),
+        apply_video: checked("cs2b-opt-video"),
+        write_autoexec: checked("cs2b-opt-autoexec")
+      };
+      if (forced) { opts.tier = forced; }
+      var runBtn = byId("cs2b-run");
+      setBusy(runBtn, t("cs2b_running"));
+      ["cs2b-cancel", "cs2b-x"].forEach(function (id) { var b = byId(id); if (b) { b.disabled = true; } });
+      $all(".cs2b-options input").forEach(function (cb) { cb.disabled = true; });
+      var wanted = { restore: opts.restore_point, video: opts.apply_video, autoexec: opts.write_autoexec };
+      $all("#cs2b-steps .cs2b-step").forEach(function (li) {
+        cs2bSetStep(li, wanted[li.dataset.step] === false ? "skipped" : "running");
+      });
+
+      var res;
+      try {
+        res = await api("/api/cs2/boost", { body: opts });
+      } catch (e) {
+        phase = "preview";
+        if (!mine()) { return; }
+        ["cs2b-cancel", "cs2b-x"].forEach(function (id) { var b = byId(id); if (b) { b.disabled = false; } });
+        clearBusy(byId("cs2b-run"));
+        showPreview();
+        var body0 = byId("cs2b-body");
+        if (body0) {
+          body0.insertAdjacentHTML("afterbegin", '<p class="err-text small cs2b-error">' + esc(t("cs2b_failed")) + "</p>");
+        }
+        return;
+      }
+      ran = true;
+      if (!mine()) { phase = "done"; return; }
+      revealResults(res || {});
+    }
+
+    /** Révèle les étapes une à une, puis le résumé et les étapes manuelles. */
+    function revealResults(res) {
+      var steps = Array.isArray(res.steps) ? res.steps : [];
+      var byStep = {};
+      steps.forEach(function (s) { if (s && s.step) { byStep[s.step] = s; } });
+      var lis = $all("#cs2b-steps .cs2b-step");
+      var delay = cs2bRevealDelay();
+      var i = 0;
+      function next() {
+        if (!mine()) { phase = "done"; return; }
+        if (i >= lis.length) { finish(res); return; }
+        var li = lis[i++];
+        var s = byStep[li.dataset.step];
+        if (s) {
+          var det = cs2bResultDetails(s);
+          cs2bSetStep(li, cs2bResultState(s), tr(s, "message"), det.html, det.n);
+        } else {
+          cs2bSetStep(li, "skipped");
+        }
+        if (delay) { setTimeout(next, delay); } else { next(); }
+      }
+      next();
+    }
+
+    function finish(res) {
+      phase = "done";
+      var body = byId("cs2b-body");
+      if (!body) { return; }
+      $all(".cs2b-pre", body).forEach(function (el) { el.parentNode.removeChild(el); });
+      var head =
+        '<div class="cs2b-result cs2b-in ' + (res.ok ? "is-ok" : "is-fail") + '">' +
+        icon(res.ok ? "check" : "alert") + "<span>" + esc(tr(res, "message") || (res.ok ? "" : t("cs2b_failed"))) + "</span></div>" +
+        (res.reboot_required ? '<div class="notice cs2b-notice">' + icon("alert") + "<span>" + esc(t("cs2b_reboot")) + "</span></div>" : "");
+      body.insertAdjacentHTML("afterbegin", head);
+      var items = cs2bManualItems(res.manual_steps);
+      if (items.length) {
+        var checks = loadChecks();
+        var done = items.filter(function (x) { return !!checks[x.id]; }).length;
+        body.insertAdjacentHTML("beforeend",
+          '<div class="cs2b-manual" id="cs2b-manual" data-check-group="manual">' +
+          '<div class="cs2b-manual-head"><span class="cs2b-manual-title">' + icon("list") +
+          "<span>" + esc(t("cs2b_manual_title")) + "</span></span>" +
+          '<span class="spacer"></span>' + checkProgressHtml(done, items.length) + "</div>" +
+          '<p class="muted small cs2b-manual-sub">' + esc(t("cs2b_manual_sub")) + "</p>" +
+          checklistHtml(items, checks, true) + "</div>");
+        bindChecklist(byId("cs2b-manual"));
+      }
+      body.scrollTop = 0;
+      var foot = byId("cs2b-foot");
+      if (foot) {
+        foot.innerHTML = '<button class="btn btn-primary" id="cs2b-close" type="button">' + esc(t("close")) + "</button>";
+        byId("cs2b-close").addEventListener("click", close);
+        byId("cs2b-close").focus();
+      }
+      var x = byId("cs2b-x");
+      if (x) { x.disabled = false; }
+    }
+
+    var q = forced ? "?tier=" + encodeURIComponent(forced) : "";
+    api("/api/cs2/boost/plan" + q).then(function (p) {
+      if (!mine()) { return; }
+      plan = p && typeof p === "object" ? p : {};
+      phase = "preview";
+      showPreview();
+    }, function () {
+      if (!mine()) { return; }
+      phase = "error";
+      var body = byId("cs2b-body");
+      if (body) { body.innerHTML = '<p class="err-text">' + esc(t("cs2b_plan_failed")) + "</p>"; }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Page Nettoyage                                                      */
   /* ------------------------------------------------------------------ */
 
@@ -3272,6 +4469,12 @@
       btn.textContent = tf("clean_n", { n: n });
       btn.disabled = n === 0;
     }
+    /* Case « tout sélectionner » : reflète la sélection réelle. */
+    var all = byId("clean-all");
+    if (all) {
+      all.checked = n > 0 && n === targets.length;
+      all.indeterminate = n > 0 && n < targets.length;
+    }
   }
 
   async function doCleanScan(seq) {
@@ -3286,7 +4489,10 @@
       state.cleanTargets = state.cleanTargets || null;
     }
     state.cleanScanning = false;
-    if (alive(seq) && currentRoute() === "/clean") { buildCleanArea(seq); }
+    /* Toujours reconstruire si la page Nettoyage est affichée, même si elle a
+       été re-rendue entre-temps (navigation aller-retour) : sinon elle reste
+       bloquée sur « Analyse en cours… ». Le rendu courant est renderSeq. */
+    if (currentRoute() === "/clean") { buildCleanArea(renderSeq); }
   }
 
   function onClean() {
@@ -3338,16 +4544,18 @@
   function sparklineSvg(values, maxValue) {
     var W = 180, H = 40, PAD = 3;
     var open = '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" aria-hidden="true">';
-    if (!values || values.length < 2) { return open + "</svg>"; }
+    /* Moins de 3 points : rien à tracer (évite un trait vertical au bord). */
+    if (!values || values.length < 3) { return open + "</svg>"; }
     var max = maxValue;
     if (max === undefined || max === null) {
       max = Math.max.apply(null, values);
     }
     if (!(max > 0)) { max = 1; }
     var step = W / (MON_POINTS - 1);
+    var last = values.length - 1;
     var pts = values.map(function (v, i) {
       var clamped = Math.max(0, Math.min(v, max));
-      var x = i * step;                        /* la courbe grandit depuis la gauche */
+      var x = W - (last - i) * step;           /* la courbe entre par la droite */
       var y = H - PAD - (clamped / max) * (H - PAD * 2);
       return (Math.round(x * 10) / 10) + "," + (Math.round(y * 10) / 10);
     }).join(" ");
@@ -3356,12 +4564,21 @@
       'stroke-linecap="round" stroke-linejoin="round" points="' + pts + '"/></svg>';
   }
 
+  /** Échelle des sparklines de débit : au moins 1 Mo/s, pour qu'une activité
+      quasi nulle (quelques Ko/s) ne trace pas un pic sur toute la hauteur. */
+  function rateScale(values) {
+    var peak = values && values.length ? Math.max.apply(null, values) : 0;
+    return Math.max(1, peak || 0);
+  }
+
   function monTileHtml(id, label) {
-    return '<div class="card mon-card">' +
+    /* Jauge anneau sur les tuiles en pourcentage (CPU, RAM). */
+    var ring = (id === "cpu" || id === "ram") ? RING_SVG : "";
+    return '<div class="card mon-card" id="mon-' + id + '-card">' +
       '<div class="mon-label">' + esc(label) + "</div>" +
       '<div class="mon-value" id="mon-' + id + '-val">—</div>' +
       '<div class="mon-sub" id="mon-' + id + '-sub">' + esc(t("mon_waiting")) + "</div>" +
-      '<div class="spark-box" id="mon-' + id + '-spark">' + sparklineSvg([]) + "</div></div>";
+      '<div class="spark-box" id="mon-' + id + '-spark">' + sparklineSvg([]) + "</div>" + ring + "</div>";
   }
 
   function renderMonitor(seq) {
@@ -3382,16 +4599,24 @@
 
     netUsageFailed = false;
 
+    var inFlight = false;   /* propre à CE rendu : un relevé périmé ne bloque ni ne coupe le suivant */
+    var myTimer = null;
+
     async function tick() {
-      if (monitorInFlight) { return; }
+      if (inFlight || !alive(seq)) { return; }
+      inFlight = true;
       monitorInFlight = true;
       var sample;
       try {
         sample = await api("/api/monitor");
       } catch (e) {
+        inFlight = false;
+        /* Relevé périmé (page quittée puis rouverte) : ne touche ni à
+           l'intervalle ni à l'écran du nouveau rendu. */
+        if (!alive(seq)) { return; }
         monitorInFlight = false;
-        stopMonitor();
-        if (alive(seq) && byId("page")) {
+        if (monitorTimer === myTimer) { stopMonitor(); }
+        if (byId("page")) {
           byId("page").innerHTML =
             '<h1 class="page-title">' + esc(t("monitor_title")) + "</h1>" +
             '<p class="page-sub">' + esc(t("monitor_sub")) + "</p>" +
@@ -3404,14 +4629,16 @@
         }
         return;
       }
-      monitorInFlight = false;
+      inFlight = false;
       if (!alive(seq) || !byId("mon-cpu-val")) { return; }
+      monitorInFlight = false;
       updateMonitorDom(sample);
       updateNetUsage(seq);   /* même cadence que le moniteur, sans le bloquer */
     }
 
     tick();
-    monitorTimer = setInterval(tick, 2000);
+    myTimer = setInterval(tick, 2000);
+    monitorTimer = myTimer;
   }
 
   var netUsageInFlight = false;
@@ -3482,27 +4709,29 @@
     pushHist(hist.disk, diskTotal);
     pushHist(hist.net, netTotal);
 
-    byId("mon-cpu-val").textContent = dec(Math.round(cpu * 10) / 10) + " %";
+    setCount(byId("mon-cpu-val"), cpu, fmtPct1);
+    setRing(byId("mon-cpu-card"), cpu);
     byId("mon-cpu-sub").textContent = (s.per_core || []).length ?
       (s.per_core || []).length + " threads" : "";
     byId("mon-cpu-spark").innerHTML = sparklineSvg(hist.cpu, 100);
 
     var ramObj = s.ram || {};
-    byId("mon-ram-val").textContent = dec(Math.round(ram * 10) / 10) + " %";
+    setCount(byId("mon-ram-val"), ram, fmtPct1);
+    setRing(byId("mon-ram-card"), ram);
     byId("mon-ram-sub").textContent = fmtGb(ramObj.used_gb) + " / " + fmtGb(ramObj.total_gb);
     byId("mon-ram-spark").innerHTML = sparklineSvg(hist.ram, 100);
 
     var dio = s.disk_io || {};
-    byId("mon-disk-val").textContent = fmtRate(diskTotal);
+    setCount(byId("mon-disk-val"), diskTotal, fmtRate);
     byId("mon-disk-sub").textContent =
       t("mon_read") + " " + fmtRate(dio.read_mbps || 0) + " · " + t("mon_write") + " " + fmtRate(dio.write_mbps || 0);
-    byId("mon-disk-spark").innerHTML = sparklineSvg(hist.disk);
+    byId("mon-disk-spark").innerHTML = sparklineSvg(hist.disk, rateScale(hist.disk));
 
     var nio = s.net_io || {};
-    byId("mon-net-val").textContent = fmtRate(netTotal);
+    setCount(byId("mon-net-val"), netTotal, fmtRate);
     byId("mon-net-sub").textContent =
       t("mon_down") + " " + fmtRate(nio.down_mbps || 0) + " · " + t("mon_up") + " " + fmtRate(nio.up_mbps || 0);
-    byId("mon-net-spark").innerHTML = sparklineSvg(hist.net);
+    byId("mon-net-spark").innerHTML = sparklineSvg(hist.net, rateScale(hist.net));
 
     var procs = s.processes_top || [];
     var box = byId("mon-procs");
@@ -3952,16 +5181,19 @@
     }
     var launch = byId("widget-launch");
     if (launch) {
-      launch.addEventListener("click", async function () {
-        setBusy(launch, t("widget_launch"));
-        try {
-          var res = await api("/api/widget/launch", { method: "POST" });
-          showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
-            (res && res.ok) ? "ok" : "error");
-        } catch (e) { /* bandeau déjà affiché */ }
-        clearBusy(launch);
-      });
+      launch.addEventListener("click", function () { launchWidget(launch); });
     }
+  }
+
+  /** Lance le widget en jeu (Réglages, palette) ; résultat en bandeau. */
+  async function launchWidget(btn) {
+    if (btn) { setBusy(btn, t("widget_launch")); }
+    try {
+      var res = await api("/api/widget/launch", { method: "POST" });
+      showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+        (res && res.ok) ? "ok" : "error");
+    } catch (e) { /* bandeau déjà affiché */ }
+    if (btn) { clearBusy(btn); }
   }
 
   /** HTML du groupe « Maintenance » (nettoyage planifié hebdomadaire). */
@@ -4056,12 +5288,19 @@
       '<div class="set-controls">' + defSelect + "</div></div></div>" +
 
       '<div class="group-label">' + esc(t("appearance_group")) + "</div>" +
-      '<div class="card"><div class="settings-row">' +
+      '<div class="card appearance-card"><div class="settings-row settings-row-block">' +
       '<div class="set-info"><div class="set-name">' + esc(t("theme")) + "</div>" +
       '<div class="set-status">' + esc(t("theme_desc")) + "</div></div>" +
-      '<div class="set-controls"><div class="seg" data-seg="theme">' +
-      '<button type="button" data-theme="light">' + esc(t("light")) + "</button>" +
-      '<button type="button" data-theme="dark">' + esc(t("dark")) + "</button>" +
+      themeGridHtml() + "</div>" +
+      '<div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("motion_name")) + "</div>" +
+      '<div class="set-status" id="motion-desc">' + esc(t("motion_" + currentMotion() + "_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="motion" role="group" aria-label="' + esc(t("motion_name")) + '">' +
+      MOTION_LEVELS.map(function (l) {
+        var on = l === currentMotion();
+        return '<button type="button" data-level="' + l + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+          (on ? ' class="active"' : "") + ">" + esc(t("motion_" + l)) + "</button>";
+      }).join("") +
       "</div></div></div>" +
       '<div class="settings-row">' +
       '<div class="set-info"><div class="set-name">' + esc(t("language")) + "</div>" +
@@ -4179,13 +5418,17 @@
       });
     }
 
-    $all(".seg[data-seg='theme'] button", area).forEach(function (b) {
-      b.addEventListener("click", function () { setTheme(b.dataset.theme); });
+    $all(".theme-tile[data-theme-id]", area).forEach(function (b) {
+      b.addEventListener("click", function () { setTheme(b.dataset.themeId); });
+    });
+    $all(".seg[data-seg='motion'] button", area).forEach(function (b) {
+      b.addEventListener("click", function () { setMotion(b.dataset.level); });
     });
     $all(".seg[data-seg='lang'] button", area).forEach(function (b) {
       b.addEventListener("click", function () { setLang(b.dataset.lang); });
     });
     updateThemeLabel();
+    updateMotionUi();
 
     bindWidgetSection(area, seq);
     bindMaintenanceSection();
@@ -4495,6 +5738,88 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Palette de commandes (palette.js) : actions, thèmes, animations, langue */
+  /* ------------------------------------------------------------------ */
+
+  /** Enregistre les commandes de l'app (mêmes ids que les défauts = remplacement). */
+  function registerPaletteCommands() {
+    var pal = window.OverdrivePalette;
+    if (!pal || typeof pal.register !== "function") { return false; }
+    var cmds = [
+      {
+        id: "action:boost", section: "actions", icon: icon("zap"),
+        title: function () { return t("pal_boost"); },
+        subtitle: function () { return t("pal_boost_sub"); },
+        keywords: "boost optimiser optimize optimisation fps un clic one click",
+        run: openBoostModal
+      },
+      {
+        id: "action:boost-cs2", section: "actions", icon: icon("crosshair"),
+        title: function () { return t("cs2b_btn"); },
+        subtitle: function () { return t("pal_boost_cs2_sub"); },
+        keywords: "cs2 counter strike counter-strike boost fps amd adrenalin autoexec",
+        run: openCs2BoostModal
+      },
+      {
+        id: "action:bench", section: "actions", icon: icon("activity"),
+        title: function () { return t("bench_btn"); },
+        subtitle: function () { return t("pal_bench_sub"); },
+        keywords: "benchmark bench score test performance",
+        run: openBenchModal
+      },
+      {
+        id: "action:clean", section: "actions", icon: icon("trash"),
+        title: function () { return t("quick_clean"); },
+        subtitle: function () { return t("pal_clean_sub"); },
+        keywords: "nettoyage nettoyer cleanup clean analyser analyze scan cache fichiers",
+        run: quickClean
+      },
+      {
+        id: "action:widget", section: "actions", icon: icon("widget"),
+        title: function () { return t("widget_launch"); },
+        subtitle: function () { return t("pal_widget_sub"); },
+        keywords: "widget overlay fps en jeu in game",
+        run: function () { launchWidget(null); }
+      }
+    ];
+    THEMES.forEach(function (th) {
+      cmds.push({
+        id: "theme:" + th.id, section: "theme",
+        title: function () { return themeName(th.id); },
+        subtitle: function () { return t("theme_sub_" + th.key); },
+        keywords: "theme thème couleur color apparence appearance " + th.id +
+          (th.id === "daylight" ? " clair light jour day" : " sombre dark nuit night midnight"),
+        swatch: { bg: th.bg, grad: "linear-gradient(135deg," + th.a1 + "," + th.a2 + ")" },
+        active: function () { return currentTheme() === th.id; },
+        run: function () { setTheme(th.id); }
+      });
+    });
+    MOTION_LEVELS.forEach(function (l) {
+      cmds.push({
+        id: "motion:" + l, section: "motion", icon: icon(MOTION_ICONS[l]),
+        title: function () { return t("pal_motion_" + l); },
+        subtitle: function () { return t("motion_" + l + "_desc"); },
+        keywords: "animation animations motion mouvement effets effects " + l +
+          (l === "off" ? " désactiver disable aucune none" : (l === "reduced" ? " réduire reduce" : " maximum")),
+        active: function () { return currentMotion() === l; },
+        run: function () { setMotion(l); }
+      });
+    });
+    ["fr", "en"].forEach(function (lg) {
+      cmds.push({
+        id: "lang:" + lg, section: "lang", icon: icon("globe"),
+        title: function () { return t("pal_lang_" + lg); },
+        subtitle: function () { return t("pal_lang_sub"); },
+        keywords: "langue language " + (lg === "fr" ? "français french francais" : "anglais english"),
+        active: function () { return LANG === lg; },
+        run: function () { setLang(lg); }
+      });
+    });
+    try { pal.register(cmds); } catch (e) { return false; }
+    return true;
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Initialisation                                                      */
   /* ------------------------------------------------------------------ */
 
@@ -4502,12 +5827,29 @@
     applyStaticI18n();
 
     byId("theme-toggle").addEventListener("click", function () {
-      setTheme(currentTheme() === "dark" ? "light" : "dark");
+      setTheme(nextTheme(currentTheme()));
     });
     updateThemeLabel();
 
+    /* Palette : commandes de l'app (repli : nouvel essai une fois la page chargée). */
+    if (!registerPaletteCommands()) {
+      window.addEventListener("load", registerPaletteCommands, { once: true });
+    }
+    /* Commandes par défaut de palette.js (si elles servent) : réglage serveur + interface. */
+    window.addEventListener("overdrive:theme", function (e) {
+      var id = normTheme(e && e.detail ? e.detail.theme : null);
+      if (id) { setTheme(id); }
+    });
+    window.addEventListener("overdrive:motion", function (e) {
+      var lvl = e && e.detail ? e.detail.motion : null;
+      if (MOTION_LEVELS.indexOf(lvl) >= 0) { setMotion(lvl); }
+    });
+
     window.addEventListener("hashchange", render);
     render();
+
+    /* Pause des animations pendant le jeu : interrogation toutes les 5 s. */
+    startStatusPoll();
 
     try {
       var st = await api("/api/status");
@@ -4515,11 +5857,23 @@
       state.profile = st.profile || null;
       var ver = byId("app-version");
       if (ver && st.version) { ver.textContent = "v" + st.version; }
+      applyGameRunning(st.game_running);
 
-      /* Thème : la préférence locale prime, sinon le réglage serveur. */
+      /* Thème : la préférence locale prime, sinon le réglage serveur (normalisé). */
       var storedTheme = null;
       try { storedTheme = localStorage.getItem("overdrive-theme"); } catch (e) { /* stockage indisponible */ }
-      if (!storedTheme && (st.theme === "dark" || st.theme === "light")) { applyTheme(st.theme); }
+      if (!storedTheme) {
+        var serverTheme = normTheme(st.theme);
+        if (serverTheme && serverTheme !== currentTheme()) { applyTheme(serverTheme, false); }
+      }
+
+      /* Animations : idem ; « max » est aussi la valeur par défaut du serveur, qui ne
+         doit pas écraser la préférence système « réduire les animations ». */
+      var storedMotion = null;
+      try { storedMotion = localStorage.getItem("overdrive-motion"); } catch (e3) { /* stockage indisponible */ }
+      if (!storedMotion && st.motion !== "max" && MOTION_LEVELS.indexOf(st.motion) >= 0 && st.motion !== currentMotion()) {
+        applyMotion(st.motion);
+      }
 
       /* Langue : la préférence locale prime, sinon le réglage serveur. */
       var storedLang = null;

@@ -19,7 +19,10 @@ Détections couvertes :
   ``MSFT_PhysicalDisk`` via PowerShell — ``Win32_DiskDrive.MediaType``
   renvoie « Fixed hard disk media » pour tout, donc inutilisable) ;
 * fichier d'échange (pagefile) désactivé avec 16 Go de RAM ou moins
-  (``psutil.swap_memory``).
+  (``psutil.swap_memory``) ;
+* RAM sous sa vitesse nominale (EXPO/XMP non activé) et barrette unique
+  (simple canal) — CIM ``Win32_PhysicalMemory`` ; l'analyse est une
+  fonction pure (:func:`analyze_memory_modules`) testable sous Linux.
 """
 
 from __future__ import annotations
@@ -568,6 +571,256 @@ def _detect_pagefile_off() -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# h) RAM sous sa vitesse nominale (EXPO/XMP) et barrette unique
+# ---------------------------------------------------------------------------
+
+_PS_MEMORY_COMMAND = (
+    "Get-CimInstance Win32_PhysicalMemory | Select-Object Speed, "
+    "ConfiguredClockSpeed, SMBIOSMemoryType, PartNumber | "
+    "ConvertTo-Json -Compress"
+)
+
+#: SMBIOSMemoryType (spécification SMBIOS, structure de type 17).
+_SMBIOS_DDR4 = 26
+_SMBIOS_DDR5 = 34
+#: Types LPDDR soudés (portables) : pas de barrette à ajouter.
+_SMBIOS_SOLDERED = frozenset({27, 28, 29, 30, 35})
+
+#: Écart toléré entre vitesse configurée et vitesse nominale (5 %).
+_RAM_SPEED_TOLERANCE = 0.95
+#: Vitesse de base JEDEC courante de la DDR5 sans profil EXPO/XMP.
+_DDR5_BASE_MTS = 4800
+
+#: Références de barrettes encodant leur vitesse nominale (profil EXPO/XMP),
+#: absente de ``Speed`` qui ne reflète souvent que le profil JEDEC de base.
+#: (motif, multiplicateur). Liste volontairement courte et stricte.
+_PART_SPEED_PATTERNS: tuple[tuple[re.Pattern[str], int], ...] = (
+    # G.Skill : F5-6000J3038F16G, F4-3600C16-16GTZNC.
+    (re.compile(r"^F[45]-(\d{4})[A-Z]"), 1),
+    # Corsair : CMK32GX5M2B6000C36, CMT32GX5M2X6000C36, CMW32GX4M2E3200C16.
+    (re.compile(r"^CM[A-Z]{1,3}\d+GX[45]M\d[A-Z](\d{4})C\d{2}"), 1),
+    # ADATA XPG : AX5U6000C3016G-DCLARBK, AX4U320016G16A.
+    (re.compile(r"^AX[45]U(\d{4})"), 1),
+    # TeamGroup T-Force : FF3D516G6000HC38A01, TF3D416G3200HC16F01.
+    (re.compile(r"^[A-Z]{2}\d[A-Z]\d{3}G(\d{4})HC\d{2}"), 1),
+    # Kingston FURY DDR5/DDR4 : KF560C36-16 (6000), KF432C16BB/8 (3200).
+    (re.compile(r"^KF[45](\d{2})C\d{2}"), 100),
+    # Kingston HyperX FURY (ancien) : KF3600C17D4/8GX.
+    (re.compile(r"^KF(\d{4})C\d{2}"), 1),
+    # Crucial : CP16G60C36U5B (Pro OC 6000), CT16G56C46U5 (5600 JEDEC).
+    (re.compile(r"^C[TP]\d+G(\d{2})C\d{2}"), 100),
+    # Crucial Ballistix : BL2K16G36C16U4B (3600).
+    (re.compile(r"^BL(?:\d+K)?\d+G(\d{2})C\d{2}"), 100),
+)
+
+
+def _positive_int(value: object) -> int | None:
+    """Entier strictement positif (int, float ou chaîne numérique), sinon None."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value) if value > 0 else None
+    if isinstance(value, str) and value.strip().isdigit():
+        number = int(value.strip())
+        return number if number > 0 else None
+    return None
+
+
+def part_number_speed(part_number: object, memory_type: int | None = None) -> int | None:
+    """Vitesse nominale (MT/s) encodée dans une référence de barrette, sinon None.
+
+    Uniquement pour des familles de références connues ; la valeur doit
+    être plausible pour le type de mémoire (DDR5 >= 4000, DDR4 <= 5333).
+    Pure, jamais d'exception.
+    """
+    try:
+        if not isinstance(part_number, str):
+            return None
+        text = part_number.strip().upper()
+        if not text:
+            return None
+        for pattern, factor in _PART_SPEED_PATTERNS:
+            match = pattern.search(text)
+            if match is None:
+                continue
+            speed = int(match.group(1)) * factor
+            if not 1333 <= speed <= 10000:
+                return None
+            if memory_type == _SMBIOS_DDR5 and speed < 4000:
+                return None
+            if memory_type == _SMBIOS_DDR4 and speed > 5333:
+                return None
+            return speed
+        return None
+    except Exception:
+        return None
+
+
+def _bios_steps(lang: str) -> str:
+    """Marche à suivre générique pour activer EXPO/XMP dans le BIOS."""
+    if lang == "en":
+        return ("How to: restart into the BIOS/UEFI (Del or F2 at boot), look "
+                "for “EXPO”, “XMP”, “DOCP” or “A-XMP” (usually in the memory, "
+                "AI Tweaker, OC or Extreme Tweaker section), pick profile 1, "
+                "then save and exit (often F10). On AM5, the first boot after "
+                "enabling it can take one to several minutes (memory "
+                "training): do not power off. If the PC no longer boots, most "
+                "motherboards fall back to safe settings on their own; "
+                "otherwise reset the BIOS (Clear CMOS, see the manual). On "
+                "laptops this setting is usually not available.")
+    return ("Marche à suivre : redémarrez dans le BIOS/UEFI (touche Suppr ou "
+            "F2 au démarrage), cherchez « EXPO », « XMP », « DOCP » ou "
+            "« A-XMP » (souvent dans les réglages mémoire, AI Tweaker, OC ou "
+            "Extreme Tweaker), choisissez le profil 1, puis enregistrez et "
+            "quittez (souvent F10). Sur AM5, le premier démarrage après "
+            "activation peut prendre une à plusieurs minutes (entraînement "
+            "de la mémoire) : n'éteignez pas. Si le PC ne démarre plus, la "
+            "plupart des cartes mères reviennent d'elles-mêmes aux réglages "
+            "sûrs ; sinon, réinitialisez le BIOS (Clear CMOS, voir le "
+            "manuel). Sur PC portable, ce réglage n'est généralement pas "
+            "disponible.")
+
+
+def analyze_memory_modules(modules: object) -> list[dict]:
+    """Constats RAM depuis les barrettes ``Win32_PhysicalMemory`` (fonction pure).
+
+    ``modules`` : liste de dicts ``{"Speed", "ConfiguredClockSpeed",
+    "SMBIOSMemoryType", "PartNumber"}`` (sortie JSON PowerShell, un dict
+    seul accepté). Constats possibles :
+
+    * ``ram_below_rated`` (important ; conseil avec 4 barrettes DDR5 ou
+      plus, où une fréquence réduite peut être nécessaire) : vitesse
+      configurée inférieure de plus de 5 % à la vitesse nominale (``Speed``
+      ou, à défaut, la vitesse encodée dans la référence), ou DDR5
+      configurée <= 4800 MT/s avec des barrettes nominales > 4800 ;
+    * ``ram_single_channel`` (conseil) : une seule barrette (hors LPDDR
+      soudée).
+
+    ``ConfiguredClockSpeed`` égale à la moitié de ``Speed`` (BIOS qui
+    remonte la fréquence réelle en MHz) est ramenée en MT/s. Jamais
+    d'exception.
+    """
+    insights: list[dict] = []
+    try:
+        if isinstance(modules, dict):
+            modules = [modules]
+        if not isinstance(modules, list):
+            return []
+        mods = [m for m in modules if isinstance(m, dict)]
+        if not mods:
+            return []
+
+        types = {_positive_int(m.get("SMBIOSMemoryType")) for m in mods}
+        types.discard(None)
+        mem_type = next(iter(types)) if len(types) == 1 else None
+        is_ddr5 = mem_type == _SMBIOS_DDR5
+        type_label = " DDR5" if is_ddr5 else (" DDR4" if mem_type == _SMBIOS_DDR4 else "")
+
+        nominal_values: list[int] = []
+        configured_values: list[int] = []
+        from_part = False
+        part_shown: str | None = None
+        for module in mods:
+            spd = _positive_int(module.get("Speed"))
+            configured = _positive_int(module.get("ConfiguredClockSpeed"))
+            part = module.get("PartNumber")
+            part_speed = part_number_speed(part, mem_type)
+            if configured is not None and spd is not None:
+                # BIOS remontant la fréquence d'horloge (MHz) au lieu du
+                # débit (MT/s) : 3000 pour de la DDR5-6000.
+                if abs(configured * 2 - spd) <= spd * 0.03:
+                    configured *= 2
+            nominal = spd
+            if part_speed is not None and (nominal is None or part_speed > nominal):
+                nominal = part_speed
+                from_part = True
+                part_shown = str(part).strip()
+            if nominal is not None:
+                nominal_values.append(nominal)
+            if configured is not None:
+                configured_values.append(configured)
+
+        if nominal_values and configured_values:
+            nominal = min(nominal_values)  # la barrette la plus lente limite
+            configured = min(configured_values)
+            below = configured < nominal * _RAM_SPEED_TOLERANCE
+            ddr5_base = is_ddr5 and configured <= _DDR5_BASE_MTS < nominal
+            if below or ddr5_base:
+                many_ddr5 = is_ddr5 and len(mods) >= 4
+                source = (f" (d'après la référence de vos barrettes, {part_shown})"
+                          if from_part and part_shown else "")
+                source_en = (f" (according to your modules' part number, "
+                             f"{part_shown})" if from_part and part_shown else "")
+                extra = ""
+                extra_en = ""
+                if many_ddr5:
+                    extra = (" Avec 4 barrettes DDR5, les cartes mères réduisent "
+                             "souvent volontairement la fréquence pour rester "
+                             "stables : essayez le profil, mais une vitesse plus "
+                             "basse peut être nécessaire.")
+                    extra_en = (" With 4 DDR5 modules, motherboards often lower "
+                                "the speed on purpose to stay stable: try the "
+                                "profile, but a lower speed may be required.")
+                insights.append(_insight(
+                    "ram_below_rated",
+                    "conseil" if many_ddr5 else "important",
+                    f"RAM à {configured} MT/s au lieu de {nominal} MT/s",
+                    f"RAM at {configured} MT/s instead of {nominal} MT/s",
+                    f"Vos barrettes{type_label} sont prévues pour {nominal} MT/s"
+                    f"{source} mais tournent à {configured} MT/s : activez EXPO "
+                    f"(AMD) / XMP (Intel) dans le BIOS. Sur CS2, le gain est "
+                    f"souvent visible sur les 1 % low (FPS minimums), là où se "
+                    f"ressentent les saccades.{extra} " + _bios_steps("fr"),
+                    f"Your{type_label} modules are rated for {nominal} MT/s"
+                    f"{source_en} but run at {configured} MT/s: enable EXPO "
+                    f"(AMD) / XMP (Intel) in the BIOS. In CS2, the gain often "
+                    f"shows in the 1% lows (minimum FPS), where stutters are "
+                    f"felt.{extra_en} " + _bios_steps("en"),
+                    action_url=None,
+                ))
+
+        if len(mods) == 1 and mem_type not in _SMBIOS_SOLDERED:
+            insights.append(_insight(
+                "ram_single_channel",
+                "conseil",
+                "Une seule barrette de RAM : mémoire en simple canal",
+                "A single RAM module: memory in single channel",
+                "Une seule barrette de RAM détectée : la mémoire fonctionne en "
+                "simple canal, avec la moitié de la bande passante possible. "
+                "Ajouter une seconde barrette identique (même modèle, même "
+                "capacité) pour passer en double canal est un gain important "
+                "en jeu, surtout avec une puce graphique intégrée et sur CS2 "
+                "(FPS minimums). Installez-les dans les emplacements indiqués "
+                "par le manuel de la carte mère (souvent A2 et B2).",
+                "A single RAM module detected: memory runs in single channel, "
+                "with half the possible bandwidth. Adding a second identical "
+                "module (same model, same capacity) to get dual channel is a "
+                "major gaming gain, especially with integrated graphics and in "
+                "CS2 (minimum FPS). Install them in the slots given by the "
+                "motherboard manual (often A2 and B2).",
+                action_url=None,
+            ))
+    except Exception:  # noqa: BLE001 — analyse best effort
+        return insights
+    return insights
+
+
+def _detect_ram_config() -> list[dict]:
+    """RAM sous sa vitesse nominale / barrette unique (CIM, timeout 10 s)."""
+    proc = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-Command", _PS_MEMORY_COMMAND],
+        shell=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+        creationflags=_creation_flags(),
+    )
+    if proc.returncode != 0 or not proc.stdout.strip():
+        return []
+    return analyze_memory_modules(json.loads(proc.stdout))
+
+
+# ---------------------------------------------------------------------------
 # API publique
 # ---------------------------------------------------------------------------
 
@@ -583,7 +836,38 @@ def get_insights() -> list[dict]:
     for detector in (_detect_refresh_rate, _detect_overlays,
                      _detect_gpu_driver_age, _detect_power_plan,
                      _detect_low_ram, _detect_system_hdd,
-                     _detect_pagefile_off):
+                     _detect_pagefile_off, _detect_ram_config):
+        try:
+            insights.extend(detector())
+        except Exception:  # noqa: BLE001 — chaque détection reste best effort
+            continue
+    return insights
+
+
+def memory_insights() -> list[dict]:
+    """Constats RAM seuls (EXPO/XMP, simple canal) ; ``[]`` hors Windows.
+
+    Jamais d'exception.
+    """
+    if not is_windows():
+        return []
+    try:
+        return _detect_ram_config()
+    except Exception:  # noqa: BLE001 — best effort
+        return []
+
+
+def cs2_relevant_insights() -> list[dict]:
+    """Sous-ensemble rapide des constats utiles à CS2 (Boost CS2).
+
+    Écran sous-cadencé, overlays actifs et RAM (EXPO/XMP, simple canal) —
+    sans les détections lentes sans rapport (disque, pilote...). ``[]``
+    hors Windows ; jamais d'exception.
+    """
+    if not is_windows():
+        return []
+    insights: list[dict] = []
+    for detector in (_detect_refresh_rate, _detect_overlays, _detect_ram_config):
         try:
             insights.extend(detector())
         except Exception:  # noqa: BLE001 — chaque détection reste best effort
