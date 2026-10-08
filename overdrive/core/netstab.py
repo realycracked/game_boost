@@ -128,11 +128,20 @@ def run_stability(region_id: str | None = None, duration_s: int = 20) -> dict:
 
         start = time.monotonic()
         deadline = start + duration
+        # Garde-fou du budget total : create_connection peut essayer
+        # plusieurs adresses résolues (timeout 1,5 s chacune), donc une
+        # tentative peut dépasser 1,5 s. On estime la durée maximale
+        # observée d'une tentative et on n'en lance pas de nouvelle si
+        # elle risquait de dépasser duration_s + 3 s au total.
+        hard_stop = deadline + 2.8
+        worst_attempt = _CONNECT_TIMEOUT
         next_at = start
-        # Chaque tentative dure au plus 1,5 s : même entamée juste avant
-        # l'échéance, la boucle respecte le budget duration_s + 3 s.
-        while time.monotonic() < deadline:
+        while True:
+            now = time.monotonic()
+            if now >= deadline or now + worst_attempt > hard_stop:
+                break
             attempts += 1
+            attempt_begin = now
             t0 = time.perf_counter()
             try:
                 sock = socket.create_connection((host, port),
@@ -157,8 +166,9 @@ def run_stability(region_id: str | None = None, duration_s: int = 20) -> dict:
                 except OSError:
                     pass
             # Cadence : une tentative toutes les 250 ms (sans rattrapage).
-            next_at += _INTERVAL_S
             now = time.monotonic()
+            worst_attempt = max(worst_attempt, now - attempt_begin)
+            next_at += _INTERVAL_S
             if next_at <= now:
                 next_at = now
             elif now < deadline:

@@ -86,7 +86,10 @@ def _connections_by_pid() -> dict[int, int]:
     try:
         for proc in psutil.process_iter():
             try:
-                n = len(proc.net_connections(kind="inet"))
+                # ``net_connections`` (psutil >= 6) ou ``connections`` (avant).
+                getter = getattr(proc, "net_connections", None) \
+                    or getattr(proc, "connections")
+                n = len(getter(kind="inet"))
             except Exception:
                 continue  # AccessDenied/NoSuchProcess : ignoré proprement
             if n:
