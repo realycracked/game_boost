@@ -410,7 +410,79 @@
       backup_imported: "Profil importé.",
       backup_import_err: "Fichier d'export invalide.",
       gamemode_name: "Mode jeu automatique",
-      gamemode_desc: "Quand un jeu démarre : plan d'alimentation performance et priorité haute du jeu ; tout est restauré à sa fermeture. Nécessite que le widget tourne."
+      gamemode_desc: "Quand un jeu démarre : plan d'alimentation performance et priorité haute du jeu ; tout est restauré à sa fermeture. Nécessite que le widget tourne.",
+
+      /* Convertisseur de sensibilité */
+      sens_group: "Convertisseur de sensibilité",
+      sens_desc: "Même rotation réelle (cm/360) d'un jeu à l'autre : choisissez le jeu source, votre sensibilité et le DPI de la souris.",
+      sens_game: "Jeu source",
+      sens_sens: "Sensibilité",
+      sens_dpi: "DPI souris",
+      sens_convert: "Convertir",
+      sens_converting: "Conversion…",
+      sens_cm360: "cm/360",
+      sens_cm360_note: "distance de souris pour un tour complet",
+      sens_edpi: "eDPI",
+      sens_edpi_note: "sensibilité × DPI",
+      sens_err_sens: "Sensibilité invalide : saisissez un nombre strictement positif.",
+      sens_err_dpi: "DPI invalide : saisissez un entier entre 100 et 26000.",
+      sens_failed: "Conversion impossible.",
+      sens_unavailable: "Convertisseur indisponible pour le moment.",
+      th_game: "Jeu",
+      th_sens_conv: "Sensibilité convertie",
+
+      /* Viseurs CS2 */
+      xhair_group: "Viseurs CS2",
+      xhair_desc: "Styles réalistes inspirés de joueurs professionnels, avec aperçu et code de partage prêt à importer.",
+      xhair_inspired: "Inspiré de {p}",
+      xhair_howto: "Pour importer : CS2 > Paramètres > Équipement > Partager ou importer le code du viseur. Les commandes console sont un repli garanti si un code était refusé.",
+      xhair_copy_code: "Copier le code",
+      xhair_copy_console: "Copier les commandes",
+      xhair_unavailable: "Viseurs indisponibles pour le moment.",
+
+      /* Coffre de configurations */
+      vault_group: "Coffre de configurations",
+      vault_desc: "Sauvegarde locale (zip) des fichiers de configuration de vos jeux, restaurable à tout moment.",
+      vault_backup_now: "Sauvegarder maintenant",
+      vault_backing_up: "Sauvegarde…",
+      vault_backups_title: "Sauvegardes",
+      vault_no_backups: "Aucune sauvegarde pour l'instant.",
+      vault_none_found: "Aucune configuration de jeu détectée sur cette machine : rien à sauvegarder pour le moment.",
+      vault_restore: "Restaurer",
+      vault_restoring: "Restauration…",
+      vault_deleting: "Suppression…",
+      vault_restore_title: "Restaurer une sauvegarde",
+      vault_restore_body: "Les fichiers de configuration actuels seront remplacés par ceux de « {id} ». Une sauvegarde de sécurité automatique est créée avant toute écriture : vous pourrez revenir en arrière.",
+      vault_delete_title: "Supprimer la sauvegarde",
+      vault_delete_body: "La sauvegarde « {id} » sera définitivement supprimée.",
+      vault_unavailable: "Coffre indisponible pour le moment.",
+      th_date: "Date",
+      th_games: "Jeux",
+
+      /* Test de stabilité réseau */
+      netstab_btn: "Test de stabilité (20 s)",
+      netstab_running: "Test de stabilité en cours (~20 s)…",
+      netstab_loss: "Perte",
+      netstab_jitter: "Gigue",
+      netstab_region: "Région testée : {r}",
+
+      /* Activité réseau (moniteur) */
+      netusage_group: "Activité réseau",
+      netusage_desc: "Applications avec des connexions actives (TCP/UDP) et téléchargements probables.",
+      th_app: "Application",
+      th_connections: "Connexions",
+      netusage_empty: "Aucune application avec des connexions actives n'a pu être détectée sur ce système.",
+      netusage_suspects: "Téléchargements probables",
+      netusage_unavailable: "Activité réseau indisponible pour le moment.",
+
+      /* Réglages : widget + maintenance */
+      widget_el_temp: "Température",
+      pause_updates_name: "Suspendre Windows Update pendant la partie",
+      pause_updates_desc: "Le service de mise à jour est suspendu au lancement d'un jeu, puis rétabli à sa fermeture.",
+      maintenance_group: "Maintenance",
+      sched_name: "Nettoyage automatique hebdomadaire (dimanche 11 h)",
+      sched_desc: "Nettoie les caches sûrs via le Planificateur de tâches Windows, sans ouvrir l'interface.",
+      sched_unavailable: "Planification indisponible pour le moment."
     },
     en: {
       /* Navigation and chrome */
@@ -806,7 +878,79 @@
       backup_imported: "Profile imported.",
       backup_import_err: "Invalid export file.",
       gamemode_name: "Automatic game mode",
-      gamemode_desc: "When a game starts: performance power plan and high priority for the game; everything is restored when it closes. Requires the widget to be running."
+      gamemode_desc: "When a game starts: performance power plan and high priority for the game; everything is restored when it closes. Requires the widget to be running.",
+
+      /* Sensitivity converter */
+      sens_group: "Sensitivity converter",
+      sens_desc: "Same real rotation (cm/360) across games: pick the source game, your sensitivity and your mouse DPI.",
+      sens_game: "Source game",
+      sens_sens: "Sensitivity",
+      sens_dpi: "Mouse DPI",
+      sens_convert: "Convert",
+      sens_converting: "Converting…",
+      sens_cm360: "cm/360",
+      sens_cm360_note: "mouse distance for a full turn",
+      sens_edpi: "eDPI",
+      sens_edpi_note: "sensitivity × DPI",
+      sens_err_sens: "Invalid sensitivity: enter a strictly positive number.",
+      sens_err_dpi: "Invalid DPI: enter an integer between 100 and 26000.",
+      sens_failed: "Conversion failed.",
+      sens_unavailable: "Converter unavailable right now.",
+      th_game: "Game",
+      th_sens_conv: "Converted sensitivity",
+
+      /* CS2 crosshairs */
+      xhair_group: "CS2 crosshairs",
+      xhair_desc: "Realistic styles inspired by professional players, with a preview and a ready-to-import share code.",
+      xhair_inspired: "Inspired by {p}",
+      xhair_howto: "To import: CS2 > Settings > Equipment > Share or import crosshair code. The console commands are a guaranteed fallback if a code were rejected.",
+      xhair_copy_code: "Copy code",
+      xhair_copy_console: "Copy commands",
+      xhair_unavailable: "Crosshairs unavailable right now.",
+
+      /* Config vault */
+      vault_group: "Config vault",
+      vault_desc: "Local zip backups of your games' configuration files, restorable at any time.",
+      vault_backup_now: "Back up now",
+      vault_backing_up: "Backing up…",
+      vault_backups_title: "Backups",
+      vault_no_backups: "No backup yet.",
+      vault_none_found: "No game configuration detected on this machine: nothing to back up right now.",
+      vault_restore: "Restore",
+      vault_restoring: "Restoring…",
+      vault_deleting: "Deleting…",
+      vault_restore_title: "Restore a backup",
+      vault_restore_body: "Current configuration files will be replaced by those from \"{id}\". An automatic safety backup is created before anything is written, so you can roll back.",
+      vault_delete_title: "Delete backup",
+      vault_delete_body: "The backup \"{id}\" will be permanently deleted.",
+      vault_unavailable: "Vault unavailable right now.",
+      th_date: "Date",
+      th_games: "Games",
+
+      /* Network stability test */
+      netstab_btn: "Stability test (20 s)",
+      netstab_running: "Stability test running (~20 s)…",
+      netstab_loss: "Loss",
+      netstab_jitter: "Jitter",
+      netstab_region: "Tested region: {r}",
+
+      /* Network activity (monitor) */
+      netusage_group: "Network activity",
+      netusage_desc: "Applications with active connections (TCP/UDP) and likely downloads.",
+      th_app: "Application",
+      th_connections: "Connections",
+      netusage_empty: "No application with active connections could be detected on this system.",
+      netusage_suspects: "Likely downloads",
+      netusage_unavailable: "Network activity unavailable right now.",
+
+      /* Settings: widget + maintenance */
+      widget_el_temp: "Temperature",
+      pause_updates_name: "Pause Windows Update during the game",
+      pause_updates_desc: "The update service is paused when a game starts, then resumed when it closes.",
+      maintenance_group: "Maintenance",
+      sched_name: "Weekly automatic cleanup (Sunday 11 AM)",
+      sched_desc: "Cleans safe caches via the Windows Task Scheduler, without opening the interface.",
+      sched_unavailable: "Scheduling unavailable right now."
     }
   };
 
@@ -884,7 +1028,17 @@
     monitorHist: { cpu: [], ram: [], disk: [], net: [] },  // 60 derniers points
     startupItems: null,      // GET /api/startup → liste
     latency: null,           // POST /api/latency → résultats
-    latencyBusy: false
+    latencyBusy: false,
+    netstab: null,           // POST /api/netstab → résultat du test de stabilité
+    netstabBusy: false,
+    sensGames: null,         // GET /api/sens/games → liste
+    sensForm: { game: null, sens: "", dpi: "800" },
+    sensResult: null,        // POST /api/sens/convert → résultat
+    sensError: null,         // erreur de validation côté client
+    crosshairs: null,        // GET /api/crosshairs → liste
+    vault: null,             // GET /api/vault → {targets, backups}
+    vaultSelection: new Set(),
+    schedule: null           // GET /api/schedule → {enabled, supported, detail}
   };
 
   var renderSeq = 0;
@@ -1960,7 +2114,13 @@
     area.innerHTML = note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
       '<div id="game-detail-area"></div>' +
       '<div class="group-label">' + esc(t("latency_group")) + "</div>" +
-      '<div class="card" id="latency-card"><div id="latency-inner"></div></div>';
+      '<div class="card" id="latency-card"><div id="latency-inner"></div></div>' +
+      '<div class="group-label">' + esc(t("sens_group")) + "</div>" +
+      '<div class="card" id="sens-card"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
+      '<div class="group-label">' + esc(t("xhair_group")) + "</div>" +
+      '<div id="xhair-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
+      '<div class="group-label">' + esc(t("vault_group")) + "</div>" +
+      '<div class="card" id="vault-card"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
 
     $all("#games-grid .game-card").forEach(function (card) {
       function select() {
@@ -1976,6 +2136,9 @@
     });
 
     updateLatencyCard(seq);
+    loadSensCard(seq);
+    loadCrosshairs(seq);
+    loadVault(seq);
     if (state.selectedGame) { buildGameDetail(seq); }
   }
 
@@ -1987,14 +2150,57 @@
     return '<span class="badge ' + cls + '">' + esc(dec(v)) + " ms</span>";
   }
 
+  /** Pastille colorée du verdict du test de stabilité. */
+  function netstabVerdictBadge(res) {
+    var cls = res.verdict === "stable" ? "badge-green" :
+      (res.verdict === "instable" ? "badge-red" : "badge-gray");
+    return '<span class="badge ' + cls + '">' + esc(tr(res, "verdict_label") || res.verdict || "") + "</span>";
+  }
+
+  /** Bloc résultat/état du test de stabilité (sous les résultats de latence). */
+  function netstabBlockHtml() {
+    if (state.netstabBusy) {
+      return '<div class="loading-line">' + esc(t("netstab_running")) + "</div>";
+    }
+    var res = state.netstab;
+    if (!res) { return ""; }
+    var html = '<div class="ns-result">' +
+      '<div class="ns-head">' + netstabVerdictBadge(res) +
+      (res.region && res.region.label ?
+        '<span class="muted small">' + esc(tf("netstab_region", { r: tr(res.region, "label") })) +
+        (res.region.host ? ' <span class="mono mono-inline">' + esc(res.region.host) + "</span>" : "") + "</span>" : "") +
+      "</div>";
+    if (res.ok) {
+      function nsStat(label, value) {
+        return '<div class="ns-stat"><div class="ns-label">' + esc(label) +
+          '</div><div class="ns-value mono">' + value + "</div></div>";
+      }
+      html += '<div class="ns-stats">' +
+        nsStat(t("netstab_loss"), esc(dec(res.loss_percent)) + " %") +
+        nsStat(t("netstab_jitter"), esc(dec(res.jitter_ms)) + " ms") +
+        nsStat(t("th_min"), msBadge(res.ms_min)) +
+        nsStat(t("th_avg"), msBadge(res.ms_avg)) +
+        nsStat(t("th_max"), msBadge(res.ms_max)) +
+        "</div>";
+    } else {
+      html += '<p class="muted small" style="margin:8px 0 0">' + esc(res.message || "") + "</p>";
+    }
+    return html + "</div>";
+  }
+
   function latencyInnerHtml() {
-    var btn = state.latencyBusy ? "" :
-      '<button class="btn btn-sm' + (state.latency ? "" : " btn-primary") +
-      '" id="btn-latency" type="button">' + icon("activity") + " " + esc(t("latency_measure")) + "</button>";
+    var btns = "";
+    if (!state.latencyBusy && !state.netstabBusy) {
+      btns = '<div class="lat-actions">' +
+        '<button class="btn btn-sm' + (state.latency ? "" : " btn-primary") +
+        '" id="btn-latency" type="button">' + icon("activity") + " " + esc(t("latency_measure")) + "</button>" +
+        '<button class="btn btn-sm" id="btn-netstab" type="button">' + icon("activity") + " " +
+        esc(t("netstab_btn")) + "</button></div>";
+    }
     var html = '<div class="lat-head">' +
-      '<p class="muted small lat-note">' + esc(t("latency_desc")) + "</p>" + btn + "</div>";
+      '<p class="muted small lat-note">' + esc(t("latency_desc")) + "</p>" + btns + "</div>";
     if (state.latencyBusy) {
-      return html + '<div class="loading-line">' + esc(t("latency_measuring")) + "</div>";
+      return html + '<div class="loading-line">' + esc(t("latency_measuring")) + "</div>" + netstabBlockHtml();
     }
     if (state.latency && state.latency.length) {
       var rows = state.latency.map(function (r) {
@@ -2014,7 +2220,7 @@
         esc(t("th_avg")) + "</th><th>" + esc(t("th_max")) + "</th>" +
         "</tr></thead><tbody>" + rows + "</tbody></table></div>";
     }
-    return html;
+    return html + netstabBlockHtml();
   }
 
   function updateLatencyCard(seq) {
@@ -2023,6 +2229,8 @@
     inner.innerHTML = latencyInnerHtml();
     var btn = byId("btn-latency");
     if (btn) { btn.addEventListener("click", function () { doMeasureLatency(seq); }); }
+    var nsBtn = byId("btn-netstab");
+    if (nsBtn) { nsBtn.addEventListener("click", function () { doNetStab(seq); }); }
   }
 
   async function doMeasureLatency(seq) {
@@ -2035,6 +2243,402 @@
     } catch (e) { /* bandeau déjà affiché */ }
     state.latencyBusy = false;
     updateLatencyCard(seq);
+  }
+
+  /** Test de stabilité (~20 s) : pas de select de région sur la page, région par défaut. */
+  async function doNetStab(seq) {
+    if (state.netstabBusy) { return; }
+    state.netstabBusy = true;
+    updateLatencyCard(seq);
+    try {
+      state.netstab = await api("/api/netstab", { body: {} });
+    } catch (e) { /* bandeau déjà affiché */ }
+    state.netstabBusy = false;
+    updateLatencyCard(seq);
+  }
+
+  /* ---- Encart « Convertisseur de sensibilité » ---- */
+
+  function sensGameById(id) {
+    var list = state.sensGames || [];
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { return list[i]; } }
+    return null;
+  }
+
+  async function loadSensCard(seq) {
+    if (!state.sensGames) {
+      try {
+        var res = await api("/api/sens/games");
+        state.sensGames = (res && res.games) || [];
+      } catch (e) {
+        var boxErr = byId("sens-card");
+        if (alive(seq) && boxErr) {
+          boxErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("sens_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq)) { return; }
+    buildSensCard(seq);
+  }
+
+  function sensResultHtml() {
+    var r = state.sensResult;
+    if (!r) { return ""; }
+    if (!r.ok) {
+      return '<p class="err-text small" style="margin:10px 0 0">' +
+        esc(r.message || t("sens_failed")) + "</p>";
+    }
+    var cm = Math.round(r.cm360 * 100) / 100;
+    var stats = '<div class="sens-stats">' +
+      '<div class="sens-stat"><div class="sens-stat-label">' + esc(t("sens_cm360")) +
+      '</div><div class="sens-stat-value mono">' + esc(dec(cm)) + ' <span class="sens-unit">cm</span></div>' +
+      '<div class="sens-stat-note">' + esc(t("sens_cm360_note")) + "</div></div>";
+    if (r.edpi !== null && r.edpi !== undefined) {
+      stats += '<div class="sens-stat"><div class="sens-stat-label">' + esc(t("sens_edpi")) +
+        '</div><div class="sens-stat-value mono">' + esc(dec(r.edpi)) + "</div>" +
+        '<div class="sens-stat-note">' + esc(t("sens_edpi_note")) + "</div></div>";
+    }
+    stats += "</div>";
+    var rows = (r.conversions || []).map(function (c) {
+      var game = sensGameById(c.game_id);
+      var note = game ? tr(game, "unit_note") : "";
+      return "<tr><td><div>" + esc(c.name) + "</div>" +
+        (note ? '<div class="muted small">' + esc(note) + "</div>" : "") + "</td>" +
+        '<td class="mono sens-value">' + esc(dec(c.sens)) + "</td></tr>";
+    }).join("");
+    return stats + '<table class="table"><thead><tr><th>' + esc(t("th_game")) +
+      "</th><th>" + esc(t("th_sens_conv")) + "</th></tr></thead><tbody>" + rows + "</tbody></table>";
+  }
+
+  function buildSensCard(seq) {
+    var card = byId("sens-card");
+    if (!card) { return; }
+    var games = state.sensGames || [];
+    if (!games.length) {
+      card.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("sens_unavailable")) + "</p>";
+      return;
+    }
+    if (!state.sensForm.game || !sensGameById(state.sensForm.game)) {
+      state.sensForm.game = games[0].id;
+    }
+    var selected = sensGameById(state.sensForm.game);
+    var options = games.map(function (g) {
+      return '<option value="' + esc(g.id) + '"' +
+        (g.id === state.sensForm.game ? " selected" : "") + ">" + esc(g.name) + "</option>";
+    }).join("");
+
+    card.innerHTML =
+      '<p class="muted small" style="margin-top:0">' + esc(t("sens_desc")) + "</p>" +
+      '<div class="sens-form">' +
+      '<label class="sens-field"><span>' + esc(t("sens_game")) + "</span>" +
+      '<select class="input" id="sens-game">' + options + "</select></label>" +
+      '<label class="sens-field"><span>' + esc(t("sens_sens")) + "</span>" +
+      '<input class="input" id="sens-sens" type="text" inputmode="decimal" value="' +
+      esc(state.sensForm.sens) + '" placeholder="2.0"></label>' +
+      '<label class="sens-field"><span>' + esc(t("sens_dpi")) + "</span>" +
+      '<input class="input" id="sens-dpi" type="text" inputmode="numeric" value="' +
+      esc(state.sensForm.dpi) + '" placeholder="800"></label>' +
+      '<button class="btn btn-primary btn-sm" id="btn-sens-convert" type="button">' +
+      esc(t("sens_convert")) + "</button>" +
+      "</div>" +
+      '<p class="muted small sens-unit-note" id="sens-unit-note">' +
+      esc(selected ? tr(selected, "unit_note") : "") + "</p>" +
+      (state.sensError ? '<p class="err-text small" id="sens-error">' + esc(state.sensError) + "</p>" : "") +
+      '<div id="sens-result">' + sensResultHtml() + "</div>";
+
+    byId("sens-game").addEventListener("change", function (e) {
+      state.sensForm.game = e.target.value;
+      var g = sensGameById(state.sensForm.game);
+      var noteEl = byId("sens-unit-note");
+      if (noteEl) { noteEl.textContent = g ? tr(g, "unit_note") : ""; }
+    });
+    byId("sens-sens").addEventListener("input", function (e) { state.sensForm.sens = e.target.value; });
+    byId("sens-dpi").addEventListener("input", function (e) { state.sensForm.dpi = e.target.value; });
+    byId("btn-sens-convert").addEventListener("click", function () { doSensConvert(seq); });
+    byId("sens-sens").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doSensConvert(seq); }
+    });
+    byId("sens-dpi").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doSensConvert(seq); }
+    });
+  }
+
+  async function doSensConvert(seq) {
+    /* Validation côté client : nombre > 0, DPI entier 100..26000. */
+    var sensRaw = String(state.sensForm.sens || "").trim().replace(",", ".");
+    var sens = Number(sensRaw);
+    if (!sensRaw || !isFinite(sens) || sens <= 0) {
+      state.sensError = t("sens_err_sens");
+      state.sensResult = null;
+      buildSensCard(seq);
+      return;
+    }
+    var dpiRaw = String(state.sensForm.dpi || "").trim();
+    var dpi = Number(dpiRaw);
+    if (!dpiRaw || !isFinite(dpi) || Math.floor(dpi) !== dpi || dpi < 100 || dpi > 26000) {
+      state.sensError = t("sens_err_dpi");
+      state.sensResult = null;
+      buildSensCard(seq);
+      return;
+    }
+    state.sensError = null;
+    var btn = byId("btn-sens-convert");
+    setBusy(btn, t("sens_converting"));
+    try {
+      state.sensResult = await api("/api/sens/convert",
+        { body: { game: state.sensForm.game, sens: sens, dpi: dpi } });
+    } catch (e) {
+      state.sensResult = { ok: false, message: t("sens_failed") };
+    }
+    clearBusy(btn);
+    if (!alive(seq)) { return; }
+    buildSensCard(seq);
+  }
+
+  /* ---- Encart « Viseurs CS2 » ---- */
+
+  /** Aperçu SVG d'un viseur dessiné depuis ses paramètres, sur damier neutre. */
+  function crosshairSvg(entryId, p) {
+    p = p || {};
+    var K_LEN = 5;      /* longueur : size × 5 px */
+    var K_TH = 3;       /* épaisseur : thickness × 3 px */
+    var cx = 32, cy = 32;
+    var len = Math.max(1, (Number(p.size) || 0) * K_LEN);
+    var th = Math.max(1.5, (Number(p.thickness) || 0.5) * K_TH);
+    /* CS2 : l'écart visuel vaut environ (4 + gap) ; jamais négatif à l'écran. */
+    var gap = Number(p.gap) || 0;
+    var off = Math.max(0, (4 + gap)) * 1.5;
+    var color = /^#[0-9a-fA-F]{6}$/.test(String(p.color || "")) ? p.color : "#00ff00";
+    var stroke = p.outline ? ' stroke="#000000" stroke-width="1"' : "";
+
+    function rect(x, y, w, h) {
+      return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) +
+        '" height="' + h.toFixed(1) + '" fill="' + color + '"' + stroke + "/>";
+    }
+    var parts =
+      rect(cx - off - len, cy - th / 2, len, th) +   /* gauche */
+      rect(cx + off, cy - th / 2, len, th) +         /* droite */
+      rect(cx - th / 2, cy - off - len, th, len) +   /* haut */
+      rect(cx - th / 2, cy + off, th, len);          /* bas */
+    if (p.dot) { parts += rect(cx - th / 2, cy - th / 2, th, th); }
+
+    var pid = "chk-" + String(entryId).replace(/[^a-z0-9_-]/gi, "");
+    return '<svg class="xhair-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+      '<defs><pattern id="' + pid + '" width="16" height="16" patternUnits="userSpaceOnUse">' +
+      '<rect width="16" height="16" fill="#75787c"/>' +
+      '<rect width="8" height="8" fill="#6a6d71"/><rect x="8" y="8" width="8" height="8" fill="#6a6d71"/>' +
+      "</pattern></defs>" +
+      '<rect width="64" height="64" rx="6" fill="url(#' + pid + ')"/>' + parts + "</svg>";
+  }
+
+  async function loadCrosshairs(seq) {
+    if (!state.crosshairs) {
+      try {
+        var res = await api("/api/crosshairs");
+        state.crosshairs = (res && res.crosshairs) || [];
+      } catch (e) {
+        var areaErr = byId("xhair-area");
+        if (alive(seq) && areaErr) {
+          areaErr.innerHTML = '<p class="muted small">' + esc(t("xhair_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq)) { return; }
+    buildCrosshairArea(seq);
+  }
+
+  function buildCrosshairArea(seq) {
+    var area = byId("xhair-area");
+    if (!area) { return; }
+    var list = state.crosshairs || [];
+    if (!list.length) {
+      area.innerHTML = '<p class="muted small">' + esc(t("xhair_unavailable")) + "</p>";
+      return;
+    }
+    var cards = list.map(function (c, i) {
+      var codeBlock = c.code ?
+        '<div class="mono-block xhair-code"><pre>' + esc(c.code) + "</pre></div>" : "";
+      return '<div class="card xhair-card">' +
+        '<div class="xhair-head">' +
+        '<div class="xhair-preview">' + crosshairSvg(c.id || i, c.params) + "</div>" +
+        '<div class="xhair-meta">' +
+        '<div class="card-title">' + esc(tf("xhair_inspired", { p: c.player || c.id })) + "</div>" +
+        '<div class="muted small">' + esc(tr(c, "style")) + "</div>" +
+        "</div></div>" +
+        codeBlock +
+        '<div class="xhair-actions">' +
+        (c.code ? '<button class="btn btn-sm" data-copy-code="' + i + '" type="button">' +
+          icon("copy") + " " + esc(t("xhair_copy_code")) + "</button>" : "") +
+        (c.console ? '<button class="btn btn-sm" data-copy-console="' + i + '" type="button">' +
+          esc(t("xhair_copy_console")) + "</button>" : "") +
+        "</div></div>";
+    }).join("");
+    area.innerHTML = '<div class="grid xhair-grid">' + cards + "</div>" +
+      '<p class="muted small" style="margin:10px 0 0">' + esc(t("xhair_howto")) + "</p>";
+
+    $all("[data-copy-code]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var entry = list[Number(btn.dataset.copyCode)];
+        copyText(entry && entry.code ? entry.code : "", btn);
+      });
+    });
+    $all("[data-copy-console]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var entry = list[Number(btn.dataset.copyConsole)];
+        copyText(entry && entry.console ? entry.console : "", btn);
+      });
+    });
+  }
+
+  /* ---- Encart « Coffre de configurations » ---- */
+
+  async function loadVault(seq, refresh) {
+    if (!state.vault || refresh) {
+      try {
+        state.vault = await api("/api/vault");
+      } catch (e) {
+        var cardErr = byId("vault-card");
+        if (alive(seq) && cardErr) {
+          cardErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("vault_unavailable")) + "</p>";
+        }
+        return;
+      }
+      /* Ne garde cochées que des cibles encore détectées. */
+      var found = {};
+      ((state.vault && state.vault.targets) || []).forEach(function (x) {
+        if (x.found) { found[x.game_id] = true; }
+      });
+      Array.from(state.vaultSelection).forEach(function (id) {
+        if (!found[id]) { state.vaultSelection.delete(id); }
+      });
+    }
+    if (!alive(seq)) { return; }
+    buildVaultCard(seq);
+  }
+
+  function buildVaultCard(seq) {
+    var card = byId("vault-card");
+    if (!card) { return; }
+    var data = state.vault || {};
+    var targets = data.targets || [];
+    var backups = data.backups || [];
+    var anyFound = targets.some(function (x) { return x.found; });
+
+    var targetRows = targets.map(function (x) {
+      var badge = x.found ?
+        '<span class="badge badge-green">' + esc(t("badge_detected")) + "</span>" :
+        '<span class="badge badge-gray">' + esc(t("badge_not_detected")) + "</span>";
+      return "<tr>" +
+        '<td><input type="checkbox" class="vault-check" data-id="' + esc(x.game_id) + '"' +
+        (state.vaultSelection.has(x.game_id) ? " checked" : "") + (x.found ? "" : " disabled") + "></td>" +
+        "<td>" + esc(x.name) + "</td>" +
+        "<td>" + badge + "</td>" +
+        '<td class="mono">' + (x.found ? esc(fmtMb(x.size_mb)) : "—") + "</td></tr>";
+    }).join("");
+
+    var html =
+      '<p class="muted small" style="margin-top:0">' + esc(t("vault_desc")) + "</p>" +
+      '<table class="table"><thead><tr><th></th><th>' + esc(t("th_game")) + "</th><th>" +
+      esc(t("th_state")) + "</th><th>" + esc(t("th_size")) + "</th></tr></thead><tbody>" +
+      targetRows + "</tbody></table>" +
+      '<div class="vault-foot">' +
+      (anyFound ? "" : '<span class="muted small">' + esc(t("vault_none_found")) + "</span>") +
+      '<span class="spacer"></span>' +
+      '<button class="btn btn-primary btn-sm" id="btn-vault-backup" type="button"' +
+      (anyFound ? "" : " disabled") + ">" + esc(t("vault_backup_now")) + "</button></div>" +
+      '<div class="group-label vault-sub">' + esc(t("vault_backups_title")) + "</div>";
+
+    if (!backups.length) {
+      html += '<p class="muted small" style="margin:0">' + esc(t("vault_no_backups")) + "</p>";
+    } else {
+      var backupRows = backups.map(function (b, i) {
+        return "<tr>" +
+          '<td class="mono">' + esc(String(b.ts || "").replace("T", " ")) + "</td>" +
+          '<td class="mono">' + esc(fmtMb(b.size_mb)) + "</td>" +
+          "<td>" + (b.games || []).map(function (g) {
+            return '<span class="badge badge-gray">' + esc(g) + "</span>";
+          }).join(" ") + "</td>" +
+          '<td class="vault-actions">' +
+          '<button class="btn btn-sm" data-vault-restore="' + i + '" type="button">' +
+          esc(t("vault_restore")) + "</button>" +
+          '<button class="btn btn-sm btn-danger" data-vault-delete="' + i + '" type="button">' +
+          esc(t("del")) + "</button></td></tr>";
+      }).join("");
+      html += '<table class="table"><thead><tr><th>' + esc(t("th_date")) + "</th><th>" +
+        esc(t("th_size")) + "</th><th>" + esc(t("th_games")) + "</th><th></th></tr></thead><tbody>" +
+        backupRows + "</tbody></table>";
+    }
+    card.innerHTML = html;
+
+    $all(".vault-check", card).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        if (cb.checked) { state.vaultSelection.add(cb.dataset.id); }
+        else { state.vaultSelection.delete(cb.dataset.id); }
+      });
+    });
+
+    var backupBtn = byId("btn-vault-backup");
+    if (backupBtn) {
+      backupBtn.addEventListener("click", async function () {
+        var foundIds = targets.filter(function (x) { return x.found; })
+          .map(function (x) { return x.game_id; });
+        var checked = foundIds.filter(function (id) { return state.vaultSelection.has(id); });
+        /* Rien de coché : tout sauvegarder (ids absents). */
+        var body = checked.length ? { ids: checked } : {};
+        setBusy(backupBtn, t("vault_backing_up"));
+        try {
+          var res = await api("/api/vault/backup", { body: body });
+          showBanner(res.message || "", res.ok ? "ok" : "error");
+          if (res.ok) { loadVault(seq, true); return; }
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(backupBtn);
+      });
+    }
+
+    $all("[data-vault-restore]", card).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var b = backups[Number(btn.dataset.vaultRestore)];
+        if (!b) { return; }
+        openModal({
+          title: t("vault_restore_title"),
+          bodyHtml: "<p>" + esc(tf("vault_restore_body", { id: b.id })) + "</p>",
+          confirmLabel: t("vault_restore"),
+          onConfirm: async function () {
+            setBusy(btn, t("vault_restoring"));
+            try {
+              var res = await api("/api/vault/restore", { body: { id: b.id } });
+              showBanner(res.message || "", res.ok ? "ok" : "error");
+              if (res.ok) { loadVault(seq, true); return; }
+            } catch (e) { /* bandeau déjà affiché */ }
+            clearBusy(btn);
+          }
+        });
+      });
+    });
+
+    $all("[data-vault-delete]", card).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var b = backups[Number(btn.dataset.vaultDelete)];
+        if (!b) { return; }
+        openModal({
+          title: t("vault_delete_title"),
+          bodyHtml: "<p>" + esc(tf("vault_delete_body", { id: b.id })) + "</p>",
+          confirmLabel: t("del"),
+          danger: true,
+          onConfirm: async function () {
+            setBusy(btn, t("vault_deleting"));
+            try {
+              var res = await api("/api/vault/delete", { body: { id: b.id } });
+              showBanner(res.message || "", res.ok ? "ok" : "error");
+              if (res.ok) { loadVault(seq, true); return; }
+            } catch (e) { /* bandeau déjà affiché */ }
+            clearBusy(btn);
+          }
+        });
+      });
+    });
   }
 
   function buildGameDetail(seq) {
@@ -2457,8 +3061,12 @@
       monTileHtml("disk", t("mon_disk")) +
       monTileHtml("net", t("mon_net")) +
       "</div>" +
+      '<div class="group-label">' + esc(t("netusage_group")) + "</div>" +
+      '<div class="card" id="netusage-card"><div class="loading-line">' + esc(t("mon_waiting")) + "</div></div>" +
       '<div class="group-label">' + esc(t("mon_top")) + "</div>" +
       '<div id="mon-procs"><div class="loading-line">' + esc(t("mon_waiting")) + "</div></div>";
+
+    netUsageFailed = false;
 
     async function tick() {
       if (monitorInFlight) { return; }
@@ -2485,10 +3093,68 @@
       monitorInFlight = false;
       if (!alive(seq) || !byId("mon-cpu-val")) { return; }
       updateMonitorDom(sample);
+      updateNetUsage(seq);   /* même cadence que le moniteur, sans le bloquer */
     }
 
     tick();
     monitorTimer = setInterval(tick, 2000);
+  }
+
+  var netUsageInFlight = false;
+  var netUsageFailed = false;   /* une erreur suffit : on cesse d'interroger la route */
+
+  /** Rafraîchit l'encart « Activité réseau » (fetch silencieux, jamais de bandeau). */
+  async function updateNetUsage(seq) {
+    if (netUsageInFlight || netUsageFailed || !byId("netusage-card")) { return; }
+    netUsageInFlight = true;
+    var data = null;
+    try {
+      var res = await fetch("/api/netusage");
+      if (!res.ok) { throw new Error("HTTP " + res.status); }
+      data = await res.json();
+    } catch (e) {
+      netUsageFailed = true;
+      var boxErr = byId("netusage-card");
+      if (alive(seq) && boxErr) {
+        boxErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("netusage_unavailable")) + "</p>";
+      }
+      netUsageInFlight = false;
+      return;
+    }
+    netUsageInFlight = false;
+    if (!alive(seq)) { return; }
+    var box = byId("netusage-card");
+    if (!box || !data) { return; }
+    box.innerHTML = netUsageHtml(data);
+  }
+
+  function netUsageHtml(data) {
+    var apps = (data && data.apps) || [];
+    var suspects = (data && data.suspects) || [];
+    var html = '<p class="muted small" style="margin-top:0">' + esc(t("netusage_desc")) + "</p>";
+
+    if (!apps.length) {
+      html += '<p class="muted small" style="margin:0">' + esc(t("netusage_empty")) + "</p>";
+    } else {
+      html += '<table class="table"><thead><tr><th>' + esc(t("th_app")) + "</th><th>" +
+        esc(t("th_connections")) + "</th></tr></thead><tbody>" +
+        apps.map(function (a) {
+          return '<tr><td class="mono proc-name" title="' + esc(a.name) + '">' + esc(a.name) + "</td>" +
+            '<td class="mono">' + esc(a.connections) + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    }
+
+    if (suspects.length) {
+      html += '<div class="netusage-suspects"><div class="netusage-suspects-title">' +
+        esc(t("netusage_suspects")) + "</div>" +
+        suspects.map(function (s) {
+          return '<div class="settings-row">' +
+            '<div class="set-info"><div class="set-name">' +
+            '<span class="badge badge-yellow">' + esc(tr(s, "name")) + "</span></div>" +
+            '<div class="set-status">' + esc(tr(s, "detail")) + "</div></div></div>";
+        }).join("") + "</div>";
+    }
+    return html;
   }
 
   function updateMonitorDom(s) {
@@ -2831,6 +3497,11 @@
     } catch (e) {
       state.widgetCfg = state.widgetCfg || null;
     }
+    try {
+      state.schedule = await api("/api/schedule");
+    } catch (e) {
+      state.schedule = null;
+    }
     if (!alive(seq)) { return; }
     buildSettingsArea(seq);
   }
@@ -2856,7 +3527,7 @@
     var cfg = state.widgetCfg && state.widgetCfg.widget;
     if (!cfg) { return ""; }
     var els = cfg.elements || {};
-    var elNames = ["fps", "game", "cpu", "ram", "net", "clock"];
+    var elNames = ["fps", "game", "cpu", "ram", "net", "clock", "temp"];
     var checks = elNames.map(function (n) {
       return '<label class="check-item"><input type="checkbox" data-wel="' + n + '"' +
         (els[n] ? " checked" : "") + "> " + esc(t("widget_el_" + n)) + "</label>";
@@ -2893,6 +3564,11 @@
       '<div class="set-status">' + esc(t("gamemode_desc")) + "</div></div>" +
       '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-gamemode"' +
       (cfg.gamemode ? " checked" : "") + "></label></div></div>" +
+      '<div class="settings-row sub-setting' + (cfg.gamemode ? "" : " sub-disabled") + '" id="row-pause-updates">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("pause_updates_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("pause_updates_desc")) + "</div></div>" +
+      '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-pause-updates"' +
+      (cfg.pause_updates ? " checked" : "") + (cfg.gamemode ? "" : " disabled") + "></label></div></div>" +
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_autostart")) + "</div>" +
       '<div class="set-status">' + esc(t("widget_autostart_desc")) + "</div></div>" +
       '<div class="set-controls"><select class="input" id="widget-autostart">' +
@@ -2939,9 +3615,19 @@
       });
     }
     var gm = byId("widget-gamemode");
+    var pu = byId("widget-pause-updates");
     if (gm) {
       gm.addEventListener("change", function () {
         saveWidget({ gamemode: gm.checked }, seq, true);
+        /* La sous-case dépend du mode jeu : grisée quand il est décoché. */
+        if (pu) { pu.disabled = !gm.checked; }
+        var row = byId("row-pause-updates");
+        if (row) { row.classList.toggle("sub-disabled", !gm.checked); }
+      });
+    }
+    if (pu) {
+      pu.addEventListener("change", function () {
+        saveWidget({ pause_updates: pu.checked }, seq, true);
       });
     }
     var autoSel = byId("widget-autostart");
@@ -2962,6 +3648,53 @@
         clearBusy(launch);
       });
     }
+  }
+
+  /** HTML du groupe « Maintenance » (nettoyage planifié hebdomadaire). */
+  function maintenanceSectionHtml() {
+    var sched = state.schedule;
+    var row;
+    if (!sched) {
+      row = '<p class="muted small" style="margin:0">' + esc(t("sched_unavailable")) + "</p>";
+    } else if (sched.supported === false) {
+      /* Non supporté (hors Windows) : ligne grisée, detail en sous-titre. */
+      row = '<div class="settings-row sub-disabled">' +
+        '<div class="set-info"><div class="set-name">' + esc(t("sched_name")) + "</div>" +
+        '<div class="set-status">' + esc(sched.detail || "") + "</div></div>" +
+        '<div class="set-controls"><label class="switch">' +
+        '<input type="checkbox" disabled><span class="track"></span></label></div></div>';
+    } else {
+      row = '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' + esc(t("sched_name")) + "</div>" +
+        '<div class="set-status" id="sched-status">' + esc(sched.detail || t("sched_desc")) + "</div></div>" +
+        '<div class="set-controls"><label class="switch">' +
+        '<input type="checkbox" id="sched-toggle"' + (sched.enabled ? " checked" : "") + ">" +
+        '<span class="track"></span></label></div></div>';
+    }
+    return '<div class="group-label">' + esc(t("maintenance_group")) + "</div>" +
+      '<div class="card">' + row + "</div>";
+  }
+
+  /** Liaison de l'interrupteur du nettoyage planifié. */
+  function bindMaintenanceSection() {
+    var toggle = byId("sched-toggle");
+    if (!toggle) { return; }
+    toggle.addEventListener("change", async function () {
+      var desired = toggle.checked;
+      toggle.disabled = true;
+      var ok = false;
+      try {
+        var res = await api("/api/schedule", { body: { enabled: desired } });
+        ok = !!(res && res.ok);
+        showBanner((res && res.message) || "", ok ? "ok" : "error");
+      } catch (e) { /* bandeau déjà affiché */ }
+      if (ok) {
+        if (state.schedule) { state.schedule.enabled = desired; }
+      } else {
+        toggle.checked = !desired;
+      }
+      toggle.disabled = false;
+    });
   }
 
   function buildSettingsArea(seq) {
@@ -3051,6 +3784,8 @@
 
       widgetSectionHtml() +
 
+      maintenanceSectionHtml() +
+
       '<div class="group-label">' + esc(t("quiz_group")) + "</div>" +
       '<div class="card"><div class="settings-row">' +
       '<div class="set-info"><div class="set-name">' + esc(t("quiz_profile")) + "</div>" +
@@ -3139,6 +3874,7 @@
     updateThemeLabel();
 
     bindWidgetSection(area, seq);
+    bindMaintenanceSection();
 
     byId("btn-update-check").addEventListener("click", async function () {
       var btn = byId("btn-update-check");

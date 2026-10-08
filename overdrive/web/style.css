@@ -1026,6 +1026,86 @@ svg.spark { display: block; width: 100%; height: 44px; }
   .settings-row .set-controls .input { width: 100%; }
 }
 
+/* ---------- Test de stabilité réseau (encart latence) ---------- */
+
+.lat-actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+
+.ns-result { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.ns-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ns-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.ns-stat {
+  background: var(--bg-mono);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  min-width: 92px;
+}
+.ns-stat .ns-label { font-size: 11.5px; color: var(--text-2); margin-bottom: 2px; }
+.ns-stat .ns-value { font-size: 14px; font-weight: 600; white-space: nowrap; }
+
+/* ---------- Convertisseur de sensibilité ---------- */
+
+.sens-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 4px 0 2px; }
+.sens-field { display: flex; flex-direction: column; gap: 4px; }
+.sens-field > span { font-size: 12px; color: var(--text-2); }
+.sens-field select.input { min-width: 210px; }
+.sens-field input.input { width: 110px; }
+.sens-unit-note { margin: 6px 0 0; }
+
+.sens-stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0 12px; }
+.sens-stat {
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 18px;
+  min-width: 150px;
+}
+.sens-stat .sens-stat-label { font-size: 12px; color: var(--text-2); }
+.sens-stat .sens-stat-value { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.sens-stat .sens-stat-value .sens-unit { font-size: 13px; font-weight: 500; color: var(--text-2); }
+.sens-stat .sens-stat-note { font-size: 11.5px; color: var(--text-2); margin-top: 1px; }
+.sens-value { font-weight: 600; white-space: nowrap; }
+
+/* ---------- Viseurs CS2 ---------- */
+
+.xhair-grid { grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); }
+.xhair-card { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+.xhair-head { display: flex; align-items: flex-start; gap: 12px; min-height: 64px; }
+.xhair-preview { flex: 0 0 auto; line-height: 0; }
+svg.xhair-svg { width: 64px; height: 64px; display: block; border-radius: 6px; }
+.xhair-meta { min-width: 0; }
+.xhair-meta .card-title { margin-bottom: 2px; }
+.xhair-code { padding: 7px 10px; margin-top: auto; }
+.xhair-code pre { font-size: 11.5px; }
+.xhair-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.xhair-actions .btn { font-size: 12px; padding: 3px 8px; gap: 5px; }
+.xhair-actions svg.icon { width: 13px; height: 13px; }
+
+/* ---------- Coffre de configurations ---------- */
+
+.vault-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.vault-sub { margin: 24px 0 10px; }
+.vault-actions { white-space: nowrap; }
+.vault-actions .btn + .btn { margin-left: 6px; }
+
+/* ---------- Activité réseau (moniteur) ---------- */
+
+.netusage-suspects { margin-top: 16px; }
+.netusage-suspects-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  margin-bottom: 4px;
+}
+
+/* ---------- Réglages : sous-case et lignes grisées ---------- */
+
+.settings-row.sub-setting { padding-left: 22px; }
+.settings-row.sub-setting .set-name { font-weight: 500; }
+.settings-row.sub-disabled .set-info { opacity: 0.55; }
+
 /* --- Section Widget (Réglages) et étape de démarrage automatique --- */
 .check-grid { display: flex; flex-wrap: wrap; gap: 6px 14px; max-width: 360px; justify-content: flex-end; }
 .check-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); cursor: pointer; white-space: nowrap; }
