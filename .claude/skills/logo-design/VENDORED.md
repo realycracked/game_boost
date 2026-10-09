@@ -18,3 +18,13 @@ Différences avec l'original :
 Mettre à jour : recopier `skills/logo-design/` depuis un nouveau commit amont (sans
 `assets/library/svg/`), puis mettre à jour `COMMIT` et `MANIFEST_SHA256` dans
 `scripts/fetch_library.py`.
+
+## Revue de sécurité (octobre 2026, commit `0ecf52e`)
+
+Scripts, instructions et 1 432 SVG relus avant l'import : aucun appel réseau dans les
+scripts, aucun `eval`/`exec`, aucune lecture de secrets, aucune installation de paquet,
+aucune injection de prompt dans `SKILL.md`, `references/` ou les données, aucun script ni
+lien externe dans les SVG. Points mineurs, qui ne concernent que des fichiers non fiables :
+ne pas faire rendre par `render_png.py` un SVG ou un HTML d'origine inconnue (cairosvg
+antérieur à 2.7 suit les liens externes d'un SVG ; Chrome exécute le JavaScript d'un HTML),
+et garder les chemins d'un `spec.json` relatifs à son dossier.
