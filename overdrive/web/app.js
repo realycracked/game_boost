@@ -38,7 +38,7 @@
       refresh: "Actualiser",
       retry: "Réessayer",
       loading: "Chargement…",
-      err_conn: "Connexion au serveur impossible. Vérifiez qu'Overdrive est en cours d'exécution.",
+      err_conn: "Connexion au serveur impossible. Vérifie qu'Overdrive est en cours d'exécution.",
       err_server: "Erreur serveur",
       unit_gb: "Go",
       unit_mb: "Mo",
@@ -99,7 +99,7 @@
       boost_title: "Boost en un clic",
       boost_intro: "Overdrive enchaîne trois étapes sûres pour préparer la machine à jouer :",
       boost_step1: "Point de restauration Windows (optionnel, recommandé)",
-      boost_step2: "Application des optimisations recommandées de votre profil",
+      boost_step2: "Application des optimisations recommandées de ton profil",
       boost_step3: "Nettoyage des caches sûrs (fichiers temporaires, caches de shaders)",
       boost_restore_check: "Créer un point de restauration avant le boost",
       boost_run: "Lancer le boost",
@@ -113,15 +113,15 @@
 
       /* Optimisations */
       tweaks_title: "Optimisations",
-      tweaks_sub: "Sélectionnez les réglages à appliquer. Chaque optimisation est réversible.",
+      tweaks_sub: "Sélectionne les réglages à appliquer. Chaque optimisation est réversible.",
       tweaks_loading: "Chargement du catalogue…",
       tweaks_unavail_title: "Catalogue indisponible",
-      tweaks_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+      tweaks_unavail_body: "Le serveur n'a pas répondu. Réessaie dans un instant.",
       notice_not_windows: "Système non Windows détecté : les optimisations sont affichées à titre informatif (mode développement), leur application est désactivée.",
       clean_not_windows: "Système non Windows détecté : l'analyse reste consultable (mode développement), le nettoyage est désactivé.",
-      notice_not_admin: "Overdrive n'est pas lancé en administrateur : certains réglages (registre machine, services) pourraient échouer. Relancez l'application en tant qu'administrateur pour un résultat complet.",
+      notice_not_admin: "Overdrive n'est pas lancé en administrateur : certains réglages (registre machine, services) pourraient échouer. Relance l'application en tant qu'administrateur pour un résultat complet.",
       sel_profile: "Sélection profil",
-      sel_profile_hint: "Répondez d'abord au questionnaire",
+      sel_profile_hint: "Réponds d'abord au questionnaire",
       sel_safe: "Tout sûr",
       sel_none: "Tout désélectionner",
       tweak_more: "Plus",
@@ -140,7 +140,7 @@
       risk_moderate: "Modéré",
       risk_advanced: "Avancé",
       tweak_unsupported: "Non supporté ici",
-      modal_busy: "Une opération est en cours : attendez qu'elle se termine.",
+      modal_busy: "Une opération est en cours : attends qu'elle se termine.",
       bench_busy: "Un benchmark est déjà en cours.",
       widget_auto_unsupported: "Démarrage automatique disponible uniquement sous Windows.",
       tweak_applied: "Appliqué",
@@ -244,12 +244,12 @@
       advice_kind_reco: "Recommandé",
       advice_kind_opinion: "Avis",
       advice_kind_info: "Info",
-      cs2_video_read: "Fichier cs2_video.txt lu : comparaison avec vos valeurs actuelles.",
+      cs2_video_read: "Fichier cs2_video.txt lu : comparaison avec tes valeurs actuelles.",
       cs2_apply_video: "Appliquer les réglages vidéo",
-      cs2_apply_video_body: "Overdrive ne modifie que les réglages déjà présents dans votre cs2_video.txt — jamais votre résolution. Une sauvegarde automatique est créée dans le coffre de configurations avant toute écriture : vous pourrez revenir en arrière. Si CS2 est lancé, l'application sera refusée : fermez d'abord le jeu.",
+      cs2_apply_video_body: "Overdrive ne modifie que les réglages déjà présents dans ton cs2_video.txt — jamais ta résolution. Une sauvegarde automatique est créée dans le coffre de configurations avant toute écriture : tu pourras revenir en arrière. Si CS2 est lancé, l'application sera refusée : ferme d'abord le jeu.",
       cs2_apply_count_one: "{n} réglage sera modifié (tier « {t} »).",
       cs2_apply_count_many: "{n} réglages seront modifiés (tier « {t} »).",
-      cs2_apply_none: "Vos réglages correspondent déjà aux recommandations de ce tier : rien à appliquer.",
+      cs2_apply_none: "Tes réglages correspondent déjà aux recommandations de ce tier : rien à appliquer.",
       cs2_val_same: "Conforme",
       cs2_res_changed: "Réglages modifiés",
       cs2_res_skipped: "Réglages ignorés",
@@ -271,7 +271,7 @@
       clean_title: "Nettoyage",
       clean_sub: "Fichiers temporaires, caches de shaders et autres fichiers récupérables.",
       clean_none_title: "Aucune analyse pour l'instant",
-      clean_none_body: "Lancez une analyse pour mesurer l'espace récupérable.",
+      clean_none_body: "Lance une analyse pour mesurer l'espace récupérable.",
       scan: "Analyser",
       scanning: "Analyse en cours…",
       rescan: "Réanalyser",
@@ -310,7 +310,7 @@
       th_ram: "RAM",
       mon_waiting: "Collecte des premières mesures…",
       mon_unavail_title: "Moniteur indisponible",
-      mon_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+      mon_unavail_body: "Le serveur n'a pas répondu. Réessaie dans un instant.",
 
       /* Démarrage */
       startup_title: "Démarrage",
@@ -329,20 +329,20 @@
       src_user_folder: "Dossier utilisateur",
       src_common_folder: "Dossier commun",
       hklm_modal_title: "Entrée machine (HKLM)",
-      hklm_modal_body: "Cette entrée s'applique à tous les utilisateurs de la machine (registre HKLM). Confirmez la modification.",
+      hklm_modal_body: "Cette entrée s'applique à tous les utilisateurs de la machine (registre HKLM). Confirme la modification.",
       startup_toggle_failed: "Modification impossible.",
 
       /* Assistant */
       assistant_title: "Assistant",
-      assistant_sub: "Un assistant qui connaît votre matériel, votre profil et vos optimisations.",
+      assistant_sub: "Un assistant qui connaît ton matériel, ton profil et tes optimisations.",
       checking_keys: "Vérification des clés API…",
       assistant_unavailable: "Assistant indisponible pour le moment.",
       no_key_title: "Aucune clé API configurée",
-      no_key_body: "Ajoutez une clé (Groq propose une clé gratuite) pour activer l'assistant.",
+      no_key_body: "Ajoute une clé (Groq propose une clé gratuite) pour activer l'assistant.",
       open_settings: "Ouvrir les réglages",
       provider: "Fournisseur",
       chat_clear: "Effacer la conversation",
-      chat_placeholder: "Votre question sur l'optimisation…",
+      chat_placeholder: "Ta question sur l'optimisation…",
       send: "Envoyer",
       chat_empty: "Aucun message pour l'instant.",
       chat_example: "Exemple : « Quels réglages pour gagner des FPS sur ma machine ? »",
@@ -354,7 +354,7 @@
       settings_title: "Réglages",
       settings_sub: "Clés API, fournisseur par défaut, apparence, langue et questionnaire.",
       keys_group: "Clés API",
-      keys_note: "Les clés sont chiffrées localement et ne quittent jamais cette machine, sauf vers le fournisseur que vous choisissez.",
+      keys_note: "Les clés sont chiffrées localement et ne quittent jamais cette machine, sauf vers le fournisseur que tu choisis.",
       key_configured: "Configurée",
       key_not_configured: "Non configurée",
       key_placeholder: "Clé API",
@@ -383,7 +383,7 @@
       badge_admin: "administrateur",
       badge_not_admin: "non administrateur",
       about_note: "Les clés API sont chiffrées localement et ne quittent jamais cette machine, sauf vers l'API du fournisseur d'IA sélectionné. Les optimisations appliquées sont journalisées et réversibles depuis la page Optimisations.",
-      key_enter_first: "Saisissez une clé API avant d'enregistrer.",
+      key_enter_first: "Saisis une clé API avant d'enregistrer.",
       saving: "Enregistrement…",
       key_save_err: "Échec de l'enregistrement de la clé.",
       key_saved: "Clé {p} enregistrée.",
@@ -431,10 +431,10 @@
       widget_save_err: "Impossible d'enregistrer les réglages du widget.",
       ob_title: "Démarrage automatique",
       ob_last_step: "Dernière étape",
-      ob_sub: "Choisissez quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
+      ob_sub: "Choisis quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
       ob_never_desc: "Le widget ne se lance que manuellement.",
       ob_always_desc: "Le widget est présent dès l'allumage du PC.",
-      ob_game_desc: "Invisible au quotidien, il apparaît quand un de vos jeux démarre et disparaît à sa fermeture.",
+      ob_game_desc: "Invisible au quotidien, il apparaît quand un de tes jeux démarre et disparaît à sa fermeture.",
       ob_launch_now: "Lancer le widget maintenant",
       ob_finish: "Terminer",
       chat_apply: "Appliquer",
@@ -442,15 +442,15 @@
       chat_apply_fail: "Échec de l'application.",
       chat_tweak_unknown: "Optimisation inconnue : rien n'a été appliqué.",
       chat_tweak_unsupported: "Cette optimisation n'est pas prise en charge sur cette machine.",
-      debloat_modal_body: "Les applications suivantes seront supprimées de votre session Windows. Chacune reste réinstallable depuis le Microsoft Store.",
-      insights_group: "Conseils pour votre machine",
-      insights_none: "Rien à signaler : votre configuration ne présente aucun des problèmes courants détectables.",
+      debloat_modal_body: "Les applications suivantes seront supprimées de ta session Windows. Chacune reste réinstallable depuis le Microsoft Store.",
+      insights_group: "Conseils pour ta machine",
+      insights_none: "Rien à signaler : ta configuration ne présente aucun des problèmes courants détectables.",
       insights_badge_important: "Important",
       insights_badge_conseil: "Conseil",
       insights_action: "Ouvrir la page",
       bench_btn: "Benchmark",
       bench_title: "Benchmark rapide",
-      bench_intro: "Mesure CPU (mono et multi-cœur), mémoire et disque en une dizaine de secondes. Fermez les applications lourdes pour un résultat fiable. Idéal avant/après l'application d'optimisations.",
+      bench_intro: "Mesure CPU (mono et multi-cœur), mémoire et disque en une dizaine de secondes. Ferme les applications lourdes pour un résultat fiable. Idéal avant/après l'application d'optimisations.",
       bench_run: "Lancer la mesure",
       bench_running: "Mesure en cours (~10 s)…",
       bench_score: "Score global",
@@ -462,7 +462,7 @@
       bench_prev: "Mesure précédente : {s} ({d})",
       bench_err: "Échec du benchmark.",
       debloat_group: "Applications préinstallées",
-      debloat_note: "Applications livrées avec Windows et rarement utiles sur un PC de jeu. La suppression ne concerne que votre session et chaque application reste réinstallable depuis le Microsoft Store.",
+      debloat_note: "Applications livrées avec Windows et rarement utiles sur un PC de jeu. La suppression ne concerne que ta session et chaque application reste réinstallable depuis le Microsoft Store.",
       debloat_installed: "Installée",
       debloat_absent: "Absente",
       debloat_unknown: "État inconnu",
@@ -475,7 +475,7 @@
       update_checking: "Vérification…",
       update_available: "Nouvelle version disponible : {t}",
       update_download: "Télécharger",
-      update_none: "Vous êtes à jour.",
+      update_none: "Tu es à jour.",
       backup_group: "Sauvegarde du profil",
       backup_export: "Exporter",
       backup_export_desc: "Profil, réponses au questionnaire et réglages du widget dans un fichier JSON.",
@@ -487,7 +487,7 @@
 
       /* Convertisseur de sensibilité */
       sens_group: "Convertisseur de sensibilité",
-      sens_desc: "Même rotation réelle (cm/360) d'un jeu à l'autre : choisissez le jeu source, votre sensibilité et le DPI de la souris.",
+      sens_desc: "Même rotation réelle (cm/360) d'un jeu à l'autre : choisis le jeu source, ta sensibilité et le DPI de la souris.",
       sens_game: "Jeu source",
       sens_sens: "Sensibilité",
       sens_dpi: "DPI souris",
@@ -497,9 +497,9 @@
       sens_cm360_note: "distance de souris pour un tour complet",
       sens_edpi: "eDPI",
       sens_edpi_note: "sensibilité × DPI",
-      sens_err_sens: "Sensibilité invalide : saisissez un nombre strictement positif.",
-      sens_err_range: "Sensibilité hors plage : saisissez une valeur supérieure à 0 et au plus égale à 1000.",
-      sens_err_dpi: "DPI invalide : saisissez un entier entre 100 et 26000.",
+      sens_err_sens: "Sensibilité invalide : saisis un nombre strictement positif.",
+      sens_err_range: "Sensibilité hors plage : saisis une valeur supérieure à 0 et au plus égale à 1000.",
+      sens_err_dpi: "DPI invalide : saisis un entier entre 100 et 26000.",
       sens_failed: "Conversion impossible.",
       sens_unavailable: "Convertisseur indisponible pour le moment.",
       th_game: "Jeu",
@@ -516,7 +516,7 @@
 
       /* Coffre de configurations */
       vault_group: "Coffre de configurations",
-      vault_desc: "Sauvegarde locale (zip) des fichiers de configuration de vos jeux, restaurable à tout moment.",
+      vault_desc: "Sauvegarde locale (zip) des fichiers de configuration de tes jeux, restaurable à tout moment.",
       vault_backup_now: "Sauvegarder maintenant",
       vault_backing_up: "Sauvegarde…",
       vault_backups_title: "Sauvegardes",
@@ -526,7 +526,7 @@
       vault_restoring: "Restauration…",
       vault_deleting: "Suppression…",
       vault_restore_title: "Restaurer une sauvegarde",
-      vault_restore_body: "Les fichiers de configuration actuels seront remplacés par ceux de « {id} ». Une sauvegarde de sécurité automatique est créée avant toute écriture : vous pourrez revenir en arrière.",
+      vault_restore_body: "Les fichiers de configuration actuels seront remplacés par ceux de « {id} ». Une sauvegarde de sécurité automatique est créée avant toute écriture : tu pourras revenir en arrière.",
       vault_delete_title: "Supprimer la sauvegarde",
       vault_delete_body: "La sauvegarde « {id} » sera définitivement supprimée.",
       vault_unavailable: "Coffre indisponible pour le moment.",
@@ -575,7 +575,7 @@
       motion_max: "Max",
       motion_reduced: "Réduites",
       motion_off: "Désactivées",
-      motion_max_desc: "Effets complets : 3D, halos, compteurs et transitions. Tout se fige pendant que vous jouez.",
+      motion_max_desc: "Effets complets : 3D, halos, compteurs et transitions. Tout se fige pendant que tu joues.",
       motion_reduced_desc: "Fondus courts uniquement, sans 3D ni mouvement continu.",
       motion_off_desc: "Aucune animation : l'interface change instantanément.",
       game_pause_ind: "En jeu — animations en pause",
@@ -606,7 +606,7 @@
       cs2b_title: "Boost CS2",
       cs2b_loading: "Préparation de l'aperçu…",
       cs2b_plan_failed: "Aperçu du Boost CS2 indisponible pour le moment.",
-      cs2b_tier_detected: "Plan pour votre machine",
+      cs2b_tier_detected: "Plan pour ta machine",
       cs2b_tier_forced: "Plan choisi dans le panneau CS2",
       cs2b_steps_title: "Étapes",
       cs2b_planned: "Prévu",
@@ -627,13 +627,13 @@
       cs2b_opt_restore: "Créer un point de restauration avant de commencer",
       cs2b_opt_video: "Appliquer les réglages vidéo du plan",
       cs2b_opt_autoexec: "Écrire l'autoexec du plan",
-      cs2b_manual_preview: "Ensuite : {n} étape(s) à faire vous-même (Adrenalin, options de lancement…), listées après le Boost.",
+      cs2b_manual_preview: "Ensuite : {n} étape(s) à faire toi-même (Adrenalin, options de lancement…), listées après le Boost.",
       cs2b_run: "Lancer le Boost CS2",
       cs2b_running: "Boost CS2 en cours…",
       cs2b_failed: "Le Boost CS2 n'a pas pu être lancé.",
-      cs2b_reboot: "Redémarrez le PC pour terminer (accélération GPU matérielle).",
-      cs2b_manual_title: "À faire vous-même",
-      cs2b_manual_sub: "Cochez au fur et à mesure : la progression est mémorisée sur ce PC.",
+      cs2b_reboot: "Redémarre le PC pour terminer (accélération GPU matérielle).",
+      cs2b_manual_title: "À faire toi-même",
+      cs2b_manual_sub: "Coche au fur et à mesure : la progression est mémorisée sur ce PC.",
       cs2b_kind_adrenalin: "Adrenalin",
       cs2b_kind_launch_options: "Steam",
       cs2b_kind_insight: "Constat",
@@ -645,7 +645,7 @@
       /* Vague 6 : réglages AMD Adrenalin */
       amd_title: "Réglages AMD Adrenalin",
       amd_ryzen_only_title: "Conseils AMD Ryzen",
-      amd_sub: "Profil de jeu Counter-Strike 2 dans AMD Software. Cochez chaque réglage une fois fait.",
+      amd_sub: "Profil de jeu Counter-Strike 2 dans AMD Software. Coche chaque réglage une fois fait.",
       amd_ryzen_title: "Processeur Ryzen",
       amd_progress: "{d} / {n} faits",
       amd_arch_other: "GPU AMD",
@@ -1311,6 +1311,37 @@
   }
 
   /* Champ traduit d'un objet de l'API : obj[field + "_en"] si lang=en, sinon obj[field]. */
+  /* Questionnaire : l'intro et l'accueil tutoient, le QCM aussi (FR
+     uniquement ; l'anglais est inchangé). Questions servies par le serveur
+     au vouvoiement : remplacées seulement si le texte reçu est exactement
+     celui connu (un texte modifié côté serveur reste affiché tel quel). */
+  var QUIZ_TU = {
+    "À quels types de jeux jouez-vous le plus souvent ?": "À quels types de jeux joues-tu le plus souvent ?",
+    "Qu'est-ce qui compte le plus pour vous en jeu ?": "Qu'est-ce qui compte le plus pour toi en jeu ?",
+    "Comment décririez-vous votre PC ?": "Comment décrirais-tu ton PC ?",
+    "Comment votre PC est-il connecté à Internet ?": "Comment ton PC est-il connecté à Internet ?",
+    "Jusqu'où acceptez-vous d'aller dans les optimisations ?": "Jusqu'où acceptes-tu d'aller dans les optimisations ?",
+    "À quoi sert votre PC en dehors du jeu ?": "À quoi sert ton PC en dehors du jeu ?",
+    "Quelle souris utilisez-vous ?": "Quelle souris utilises-tu ?"
+  };
+  function quizQuestionText(q) {
+    var txt = tr(q, "question");
+    return LANG === "en" ? txt : (Object.prototype.hasOwnProperty.call(QUIZ_TU, txt) ? QUIZ_TU[txt] : txt);
+  }
+
+  /* Textes serveur encore au vouvoiement (profil du QCM, fiche CS2) : en
+     français, l'app tutoie partout ; seules ces tournures exactes sont
+     reprises (un texte modifié côté serveur reste affiché tel quel). */
+  var SRV_TU = [
+    ["Votre machine sera réglée", "Ta machine sera réglée"],
+    ["calcule la valeur pour votre machine", "calcule la valeur pour ta machine"]
+  ];
+  function srvTu(v) {
+    if (typeof v !== "string" || v.indexOf("otre machine") < 0) { return v; }
+    SRV_TU.forEach(function (pair) { v = v.split(pair[0]).join(pair[1]); });
+    return v;
+  }
+
   function tr(obj, field) {
     if (!obj) { return ""; }
     if (LANG === "en") {
@@ -1318,7 +1349,7 @@
       if (en !== undefined && en !== null && en !== "") { return en; }
     }
     var v = obj[field];
-    return v === undefined || v === null ? "" : v;
+    return v === undefined || v === null ? "" : (LANG === "en" ? v : srvTu(v));
   }
 
   /* Messages serveur sans variante anglaise (« message_en » absent) : table de
@@ -2467,6 +2498,12 @@
 
   /** Rendu de la route courante, via OverdriveMotion.transition si disponible. */
   function render() {
+    /* On quitte l'accueil : ses boucles et relevés s'arrêtent tout de suite,
+       sans attendre la fin de la transition de page (renderNow). */
+    if (currentRoute() !== "/") {
+      var H = window.OverdriveHome;
+      try { if (H && typeof H.isActive === "function" && H.isActive()) { H.stop(); } } catch (e1) { /* déjà arrêté */ }
+    }
     if (renderQueued) { return; }
     var m = motionApi();
     /* Intro de lancement affichée : rendu direct (l'instantané d'une
@@ -2500,12 +2537,17 @@
 
   /* Route du dernier rendu : un changement de page repart du haut. */
   var lastRoute = null;
+  /* Route du rendu PRÉCÉDENT, lue par l'accueil (homeCtx.sameRoute) : un
+     re-rendu de la même page (langue, retour de modale) ne rejoue pas son
+     entrée. */
+  var prevRenderRoute = null;
 
   function renderNow() {
     renderSeq++;
     stopMonitor();           /* l'intervalle du moniteur ne survit jamais à la page */
     stopHomeLive();          /* idem pour les jauges en direct de l'accueil */
     var route = currentRoute();
+    prevRenderRoute = lastRoute;
     /* Nouvelle page : défilement remis en haut (instantané), sinon l'Accueil
        s'ouvrirait au milieu et son héros animé resterait hors écran. Un
        nouveau rendu de la MÊME page (langue, retour de modale) garde la
@@ -2556,7 +2598,13 @@
       fiche d'un jeu, chargements partagés avec le cache state). */
   function homeCtx(seq) {
     return {
-      alive: function () { return alive(seq); },
+      /* Vrai tant que l'accueil est la page affichée. Le hash change dès le
+         clic dans la navigation, avant la fin de la transition de page :
+         l'accueil s'arrête aussitôt (aucun relevé /api/monitor ni boucle
+         d'animation pendant les ~500 ms de la transition). */
+      alive: function () { return alive(seq) && currentRoute() === "/"; },
+      /* Rendu précédent déjà sur l'accueil (langue, retour de modale…). */
+      sameRoute: prevRenderRoute === "/",
       lang: function () { return LANG; },
       t: t,
       tf: tf,
@@ -2601,6 +2649,7 @@
       artInfo: function () { return state.artInfo; },
       artMonogram: artMonogram,
       artTurn: artTurn,
+      artFbHue: artFbHue,
       artFocus: function (id) { return ART_FOCUS[id] || ""; },
       loadPrograms: function () { loadPrograms(seq); },
       openBoost: openBoostModal,
@@ -2623,7 +2672,35 @@
     (function seek() {
       var det = byId("game-detail-area");
       if (det && det.firstElementChild && currentRoute() === "/games") {
-        try { det.scrollIntoView({ behavior: currentMotion() === "max" ? "smooth" : "auto", block: "start" }); } catch (e) { /* défilement impossible */ }
+        /* Défile la carte de la fiche (scroll-margin-top 16 px, 72 px en
+           étroit), pas son conteneur ; la cible ignore le décalage de
+           l'entrée de page (translateY de #page, ~10 px) encore en cours. */
+        try {
+          var box0 = det.firstElementChild;
+          var page = byId("page");
+          var sc = document.scrollingElement;
+          var ty = 0;
+          if (page && page.classList.contains("od-page-enter")) {
+            var tf0 = window.getComputedStyle(page).transform;
+            if (tf0 && tf0 !== "none" && window.DOMMatrixReadOnly) { ty = new DOMMatrixReadOnly(tf0).m42 || 0; }
+          }
+          if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+            var want0 = parseFloat(window.getComputedStyle(box0).scrollMarginTop) || 0;
+            window.scrollBy({ top: box0.getBoundingClientRect().top - ty - want0, behavior: currentMotion() === "max" ? "smooth" : "auto" });
+          } else {
+            revealGameDetail();
+          }
+        } catch (e) { /* défilement impossible */ }
+        /* Contrôle après le défilement doux : recalage direct si besoin. */
+        setTimeout(function () {
+          var box = det.firstElementChild;
+          if (!box || !box.isConnected || state.selectedGame !== id || currentRoute() !== "/games") { return; }
+          var want = parseFloat(window.getComputedStyle(box).scrollMarginTop) || 0;
+          var top = box.getBoundingClientRect().top;
+          if (Math.abs(top - want) > 2 && top < window.innerHeight) {
+            try { box.scrollIntoView({ behavior: "auto", block: "start" }); } catch (e2) { /* défilement impossible */ }
+          }
+        }, currentMotion() === "max" ? 1100 : 60);
         return;
       }
       /* La navigation (transition de page) est asynchrone : on patiente un peu. */
@@ -2865,6 +2942,9 @@
           }
           if (out && out.isConnected) { out.innerHTML = html; }
           prev = r;
+          /* Mesure enregistrée : l'accueil (indice de performance) se met à
+             jour sur place, sans attendre un nouveau rendu de la page. */
+          try { window.dispatchEvent(new CustomEvent("overdrive:bench-done", { detail: { total: r.total } })); } catch (e2) { /* sans effet */ }
         } catch (e) {
           var why = e && e.message && e.message !== "bench" ? e.message : "";
           if (out && out.isConnected) {
@@ -2997,7 +3077,9 @@
   async function loadPrograms(seq) {
     if (!state.programs) {
       try {
-        state.programs = await api("/api/programs");
+        /* Requête en cours partagée : l'accueil, construit deux fois au
+           démarrage, ne double pas l'appel. */
+        state.programs = await homeShared("programs", function () { return api("/api/programs"); });
       } catch (e) {
         if (alive(seq) && byId("programs-area")) {
           byId("programs-area").innerHTML = '<p class="muted small">' + esc(t("programs_unavailable")) + "</p>";
@@ -3777,8 +3859,24 @@
     return h;
   }
 
-  /** Monogrammes consacrés (initiales peu parlantes sinon : « LL »). */
-  var ART_MONO = { "league of legends": "LoL", "counter-strike 2": "CS2", "call of duty: warzone": "WZ" };
+  /** Monogrammes consacrés (initiales peu parlantes sinon : « LL », « GO »,
+      « O2 », « RS », « PB »). */
+  var ART_MONO = {
+    "league of legends": "LoL",
+    "counter-strike 2": "CS2",
+    "call of duty: warzone": "WZ",
+    "gta online (gta v)": "GTA",
+    "overwatch 2": "OW2",
+    "tom clancy's rainbow six siege": "R6",
+    "pubg: battlegrounds": "PUBG",
+    "rocket league": "RL"
+  };
+
+  /** Décalage de teinte des visuels de secours (±35° autour de l'accent) :
+      chaque jeu a sa couleur, toujours en accord avec le thème. */
+  function artFbHue(id) {
+    return (artTurn(String(id || "")) % 71) - 35;
+  }
 
   /** Monogramme (« Counter-Strike 2 » → « CS2 », « Dota 2 » → « D2 »). */
   function artMonogram(name) {
@@ -3795,9 +3893,12 @@
   /** Emplacement d'image (rempli par mountArt). */
   function artBoxHtml(id, use, name, lazy) {
     var focus = ART_FOCUS[id] ? "--focus:" + ART_FOCUS[id] + ";" : "";
-    return '<span class="gart gart-' + use + '" data-art-game="' + esc(id) + '" data-name="' + esc(name) +
+    /* Bannière personnalisée : aucun recadrage propre au visuel d'origine. */
+    var info = artKnown(id);
+    var customHero = !!(info && (info.custom || []).indexOf("hero") >= 0);
+    return '<span class="gart gart-' + use + '"' + (customHero ? " data-custom-hero" : "") + ' data-art-game="' + esc(id) + '" data-name="' + esc(name) +
       '" data-stages="' + esc(artStages(id, use).join(",")) + '"' + (lazy ? ' data-lazy="1"' : "") +
-      ' style="' + focus + "--turn:" + artTurn(id) + 'deg" aria-hidden="true"></span>';
+      ' style="' + focus + "--turn:" + artTurn(id) + "deg;--fbh:" + artFbHue(id) + 'deg" aria-hidden="true"></span>';
   }
 
   function artImgHtml(cls, id, kind, primary, lazy) {
@@ -3810,7 +3911,9 @@
     var parts = stage.split(":");
     var mode = parts[0], kind = parts[1];
     if (mode === "fallback") {
-      return '<span class="gart-fb"><span class="gart-fb-mono">' + esc(artMonogram(name)) + "</span></span>";
+      var mono = artMonogram(name);
+      /* Monogramme de 4 lettres (« PUBG ») : corps réduit, jamais collé aux bords. */
+      return '<span class="gart-fb"><span class="gart-fb-mono' + (mono.length >= 4 ? " is-long" : "") + '">' + esc(mono) + "</span></span>";
     }
     if (mode === "compose") {
       /* Personnage détouré (PNG) posé sur la carte du jeu, floutée et voilée. */
@@ -4001,10 +4104,23 @@
       var r = document.documentElement;
       return r.getAttribute("data-motion") === "max" && !r.hasAttribute("data-motion-paused");
     }
+    /* Écriture directe des transforms (image, logo) et du reflet sur
+       eux-mêmes : une variable héritée posée sur le bandeau recalculait le
+       style de tout son contenu à chaque image. */
     function frame() {
       raf = 0;
-      el.style.setProperty("--gx", gx.toFixed(3));
-      el.style.setProperty("--gy", gy.toFixed(3));
+      var img = el.querySelector(".gart.is-loaded .gart-img[data-primary]");
+      var brand = el.querySelector(".gfeat-brand");
+      var glare = el.querySelector(".gglare");
+      if (img) { img.style.transform = "scale(1.06) translate3d(" + (gx * -1.1).toFixed(3) + "%, " + (gy * -1.4).toFixed(3) + "%, 0)"; }
+      if (brand) { brand.style.transform = "translate3d(" + (gx * 5).toFixed(2) + "px, " + (gy * 3).toFixed(2) + "px, 0)"; }
+      if (glare && rect) {
+        glare.style.setProperty("--mx", ((gx / 2 + 0.5) * rect.width).toFixed(1) + "px");
+        glare.style.setProperty("--my", ((gy / 2 + 0.5) * rect.height).toFixed(1) + "px");
+      }
+    }
+    function clear() {
+      Array.prototype.forEach.call(el.querySelectorAll(".gart-img[data-primary], .gfeat-brand"), function (n) { n.style.transform = ""; });
     }
     el.addEventListener("pointerenter", function () { rect = el.getBoundingClientRect(); });
     el.addEventListener("pointermove", function (e) {
@@ -4020,8 +4136,7 @@
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
       rect = null;
       el.classList.remove("is-live");
-      el.style.removeProperty("--gx");
-      el.style.removeProperty("--gy");
+      clear();
     });
   }
 
@@ -5112,7 +5227,8 @@
       '<div class="gfeat-body">' +
       '<div class="gfeat-brand' + (hasLogo ? " has-logo" : "") + '">' + logoHtml("cs2", "gfeat-logo") +
       '<span class="gfeat-name">' + esc(g.name) + "</span></div>" +
-      '<div class="cs2-hero-kicker">' + esc(t("games_featured")) + " · " + esc(g.name) + "</div>" +
+      /* Surtitre court : le jeu est déjà nommé par le logo (ou le nom). */
+      '<div class="cs2-hero-kicker">' + esc(t("games_featured")) + "</div>" +
       '<h2 class="cs2-hero-title">' + esc(t("cs2b_hero_title")) + "</h2>" +
       '<p class="cs2-hero-sub">' + esc(t("cs2b_hero_sub")) + "</p>" +
       '<div class="gfeat-actions">' +
@@ -6722,11 +6838,14 @@
     setBusy(btn, t("saving"));
     reader.onerror = function () {
       clearBusy(btn);
+      artRefocus(id);
       showBanner(t("art_read_err"), "error");
     };
     reader.onload = async function () {
       var res = await artCustomRequest("POST", id, kind, { data_url: String(reader.result || "") });
-      if (!res) { clearBusy(btn); return; }
+      /* Refus (format, taille…) : le focus revient sur « Choisir une
+         image… » (le bouton, désactivé pendant l'envoi, l'avait perdu). */
+      if (!res) { clearBusy(btn); artRefocus(id); return; }
       emitArtChanged(id, kind);
       await loadArtInfo(true);
       refreshArtGrid();
@@ -6765,7 +6884,11 @@
       } else if (reset && !reset.disabled) {
         setBusy(reset, t("art_reset"));
         var res = await artCustomRequest("DELETE", reset.dataset.artReset, artEditKind(), null);
-        if (!res) { clearBusy(reset); return; }
+        if (!res) {
+          clearBusy(reset);
+          try { reset.focus({ preventScroll: true }); } catch (e2) { /* focus impossible */ }
+          return;
+        }
         var resetId = reset.dataset.artReset;
         emitArtChanged(resetId, artEditKind());
         await loadArtInfo(true);
@@ -7186,7 +7309,7 @@
       esc(quiz.firstRun ? t("later") : t("cancel")) + "</button>" +
       "</div>" +
       '<div class="quiz-bar"><div style="width:' + pct + '%"></div></div>' +
-      '<h2 class="quiz-question" id="quiz-q-title">' + esc(tr(q, "question")) + "</h2>" +
+      '<h2 class="quiz-question" id="quiz-q-title">' + esc(quizQuestionText(q)) + "</h2>" +
       '<p class="quiz-hint">' + esc(q.multi ? t("quiz_multi") : t("quiz_single")) + "</p>" +
       '<div class="quiz-options">' + optionsHtml + "</div>" +
       '<div class="quiz-nav">' +

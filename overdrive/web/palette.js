@@ -542,12 +542,20 @@
     el.classList.add("is-open");
     try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); }
     if (input.value) { input.select(); }
+    notifyOpen(true);
+  }
+
+  /** Ouverture / fermeture signalées à l'app (l'accueil suspend ses
+      boucles d'animation tant que la palette le recouvre). */
+  function notifyOpen(isOpen) {
+    try { window.dispatchEvent(new CustomEvent("overdrive:palette", { detail: { open: isOpen } })); } catch (e) { /* sans effet */ }
   }
 
   function close() {
     if (!el || !isOpenFlag) { return; }
     isOpenFlag = false;
     el.classList.remove("is-open");
+    notifyOpen(false);
     var instant = motionLevel() === "off" || root.hasAttribute("data-motion-paused");
     hideTimer = setTimeout(function () {
       hideTimer = null;

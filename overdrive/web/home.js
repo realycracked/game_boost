@@ -6,13 +6,14 @@
    existantes : Boost, Boost CS2, benchmark, nettoyage, widget, fiche d'un
    jeu…) ; ce module ne duplique aucune de ces logiques.
 
-   Sections :
+   Sections (dans l'ordre d'affichage) :
      1. Héros cinématique : art « hero » du jeu mis en avant, Ken Burns,
-        parallaxe souris (fond et logo sur deux plans), voiles, grain, reflet
-        périodique, rotation auto (10 s) parmi CS2 + jeux détectés ;
-     2. Indice de performance (anneau 0-100 + détail transparent) et tuiles
+        parallaxe souris (fond, personnage et contenu sur des plans
+        différents), voiles, grain, reflet périodique, rotation auto (10 s)
+        parmi CS2 + jeux détectés ;
+     2. Carrousel de jaquettes 3D (molette, glisser, flèches, dérive) ;
+     3. Indice de performance (anneau 0-100 + détail transparent) et tuiles
         LIVE (CPU, RAM, réseau) à remplissage en vague, mini-courbes 2 s ;
-     3. Carrousel de jaquettes 3D (molette, glisser, flèches, dérive) ;
      4. Actions rapides animées ; 5. Conseils ; 6. Ta config ;
      7. Programmes recommandés (rendu existant d'app.js).
    Fond : champ de particules très discret (canvas, ≤ 60 points).
@@ -67,7 +68,7 @@
       perf_part_insights: "Aucun conseil « important »",
       perf_part_bench: "Benchmark réalisé",
       perf_val_none: "aucune disponible",
-      perf_val_ins_ok: "aucun",
+      perf_val_ins_ok: "0 trouvé",
       perf_val_ins_n: "{n} à traiter",
       perf_val_unknown: "inconnu",
       perf_val_bench_yes: "fait",
@@ -77,6 +78,9 @@
       perf_next_bench: "Lancer un benchmark",
       perf_next_insights: "Voir les conseils",
       perf_next_done: "Tout est en ordre",
+      perf_next_tweaks_short: "Optimiser",
+      perf_next_bench_short: "Benchmark",
+      perf_next_insights_short: "Conseils",
       perf_pts: "{p} / {m}",
       live_title: "En direct",
       live_cpu: "CPU",
@@ -89,6 +93,7 @@
       live_threads: "{n} threads",
       live_ram_note: "{u} sur {t}",
       live_net_note: "↓ réception · ↑ {u}",
+      live_net_note_short: "↓ {d} · ↑ {u}",
       live_gpu_note: "Température",
       games_title: "Tes jeux",
       games_count_one: "1 installé",
@@ -157,7 +162,7 @@
       perf_part_insights: "No \"important\" advice",
       perf_part_bench: "Benchmark done",
       perf_val_none: "none available",
-      perf_val_ins_ok: "none",
+      perf_val_ins_ok: "none found",
       perf_val_ins_n: "{n} to fix",
       perf_val_unknown: "unknown",
       perf_val_bench_yes: "done",
@@ -167,6 +172,9 @@
       perf_next_bench: "Run a benchmark",
       perf_next_insights: "See advice",
       perf_next_done: "All good",
+      perf_next_tweaks_short: "Optimize",
+      perf_next_bench_short: "Benchmark",
+      perf_next_insights_short: "Advice",
       perf_pts: "{p} / {m}",
       live_title: "Live",
       live_cpu: "CPU",
@@ -179,6 +187,7 @@
       live_threads: "{n} threads",
       live_ram_note: "{u} of {t}",
       live_net_note: "↓ download · ↑ {u}",
+      live_net_note_short: "↓ {d} · ↑ {u}",
       live_gpu_note: "Temperature",
       games_title: "Your games",
       games_count_one: "1 installed",
@@ -223,6 +232,23 @@
   /* Repli si /api/games n'a pas encore répondu (premier affichage). */
   var FALLBACK_GAMES = [{ id: "cs2", name: "Counter-Strike 2", store: "steam", installed: false }];
 
+  /* Point focal du visuel « hero » par jeu (sujet souvent hors du centre
+     des bannières très larges) : cadrage object-position ET origine du zoom
+     Ken Burns. CS2 : les deux soldats (CT 58-82 %, T 80-93 % de la largeur) ;
+     Apex : visage de Valkyrie ; Fortnite : le bas de l'image, le panneau
+     « FORTNITE » (déjà un titre) passe sous le voile du haut. */
+  var HERO_FOCUS = {
+    cs2: "84% 30%",
+    apex_legends: "90% 25%",
+    fortnite: "50% 100%",
+    league_of_legends: "50% 22%"
+  };
+
+  /* Visuels « hero » qui portent déjà le nom du jeu en grand (panneau
+     « FORTNITE ») : pas de mini-libellé sur leur vignette, titre texte plus
+     discret sur la diapo (bannière d'origine seulement). */
+  var ART_PRINTED = { fortnite: 1 };
+
   var ROTATE_MS = 10000;   /* rotation du héros (via l'animation de la barre) */
   var LIVE_MS = 2000;      /* relevé /api/monitor tant que l'accueil est affiché */
   var HIST = 30;           /* points des mini-courbes */
@@ -265,6 +291,8 @@
   var artInfoAt = 0;            /* instant de la dernière lecture de /api/art */
   var sharedReq = Object.create(null);   /* requêtes partagées : {chemin: {p, at}} */
   var hist = { cpu: [], ram: [], net: [], at: 0 };   /* mini-courbes */
+  var railLeft = 0;             /* position du carrousel (re-rendu rapproché) */
+  var shownScore = null;        /* indice déjà affiché : pas de recomptage */
   var netPeak = 10;             /* échelle adaptative du débit réseau (Mb/s) */
 
   /* ------------------------------------------------------------------ */
@@ -284,11 +312,18 @@
     return m === "reduced" || m === "off" ? m : "max";
   }
   function isPaused() { return root.hasAttribute("data-motion-paused"); }
-  /** QCM (ou écran d'accueil du 1er lancement) affiché par-dessus l'app :
-      l'accueil, invisible dessous, ne fait alors tourner aucune boucle. */
+  /** Fenêtre affichée par-dessus l'accueil : QCM (ou écran du 1er
+      lancement), modale (Boost, Boost CS2, benchmark en cours…) ou palette
+      de commandes. L'accueil, caché ou flouté dessous, ne fait alors tourner
+      aucune boucle (rAF, relevés, animations CSS). Appelé à chaque image par
+      les boucles : lectures d'attributs seulement. */
   function overlayOpen() {
     var o = doc.getElementById("overlay-root");
-    return !!(o && !o.hidden && o.firstElementChild);
+    if (o && !o.hidden && o.firstElementChild) { return true; }
+    var m = doc.getElementById("modal-root");
+    if (m && !m.hidden && m.firstElementChild) { return true; }
+    var pal = window.OverdrivePalette;
+    try { return !!(pal && typeof pal.isOpen === "function" && pal.isOpen()); } catch (e) { return false; }
   }
   /** Effets complets (parallaxe, 3D, particules, dérive, compteurs). */
   function fxOn() { return motionLevel() === "max" && !isPaused(); }
@@ -335,6 +370,11 @@
 
   /* Visuel personnalisé ou réinitialisé dans les Réglages (app.js) : tout
      est relu au prochain affichage, échecs mémorisés compris. */
+  /* Benchmark terminé : l'historique en cache partagé est périmé. */
+  window.addEventListener("overdrive:bench-done", function () {
+    delete sharedReq["/api/bench/history"];
+  });
+
   window.addEventListener("overdrive:art-changed", function () {
     artInfoP = null;
     artInfo = null;
@@ -530,7 +570,9 @@
        Sous 400 ms (démarrage : 2e rendu après /api/status), l'entrée à peine
        commencée est simplement rejouée. */
     var dt = t - lastRenderAt;
-    var quick = dt >= 400 && dt < 2500;
+    /* Même page re-rendue (ctx.sameRoute : langue changée plus tard, retour
+       de modale…) : jamais de seconde entrée, quel que soit le délai. */
+    var quick = dt >= 400 && (dt < 2500 || !!ctx.sameRoute);
     lastRenderAt = t;
     view = createView(pageEl, ctx, quick);
   }
@@ -639,6 +681,12 @@
       for (var k = 0; k < id.length; k++) { h = (h * 31 + id.charCodeAt(k)) % 360; }
       return h;
     }
+    /** Décalage de teinte du visuel de secours (±35°, même règle que la
+        page Jeux, app.js artFbHue). */
+    function artFbHue(id) {
+      try { if (typeof ctx.artFbHue === "function") { return Number(ctx.artFbHue(id)) || 0; } } catch (e) { /* repli */ }
+      return (artHue(id) % 71) - 35;
+    }
     function artFocus(id) {
       try { return typeof ctx.artFocus === "function" ? String(ctx.artFocus(id) || "") : ""; } catch (e) { return ""; }
     }
@@ -669,8 +717,10 @@
       '<div class="hm-pfield" aria-hidden="true"><canvas class="hm-particles"></canvas>' +
       '<span class="hm-pcolor"></span></div>' +
       heroShellHtml() +
-      perfHtml() +
+      /* Jaquettes juste sous le héros : les vraies images sont visibles
+         sans défiler, même à la taille de fenêtre par défaut. */
       gamesShellHtml() +
+      perfHtml() +
       actionsHtml() +
       '<section class="hm-sec hm-insights-sec" aria-labelledby="hm-ins-title">' +
       '<div class="hm-sec-head"><h2 class="hm-sec-title" id="hm-ins-title">' + esc(s("insights_title")) + "</h2></div>" +
@@ -694,7 +744,13 @@
     var rootEl = page.querySelector(".hm-root");
     var heroEl = rootEl.querySelector(".hm-hero");
     var slidesEl = rootEl.querySelector(".hm-slides");
-    var bodiesEl = rootEl.querySelector(".hm-bodies");
+    var statesEl = rootEl.querySelector(".hm-states");
+    var mainEl = rootEl.querySelector(".hm-main");
+    var mainFg = mainEl.querySelector(".hm-par-fg");
+    var logosEl = mainEl.querySelector(".hm-logos");
+    var primsEl = mainEl.querySelector(".hm-prims");
+    var boostEl = mainEl.querySelector(".hm-boost-wrap");
+    var glareEl = rootEl.querySelector(".hm-glare");
     var switchEl = rootEl.querySelector(".hm-switch");
     var railEl = rootEl.querySelector(".hm-rail");
 
@@ -704,6 +760,10 @@
     /* 1. Héros                                                         */
     /* ================================================================ */
 
+    /* Contenu du héros : la colonne (puce « Ta machine », « Boost général »)
+       est STATIQUE, rendue une seule fois ; seuls l'état, le logo et le
+       bouton principal changent d'un jeu à l'autre (emplacements empilés
+       .hm-states / .hm-logos / .hm-prims) : rien ne « saute » à la rotation. */
     function heroShellHtml() {
       return '<section class="hm-hero" aria-roledescription="carousel" aria-label="' + esc(s("hero_aria")) + '">' +
         '<div class="hm-hero-stage">' +
@@ -713,10 +773,20 @@
         '<div class="hm-grain" aria-hidden="true"></div>' +
         '<div class="hm-sheen" aria-hidden="true"></div>' +
         '<div class="hm-glare" aria-hidden="true"></div>' +
-        '<div class="hm-bodies"></div>' +
+        '<div class="hm-states" aria-hidden="true"></div>' +
         '<div class="hm-hero-top">' +
         '<h1 class="page-title hm-greet"><span class="hm-greet-dot" aria-hidden="true"></span>' + esc(greeting()) + "</h1>" +
         "</div>" +
+        '<div class="hm-main" role="group" aria-roledescription="slide">' +
+        '<div class="hm-par hm-par-fg">' +
+        '<div class="hm-logos"></div>' +
+        '<div class="hm-chips hm-rise" style="--d:1"><span class="hm-chip hm-chip-machine">' + svgIcon("gpu") +
+        '<span class="hm-machine-txt">' + esc(machineChipText()) + "</span></span></div>" +
+        '<div class="hm-cta"><div class="hm-prims"></div>' +
+        '<span class="hm-boost-wrap hm-rise" style="--d:2">' +
+        '<button class="hm-btn hm-btn-glass" type="button" data-act="boost">' + appIcon("sparkles") +
+        "<span>" + esc(s("hero_boost_general")) + "</span></button></span></div>" +
+        "</div></div>" +
         '<div class="hm-switch" role="tablist" aria-label="' + esc(s("hero_switch_aria")) + '"></div>' +
         "</div></section>";
     }
@@ -734,42 +804,68 @@
       return s("hero_machine_v", { v: parts.length ? parts.join(" · ") : s("hero_machine_wait") });
     }
 
+    /** Jeu sans logo mais avec un personnage détouré (Valorant) : le
+        portrait est posé en plan avant sur la diapo, comme sur la page Jeux. */
+    function slidePortrait(id) {
+      var info = artInfo && artInfo[id];
+      return !!(info && info.kinds && info.kinds.portrait && !info.kinds.logo);
+    }
+
+    /** Point focal du héros : aucun pour une bannière personnalisée (son
+        cadrage n'a rien à voir avec le visuel d'origine). */
+    function heroFocus(id) {
+      var info = artInfo && artInfo[id];
+      if (info && (info.custom || []).indexOf("hero") >= 0) { return ""; }
+      return HERO_FOCUS[id] || "";
+    }
+
     /* Plan image d'une diapositive (sous les voiles). */
     function slideHtml(sl, idx, defer) {
       var src = artSource(sl.id);
+      var focus = heroFocus(sl.id);
       return '<div class="hm-slide hm-kb-' + (idx % 3) + '" data-game="' + esc(sl.id) + '">' +
-        '<div class="hm-slide-media" data-art-host' + (src ? ' data-source="' + esc(src) + '"' : "") + ">" +
+        '<div class="hm-slide-media" data-art-host' + (src ? ' data-source="' + esc(src) + '"' : "") +
+        (focus ? ' style="--hfocus:' + esc(focus) + '"' : "") + ">" +
         '<div class="hm-par hm-par-bg">' +
         '<div class="hm-kb">' +
         '<div class="hm-fallback"><span class="hm-fb-blob hm-fb-1"></span>' +
         '<span class="hm-fb-blob hm-fb-2"></span><span class="hm-fb-blob hm-fb-3"></span></div>' +
         artImg(sl.id, ["hero", "header"], "hm-slide-img", "", defer) +
-        "</div></div></div></div>";
+        "</div></div></div>" +
+        (slidePortrait(sl.id) ?
+          '<div class="hm-slide-pt" data-art-host>' + artImg(sl.id, ["portrait"], "hm-slide-portrait", "", defer) + "</div>" : "") +
+        "</div>";
     }
 
-    /* Contenu d'une diapositive (au-dessus des voiles) : logo, puces, boutons. */
-    function bodyHtml(sl, defer) {
+    function stateText(sl) {
+      return sl.installed ? s("hero_installed") : (sl.suggest ? s("hero_discover") : s("hero_not_detected"));
+    }
+
+    /* Éléments propres à chaque jeu, empilés dans leurs emplacements ; seul
+       celui du jeu affiché est visible (.is-active). */
+    function stateHtml(sl) {
       var stateCls = sl.installed ? "is-installed" : (sl.suggest ? "is-suggest" : "is-missing");
-      var stateTxt = sl.installed ? s("hero_installed") : (sl.suggest ? s("hero_discover") : s("hero_not_detected"));
-      var primary = sl.id === "cs2" ?
-        '<button class="hm-btn hm-btn-primary" type="button" data-act="cs2boost">' + appIcon("zap") +
-        "<span>" + esc(T("cs2b_btn")) + "</span></button>" :
-        '<button class="hm-btn hm-btn-primary" type="button" data-act="game" data-game="' + esc(sl.id) + '">' + appIcon("zap") +
-        "<span>" + esc(s("hero_optimize", { g: sl.name })) + "</span></button>";
-      return '<div class="hm-body" data-game="' + esc(sl.id) + '" role="group" aria-roledescription="slide" aria-label="' + esc(sl.name) + '">' +
-        '<span class="hm-state ' + stateCls + ' hm-rise" style="--d:0"><span class="hm-state-dot" aria-hidden="true"></span>' + esc(stateTxt) + "</span>" +
-        '<div class="hm-body-main">' +
-        '<div class="hm-par hm-par-fg">' +
-        '<div class="hm-logo-box hm-rise" style="--d:0" data-art-host>' +
+      return '<span class="hm-state hm-sw ' + stateCls + '" style="--d:0"><span class="hm-state-dot" aria-hidden="true"></span>' +
+        esc(stateText(sl)) + "</span>";
+    }
+    function logoBoxHtml(sl, defer) {
+      var src = artSource(sl.id);
+      return '<div class="hm-logo-box hm-sw" style="--d:0" data-art-host' + (src ? ' data-source="' + esc(src) + '"' : "") +
+        (ART_PRINTED[sl.id] && heroFocus(sl.id) ? " data-printed" : "") + ">" +
         artImg(sl.id, ["logo"], "hm-logo", sl.name, defer) +
-        '<span class="hm-logo-text">' + esc(sl.name) + "</span>" +
-        "</div></div>" +
-        '<div class="hm-chips hm-rise" style="--d:1"><span class="hm-chip hm-chip-machine">' + svgIcon("gpu") +
-        '<span class="hm-machine-txt">' + esc(machineChipText()) + "</span></span></div>" +
-        '<div class="hm-cta hm-rise" style="--d:2">' + primary +
-        '<button class="hm-btn hm-btn-glass" type="button" data-act="boost">' + appIcon("sparkles") +
-        "<span>" + esc(s("hero_boost_general")) + "</span></button></div>" +
-        "</div></div>";
+        '<span class="hm-logo-text">' + esc(sl.name) + "</span></div>";
+    }
+    /* Bouton principal : libellé court « Optimiser » quand la colonne est
+       étroite (requête de conteneur) ; le nom du jeu reste dans aria-label
+       et title. */
+    function primaryHtml(sl) {
+      var full = sl.id === "cs2" ? T("cs2b_btn") : s("hero_optimize", { g: sl.name });
+      var short = sl.id === "cs2" ? full : s("games_optimize");
+      var attrs = sl.id === "cs2" ? 'data-act="cs2boost"' : 'data-act="game" data-game="' + esc(sl.id) + '"';
+      return '<span class="hm-prim hm-sw" style="--d:1">' +
+        '<button class="hm-btn hm-btn-primary" type="button" ' + attrs + ' aria-label="' + esc(full) + '" title="' + esc(full) + '">' +
+        appIcon("zap") + '<span class="hm-lbl-long">' + esc(full) + '</span><span class="hm-lbl-short" aria-hidden="true">' + esc(short) + "</span>" +
+        "</button></span>";
     }
 
     function thumbHtml(sl, idx) {
@@ -780,10 +876,17 @@
       var info = artInfo && artInfo[sl.id];
       var useHero = !!(info && (info.source !== "steam" || (info.custom || []).indexOf("hero") >= 0 ||
         (info.rev && info.rev.header && info.rev.header === info.rev.hero)));
+      /* Visuel sans nom imprimé (pas de logo : Valorant, LoL, Fortnite…) :
+         mini-libellé (nom court, sinon monogramme « LoL »). */
+      var noLogo = !!(info && info.kinds && info.kinds.logo === false && info.source !== "steam" &&
+        !ART_PRINTED[sl.id] && (info.custom || []).indexOf("hero") < 0);
+      var label = String(sl.name || sl.id);
+      if (label.length > 12) { label = mono; }
       return '<button class="hm-thumb" type="button" role="tab" data-idx="' + idx + '" aria-selected="false" ' +
         'aria-label="' + esc(s("hero_show", { g: sl.name })) + '" title="' + esc(sl.name) + '">' +
         '<span class="hm-thumb-art" data-art-host><span class="hm-thumb-fb" aria-hidden="true">' + esc(mono) + "</span>" +
         artImg(sl.id, useHero ? ["hero", "cover"] : ["header", "hero", "cover"], "hm-thumb-img", "") + "</span>" +
+        (noLogo ? '<span class="hm-thumb-name" aria-hidden="true">' + esc(label) + "</span>" : "") +
         '<span class="hm-thumb-bar" aria-hidden="true"><i></i></span></button>';
     }
 
@@ -817,18 +920,27 @@
       });
       if (same) { return; }
       slides = list;
+      /* Jeu gardé d'un rendu à l'autre seulement s'il a été CHOISI (vignette,
+         clavier, rotation) : le rendu provisoire (CS2 seul) n'impose rien,
+         le héros s'ouvre sur CS2 s'il est installé, sinon le 1er détecté. */
       var idx = 0;
       if (featuredId) {
         list.forEach(function (x, i) { if (x.id === featuredId) { idx = i; } });
       }
+      activeIdx = -1;
       /* Seule la diapo affichée charge ses images ; les autres attendent
          leur tour (setActive) : moins de requêtes simultanées au démarrage. */
       slidesEl.innerHTML = list.map(function (sl, i) { return slideHtml(sl, i, i !== idx); }).join("");
-      bodiesEl.innerHTML = list.map(function (sl, i) { return bodyHtml(sl, i !== idx); }).join("");
+      statesEl.innerHTML = list.map(stateHtml).join("");
+      logosEl.innerHTML = list.map(function (sl, i) { return logoBoxHtml(sl, i !== idx); }).join("");
+      primsEl.innerHTML = list.map(primaryHtml).join("");
       switchEl.innerHTML = list.length > 1 ? list.map(thumbHtml).join("") : "";
       switchEl.hidden = list.length <= 1;
+      /* Nombre de vignettes : la colonne de gauche leur réserve la place
+         (home.css, .hm-main), le texte ne passe jamais dessous. */
+      heroEl.style.setProperty("--hm-n", String(list.length > 1 ? list.length : 0));
       bindArt(slidesEl);
-      bindArt(bodiesEl);
+      bindArt(logosEl);
       bindArt(switchEl);
       setActive(idx, true);
       holdIntro();
@@ -860,25 +972,71 @@
 
     var preTimer = 0;
 
+    var parResetTimer = 0;
+
     function setActive(idx, initial) {
       if (!slides.length) { return; }
       idx = (idx + slides.length) % slides.length;
+      if (idx === activeIdx && !initial) { return; }
+      var prevIdx = activeIdx;
       activeIdx = idx;
-      featuredId = slides[idx].id;
+      /* Mémorisé seulement pour un vrai choix (vignette, clavier, rotation). */
+      if (!initial) { featuredId = slides[idx].id; }
+      /* Position du bouton « Boost général » avant le changement de libellé
+         du bouton principal (glissement doux plutôt qu'un saut). */
+      var boostX = !initial && fadeOn() && boostEl ? boostEl.getBoundingClientRect().left : null;
       var slideEls = slidesEl.children;
-      var bodyEls = bodiesEl.children;
+      var groups = [statesEl.children, logosEl.children, primsEl.children];
+      /* Éléments sortants : fondu de 300 ms (classe is-leaving) PENDANT
+         que ceux du nouveau jeu montent (fondu croisé, aucun trou). */
+      var leaving = [];
+      if (!initial && prevIdx >= 0 && fadeOn()) {
+        groups.forEach(function (g) { if (g[prevIdx]) { leaving.push(g[prevIdx]); } });
+      }
       for (var i = 0; i < slideEls.length; i++) {
         var on = i === idx;
         var inst = !!initial && on && !entrance;
-        slideEls[i].classList.toggle("is-active", on);
-        slideEls[i].classList.toggle("is-instant", inst);
-        var b = bodyEls[i];
-        if (!b) { continue; }
-        b.classList.toggle("is-active", on);
-        b.classList.toggle("is-instant", inst);
-        b.setAttribute("aria-hidden", on ? "false" : "true");
-        if (on) { b.removeAttribute("inert"); } else { b.setAttribute("inert", ""); }
+        var sEl = slideEls[i];
+        if (on && sEl.classList.contains("is-prev")) {
+          /* Re-sélectionnée pendant son fondu de sortie : le Ken Burns
+             repart de zéro (nouvelle passe complète). */
+          cancel(sEl.__prevTimer);
+          sEl.classList.remove("is-prev");
+          var kbEl = sEl.querySelector(".hm-kb");
+          if (kbEl) { kbEl.style.animation = "none"; void kbEl.offsetWidth; kbEl.style.animation = ""; }
+        }
+        if (!on && i === prevIdx && prevIdx !== idx) {
+          /* Diapo sortante : elle garde son Ken Burns (dernière image) le
+             temps d'être recouverte par l'entrante (fondu de 1 s). */
+          sEl.classList.add("is-prev");
+          cancel(sEl.__prevTimer);
+          sEl.__prevTimer = later((function (el) {
+            return function () { if (!el.classList.contains("is-active")) { el.classList.remove("is-prev"); } };
+          })(sEl), 1150);
+        }
+        sEl.classList.toggle("is-active", on);
+        sEl.classList.toggle("is-instant", inst);
+        groups.forEach(function (g) {
+          var el = g[i];
+          if (!el) { return; }
+          el.classList.toggle("is-active", on);
+          el.classList.toggle("is-instant", inst);
+        });
+        var prim = primsEl.children[i];
+        if (prim) {
+          if (on) { prim.removeAttribute("inert"); prim.removeAttribute("aria-hidden"); }
+          else { prim.setAttribute("inert", ""); prim.setAttribute("aria-hidden", "true"); }
+        }
+        var logo = logosEl.children[i];
+        if (logo) { logo.setAttribute("aria-hidden", on ? "false" : "true"); }
       }
+      leaving.forEach(function (el) {
+        el.classList.remove("is-leaving");
+        void el.offsetWidth;
+        el.classList.add("is-leaving");
+        later(function () { el.classList.remove("is-leaving"); }, 340);
+      });
+      mainEl.setAttribute("aria-label", slides[idx].name + " — " + stateText(slides[idx]));
       var thumbs = switchEl.children;
       for (var j = 0; j < thumbs.length; j++) {
         var act = j === idx;
@@ -886,15 +1044,36 @@
         thumbs[j].setAttribute("aria-selected", act ? "true" : "false");
         thumbs[j].tabIndex = act ? 0 : -1;
       }
+      if (boostX !== null) {
+        var dx = boostX - boostEl.getBoundingClientRect().left;
+        if (Math.abs(dx) > 1 && typeof boostEl.animate === "function") {
+          try {
+            boostEl.animate([{ transform: "translate3d(" + dx.toFixed(1) + "px, 0, 0)" }, { transform: "none" }],
+              { duration: 520, easing: "cubic-bezier(.2, .8, .2, 1)" });
+          } catch (e) { /* sans animation */ }
+        }
+      }
       startArt(slideEls[idx]);
-      startArt(bodyEls[idx]);
+      startArt(logosEl.children[idx]);
+      /* Parallaxe : la nouvelle diapo part de la position courante du
+         pointeur ; l'ancienne est remise à zéro une fois son fondu fini. */
+      applyParallax();
+      cancel(parResetTimer);
+      if (prevIdx >= 0 && prevIdx !== idx) {
+        parResetTimer = later(function () {
+          Array.prototype.forEach.call(slidesEl.children, function (sl, k) {
+            if (k === activeIdx) { return; }
+            Array.prototype.forEach.call(sl.querySelectorAll(".hm-par-bg, .hm-slide-pt"), function (p) { p.style.transform = ""; });
+          });
+        }, 1100);
+      }
       /* Diapo suivante préchargée bien avant la rotation (10 s). */
       cancel(preTimer);
       if (slides.length > 1) {
         preTimer = later(function () {
           var n = (activeIdx + 1) % slides.length;
           startArt(slidesEl.children[n]);
-          startArt(bodiesEl.children[n]);
+          startArt(logosEl.children[n]);
         }, 3500);
       }
     }
@@ -948,16 +1127,29 @@
       }
     });
 
-    /* Parallaxe (souris) : variables --hx / --hy sur le héros, une écriture
-       par image au plus ; les plans suivent par transition CSS. */
+    /* Parallaxe (souris) : une écriture par image au plus, DIRECTEMENT sur
+       le transform des seuls plans visibles (fond et portrait de la diapo
+       active, colonne de contenu) ; le reflet lit --gx / --gy posés sur
+       lui-même. Pas de variable héritée sur le héros : modifier une
+       propriété personnalisée à la racine recalculait le style de tout le
+       sous-arbre (≈ 200 éléments) à chaque image. Les plans suivent par
+       transition CSS (diapo active uniquement). */
     var parRaf = 0, parX = 0, parY = 0, parGx = 50, parGy = 30;
+    function px(v) { return v.toFixed(2) + "px"; }
+    function applyParallax() {
+      var sl = activeIdx >= 0 ? slidesEl.children[activeIdx] : null;
+      var bg = sl ? sl.querySelector(".hm-par-bg") : null;
+      var pt = sl ? sl.querySelector(".hm-slide-pt") : null;
+      if (bg) { bg.style.transform = parX || parY ? "translate3d(" + px(parX * -18) + ", " + px(parY * -11) + ", 0)" : ""; }
+      if (pt) { pt.style.transform = parX || parY ? "translate3d(" + px(parX * 14) + ", " + px(parY * 6) + ", 0)" : ""; }
+      if (mainFg) { mainFg.style.transform = parX || parY ? "translate3d(" + px(parX * 7) + ", " + px(parY * 5) + ", 0)" : ""; }
+    }
     function parFrame() {
       parRaf = 0;
       if (dead) { return; }
-      heroEl.style.setProperty("--hx", parX.toFixed(3));
-      heroEl.style.setProperty("--hy", parY.toFixed(3));
-      heroEl.style.setProperty("--gx", parGx.toFixed(1) + "%");
-      heroEl.style.setProperty("--gy", parGy.toFixed(1) + "%");
+      applyParallax();
+      glareEl.style.setProperty("--gx", parGx.toFixed(1) + "%");
+      glareEl.style.setProperty("--gy", parGy.toFixed(1) + "%");
     }
     on(heroEl, "pointermove", function (e) {
       if (!fxOn() || e.pointerType === "touch") { return; }
@@ -978,8 +1170,7 @@
       parX = 0; parY = 0;
       heroEl.classList.remove("is-pointer");
       if (parRaf) { cancelAnimationFrame(parRaf); parRaf = 0; }
-      heroEl.style.setProperty("--hx", "0");
-      heroEl.style.setProperty("--hy", "0");
+      applyParallax();
     }
 
     /* ================================================================ */
@@ -1031,18 +1222,22 @@
       /* Crête : 2 périodes sur 240 unités, translation de 50 % = sans couture. */
       var crest = '<path d="M0 8 Q30 0 60 8 T120 8 T180 8 T240 8 V16 H0 Z"/>';
       var crestLine = '<path class="hm-crest-line" d="M0 8 Q30 0 60 8 T120 8 T180 8 T240 8"/>';
+      /* Moitié basse de la tuile : jauge liquide (niveau = pourcentage sur
+         toute la hauteur de la zone) avec la mini-courbe posée PAR-DESSUS ;
+         moitié haute : libellé, valeur, note (jamais touchés par la crête). */
       return '<div class="hm-panel hm-tile hm-wave-in" data-k="' + k + '" style="--w:' + w + ';--lvl:0">' +
-        '<div class="hm-wave" aria-hidden="true"><div class="hm-wave-fill">' +
-        '<svg class="hm-crest hm-crest-a" viewBox="0 0 240 16" preserveAspectRatio="none" focusable="false">' + crest + crestLine + "</svg>" +
-        '<svg class="hm-crest hm-crest-b" viewBox="0 0 240 16" preserveAspectRatio="none" focusable="false">' + crest + "</svg>" +
-        "</div></div>" +
         '<div class="hm-tile-head"><span class="hm-tile-ic">' + ic + '</span><span class="hm-tile-label">' + esc(label) + "</span>" +
         '<span class="hm-live-dot" title="' + esc(s("live_title")) + '"></span></div>' +
         '<div class="hm-tile-val"><span class="hm-num">—</span><span class="hm-unit"></span></div>' +
         '<div class="hm-tile-note">' + esc(s("live_waiting")) + "</div>" +
+        '<div class="hm-tile-low">' +
+        '<div class="hm-wave" aria-hidden="true"><div class="hm-wave-fill">' +
+        '<svg class="hm-crest hm-crest-a" viewBox="0 0 240 16" preserveAspectRatio="none" focusable="false">' + crest + crestLine + "</svg>" +
+        '<svg class="hm-crest hm-crest-b" viewBox="0 0 240 16" preserveAspectRatio="none" focusable="false">' + crest + "</svg>" +
+        "</div></div>" +
         '<svg class="hm-spark" viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
         '<path class="hm-spark-area" d=""/><path class="hm-spark-line" d=""/></svg>' +
-        "</div>";
+        "</div></div>";
     }
 
     /** Calcul transparent de l'indice (0-100). */
@@ -1092,6 +1287,48 @@
       return "low";
     }
 
+    /** Infobulle de l'indice, recalculée à chaque ouverture (survol ou focus
+        de l'anneau / du bouton ⓘ) : à droite du panneau s'il y a la place
+        (décalage vertical borné à la fenêtre : jamais rognée en haut ni en
+        bas), sinon sous le panneau (ou au-dessus s'il est en bas d'écran). */
+    function placeTip(panel) {
+      var tip = panel.querySelector(".hm-tip");
+      if (!tip || panel.__tipBound) { return; }
+      panel.__tipBound = true;
+      function place() {
+        var r = panel.getBoundingClientRect();
+        var h = tip.offsetHeight || 0;
+        var w = tip.offsetWidth || 380;
+        var vh = window.innerHeight || doc.documentElement.clientHeight || 0;
+        var vw = doc.documentElement.clientWidth || window.innerWidth || 0;
+        var top, left;
+        if (r.right + 12 + w <= vw - 8) {
+          left = r.width + 12;
+          top = Math.max(8 - r.top, Math.min(0, vh - 8 - h - r.top));
+          top = Math.min(top, Math.max(0, r.height - 40));
+          tip.style.transformOrigin = "0 " + Math.round(clamp(24 - top, 12, h - 12)) + "px";
+        } else {
+          left = 18;
+          if (r.bottom + 10 + h <= vh - 8) { top = r.height + 10; tip.style.transformOrigin = "30% 0"; }
+          else if (r.top - 10 - h >= 8) { top = -(h + 10); tip.style.transformOrigin = "30% 100%"; }
+          else {
+            /* Ni dessous ni dessus en entier : on la cale dans la fenêtre. */
+            top = Math.max(8 - r.top, Math.min(r.height + 10, vh - 8 - h - r.top));
+            tip.style.transformOrigin = "30% 0";
+          }
+        }
+        tip.style.left = Math.round(left) + "px";
+        tip.style.top = Math.round(top) + "px";
+      }
+      on(panel, "pointerover", function (e) {
+        if (e.target && e.target.closest && e.target.closest(".hm-ring-wrap, .hm-info-btn")) { place(); }
+      });
+      on(panel, "focusin", place);
+      /* Position calculée pour l'ancienne largeur : retour aux valeurs CSS
+         (sinon l'infobulle cachée pourrait déborder de la page). */
+      on(window, "resize", function () { tip.style.left = ""; tip.style.top = ""; });
+    }
+
     function showIndex(res) {
       var panel = rootEl.querySelector(".hm-index");
       if (!panel) { return; }
@@ -1099,6 +1336,10 @@
       var band = bandOf(score);
       var arc = panel.querySelector(".hm-ring-arc");
       var num = panel.querySelector(".hm-score");
+      /* Re-rendu rapproché (langue…) d'un indice déjà affiché : valeur
+         posée directement, ni recomptage ni remplissage de l'anneau. */
+      var instant = quick && shownScore !== null && !panel.classList.contains("is-ready");
+      panel.classList.toggle("is-instant", instant);
       /* Anneau : style calculé avant le remplissage, l'arc part de zéro. */
       try { void window.getComputedStyle(arc).strokeDashoffset; } catch (e) { /* sans effet */ }
       panel.style.setProperty("--score", String(score));
@@ -1107,7 +1348,8 @@
       Array.prototype.forEach.call(panel.querySelectorAll(".hm-tick"), function (tk, i) {
         tk.classList.toggle("is-on", i < lit);
       });
-      countTo(num, score, 1500);
+      if (instant) { num.textContent = String(score); } else { countTo(num, score, 1500); }
+      shownScore = score;
       var bandEl = panel.querySelector(".hm-band");
       bandEl.setAttribute("data-band", band);
       bandEl.querySelector(".hm-band-text").textContent = s("perf_band_" + band);
@@ -1125,6 +1367,7 @@
       panel.querySelector(".hm-tip").innerHTML = '<div class="hm-tip-title">' + esc(s("perf_how")) + "</div>" + rows +
         '<div class="hm-tip-foot">' + esc(s("perf_tip_foot")) + "</div>";
       panel.querySelector(".hm-breakdown").innerHTML = rows;
+      placeTip(panel);
 
       /* Prochaine étape : composante actionnable qui rapporte le plus. */
       var best = null;
@@ -1135,8 +1378,12 @@
       });
       var next = panel.querySelector("#hm-next");
       if (best) {
-        var label = best.key === "tweaks" ? s("perf_next_tweaks") : (best.key === "bench" ? s("perf_next_bench") : s("perf_next_insights"));
-        next.innerHTML = "<span>" + esc(label) + '</span><span class="hm-gain">+' + (best.max - best.pts) + "</span>" + svgIcon("arrow");
+        var nk = best.key === "tweaks" ? "perf_next_tweaks" : (best.key === "bench" ? "perf_next_bench" : "perf_next_insights");
+        var label = s(nk);
+        /* Libellé court (« Benchmark ») quand le panneau est étroit (CSS). */
+        next.innerHTML = '<span class="hm-next-long">' + esc(label) + '</span><span class="hm-next-short" aria-hidden="true">' +
+          esc(s(nk + "_short")) + '</span><span class="hm-gain">+' + (best.max - best.pts) + "</span>" + svgIcon("arrow");
+        next.setAttribute("aria-label", label + " (+" + (best.max - best.pts) + ")");
         next.setAttribute("data-act", best.act);
         next.hidden = false;
       } else {
@@ -1168,6 +1415,19 @@
     var liveTimer = 0;
     var liveBusy = false;
     var liveHasData = false;
+    /* Navigation vers une autre page annoncée (motion.js) : plus aucun
+       relevé ni boucle pendant la transition, avant même le changement de
+       hash qui détruit la vue. */
+    var leavingPage = false;
+    on(window, "overdrive:navigate", function (e) {
+      var h = String((e && e.detail && e.detail.hash) || "#/");
+      var r = h.replace(/^#/, "").split("?")[0] || "/";
+      if (r === "/" || dead) { return; }
+      leavingPage = true;
+      cancel(liveTimer);
+      liveTimer = 0;
+      syncLoops();
+    });
 
     function liveSchedule(ms) {
       cancel(liveTimer);
@@ -1193,6 +1453,7 @@
         liveSchedule(LIVE_MS);
         return;
       }
+      if (leavingPage) { return; }
       if (doc.hidden || liveBusy || overlayOpen()) { liveSchedule(LIVE_MS); return; }
       liveBusy = true;
       sharedJSON("/api/monitor", 1000).then(function (m) {
@@ -1239,9 +1500,14 @@
 
       var cores = (m.per_core || []).length;
       setTile("cpu", cpu, String(Math.round(cpu)), "%", cores ? s("live_threads", { n: cores }) : "", hist.cpu, 100, first);
-      setTile("ram", ram, String(Math.round(ram)), "%",
-        (ramObj.used_gb !== undefined && ramObj.total_gb !== undefined) ?
-          s("live_ram_note", { u: gb(ramObj.used_gb), t: gb(ramObj.total_gb) }) : "", hist.ram, 100, first);
+      measureTiles();
+      var ramNote = "";
+      if (ramObj.used_gb !== undefined && ramObj.total_gb !== undefined) {
+        /* Tuile étroite : « 12,6 / 31,9 Go » (jamais tronqué). */
+        ramNote = netCompact ? dec((Math.round(Number(ramObj.used_gb) * 10) / 10).toFixed(1)) + " / " + gb(ramObj.total_gb) :
+          s("live_ram_note", { u: gb(ramObj.used_gb), t: gb(ramObj.total_gb) });
+      }
+      setTile("ram", ram, String(Math.round(ram)), "%", ramNote, hist.ram, 100, first);
       var gpuT = m.gpu_temp_c !== undefined ? Number(m.gpu_temp_c) : (m.temps && m.temps.gpu_c !== undefined ? Number(m.temps.gpu_c) : NaN);
       if (isFinite(gpuT) && gpuT > 0) {
         relabelNet(true);
@@ -1250,12 +1516,28 @@
         relabelNet(false);
         /* Échelle logarithmique (référence 100 Mb/s ou pic observé). */
         var netPct = Math.log(1 + down) / Math.log(1 + Math.max(100, netPeak)) * 100;
-        setTile("net", clamp(netPct, 0, 100), dec((Math.round(down * 10) / 10).toFixed(1)), "Mb/s",
-          s("live_net_note", { u: dec((Math.round(up * 10) / 10).toFixed(1)) + "\u00a0Mb/s" }), hist.net, netPeak, first);
+        var downTxt = dec((Math.round(down * 10) / 10).toFixed(1));
+        var upTxt = dec((Math.round(up * 10) / 10).toFixed(1));
+        /* Tuile étroite (< 260 px) : note compacte « ↓ 4,9 · ↑ 0,0 »,
+           la valeur montante n'est jamais tronquée. */
+        /* Note compacte sans unité : « Mb/s » est déjà affiché à côté de la valeur. */
+        setTile("net", clamp(netPct, 0, 100), downTxt, "Mb/s",
+          netCompact ? s("live_net_note_short", { d: downTxt, u: upTxt }) :
+            s("live_net_note", { u: upTxt + "\u00a0Mb/s" }), hist.net, netPeak, first);
       }
     }
 
     var netIsGpu = false;
+    var netCompact = null;   /* notes compactes (tuiles étroites) ; null = à mesurer */
+    on(window, "resize", function () { netCompact = null; });
+    /** Largeur des tuiles lue une fois (puis après chaque redimensionnement),
+        pas à chaque relevé : notes compactes sous 260 px. */
+    function measureTiles() {
+      if (netCompact !== null) { return; }
+      var tile = rootEl.querySelector('.hm-tile[data-k="net"]');
+      var tw = tile ? tile.clientWidth : 0;
+      netCompact = tw ? tw < 260 : null;
+    }
     function relabelNet(gpu) {
       if (gpu === netIsGpu) { return; }
       netIsGpu = gpu;
@@ -1327,21 +1609,23 @@
          ailleurs le header n'est qu'un alias du héros (même fichier). */
       var kinds = artSource(g.id) === "steam" ? ["cover", "portrait", "header", "hero"] : ["cover", "portrait", "hero", "header"];
       return '<div class="hm-cover-item" role="listitem" style="--i:' + i + '">' +
-        '<article class="hm-cover" data-game="' + esc(g.id) + '">' +
-        '<div class="hm-cover-art" data-art-host style="--hue:' + hue + (focus ? ";--focus:" + esc(focus) : "") + '">' +
-        '<div class="hm-cover-fb" aria-hidden="true"><span class="hm-cover-mono">' + esc(mono) + "</span>" +
+        '<article class="hm-cover' + (g.installed ? " is-installed" : "") + '" data-game="' + esc(g.id) + '">' +
+        '<div class="hm-cover-art" data-art-host style="--hue:' + hue + ";--fbh:" + artFbHue(g.id) + "deg" +
+        (focus ? ";--focus:" + esc(focus) : "") + '">' +
+        '<div class="hm-cover-fb" aria-hidden="true"><span class="hm-cover-mono' + (mono.length >= 4 ? " is-long" : "") + '">' + esc(mono) + "</span>" +
         '<span class="hm-cover-fbname">' + esc(g.name) + "</span></div>" +
         '<div class="hm-cover-blur" aria-hidden="true"></div>' +
         artImg(g.id, kinds, "hm-cover-img", g.name) +
         '<span class="hm-cover-title" aria-hidden="true">' + esc(g.name) + "</span>" +
         '<span class="hm-cover-shine" aria-hidden="true"></span>' +
-        (g.installed ? '<span class="hm-badge-inst">' + svgIcon("check") + esc(s("games_installed")) + "</span>" : "") +
         '<div class="hm-cover-over"><button class="hm-cover-btn" type="button" data-act="game" data-game="' + esc(g.id) + '" ' +
         'aria-label="' + esc(s("games_optimize") + " — " + g.name) + '">' + appIcon("zap") +
         "<span>" + esc(s("games_optimize")) + "</span></button></div>" +
         "</div></article>" +
         '<div class="hm-cover-name" title="' + esc(g.name) + '">' + esc(g.name) + "</div>" +
-        '<div class="hm-cover-sub">' + esc(storeName(g.store)) + "</div>" +
+        /* « Installé » sous la jaquette : le logo imprimé reste visible. */
+        '<div class="hm-cover-sub"><span class="hm-cover-store">' + esc(storeName(g.store)) + "</span>" +
+        (g.installed ? '<span class="hm-badge-inst">' + svgIcon("check") + esc(s("games_installed")) + "</span>" : "") + "</div>" +
         "</div>";
     }
 
@@ -1359,18 +1643,37 @@
         return 0;
       });
       railEl.innerHTML = list.map(coverHtml).join("");
-      railEl.scrollLeft = 0;
+      /* Re-rendu rapproché (langue…) : le carrousel reste où il était. */
+      railEl.scrollLeft = quick && !railBuilt ? railLeft : 0;
       railBuilt = true;
       /* Pas de dérive avant 7 s : la 1re jaquette (CS2) reste entière. */
       idleUntil = Math.max(idleUntil, Date.now() + DRIFT_IDLE);
       later(syncLoops, DRIFT_IDLE + 100);
       bindArt(railEl);
+      watchNear();
       var n = list.filter(function (g) { return g.installed; }).length;
       var count = rootEl.querySelector("#hm-games-count");
       if (count) { count.textContent = n === 0 ? s("games_count_none") : (n === 1 ? s("games_count_one") : s("games_count_many", { n: n })); }
       railEl.classList.toggle("hm-snap", !fxOn());
       syncArrows();
       syncLoops();
+    }
+
+    /* Jaquettes dans la zone visible du carrousel (même en partie) :
+       classe is-near (seules celles-ci animent leur balayage de chargement). */
+    var nearIo = null;
+    function watchNear() {
+      if (nearIo) { nearIo.disconnect(); }
+      var items = railEl.querySelectorAll(".hm-cover-item");
+      if (!window.IntersectionObserver) {
+        Array.prototype.forEach.call(items, function (it) { it.classList.add("is-near"); });
+        return;
+      }
+      nearIo = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { en.target.classList.toggle("is-near", en.isIntersecting); });
+      }, { root: railEl, rootMargin: "0px" });
+      Array.prototype.forEach.call(items, function (it) { nearIo.observe(it); });
+      observers.push(nearIo);
     }
 
     /* ---- défilement : animation douce + accroche sur une jaquette ---- */
@@ -1605,6 +1908,8 @@
         tiltRaf = requestAnimationFrame(function () {
           tiltRaf = 0;
           if (!tiltEl || dead) { return; }
+          /* Transform 3D (calque composité) seulement pendant l'inclinaison. */
+          tiltEl.classList.add("is-tilt");
           /* ±12° / ±9° : inclinaison réellement perceptible sur 172 px. */
           tiltEl.style.setProperty("--ry", ((tiltX - 0.5) * 24).toFixed(2) + "deg");
           tiltEl.style.setProperty("--rx", ((0.5 - tiltY) * 18).toFixed(2) + "deg");
@@ -1618,6 +1923,7 @@
       if (tiltEl) {
         tiltEl.style.removeProperty("--rx");
         tiltEl.style.removeProperty("--ry");
+        tiltEl.classList.remove("is-tilt");
       }
       tiltEl = null;
     }
@@ -1632,7 +1938,7 @@
     var DRIFT_IDLE = 7000;
 
     function driftWanted() {
-      return railBuilt && fxOn() && !doc.hidden && !overlayOpen() && railVisible && !railHover && !railFocus && !drag && !anim &&
+      return railBuilt && fxOn() && !doc.hidden && !leavingPage && !overlayOpen() && railVisible && !railHover && !railFocus && !drag && !anim &&
         Date.now() >= idleUntil && railMax() > 380;
     }
     function startDrift() {
@@ -1648,6 +1954,9 @@
     function driftFrame(t) {
       driftRaf = 0;
       if (dead || !driftWanted()) { return; }
+      /* ~30 i/s suffisent à 16 px/s (moitié moins de défilements et de
+         scroll events qu'à 60 i/s). */
+      if (driftLast && t - driftLast < 30) { driftRaf = requestAnimationFrame(driftFrame); return; }
       var dt = driftLast ? Math.min(64, t - driftLast) : 16;
       driftLast = t;
       var max = railMax();
@@ -1738,20 +2047,20 @@
       var g = mainGpu(hw);
       var disks = (hw.disks || []).filter(function (d) { return Number(d.total_gb) > 1; });
       var sys = disks.filter(function (d) { return /^c:/i.test(String(d.mountpoint || "")) || d.mountpoint === "/"; })[0] || disks[0];
-      function chip(ic, main, sub) {
-        return '<div class="hm-spec">' + '<span class="hm-spec-ic">' + ic + "</span>" +
+      function chip(ic, main, sub, k) {
+        return '<div class="hm-spec" data-k="' + k + '">' + '<span class="hm-spec-ic">' + ic + "</span>" +
           '<span class="hm-spec-txt"><span class="hm-spec-main" title="' + esc(main) + '">' + esc(main) + "</span>" +
           (sub ? '<span class="hm-spec-sub">' + esc(sub) + "</span>" : "") + "</span></div>";
       }
       var html = "";
       html += chip(appIcon("cpu"), cleanName(cpu.name) || "—",
-        cpu.cores_physical ? s("config_cores", { p: cpu.cores_physical, l: cpu.cores_logical || "?" }) : "");
+        cpu.cores_physical ? s("config_cores", { p: cpu.cores_physical, l: cpu.cores_logical || "?" }) : "", "cpu");
       html += chip(svgIcon("gpu"), g ? cleanName(g.name) : s("config_no_gpu"),
-        g && g.vram_mb ? (function () { try { return ctx.fmtMb(g.vram_mb); } catch (e) { return ""; } })() : "");
-      html += chip(appIcon("memory"), ram.total_gb !== undefined ? s("config_ram", { g: gb(ram.total_gb) }) : "—", "");
-      html += chip(svgIcon("monitor"), [os.name, os.version].filter(Boolean).join(" ") || "—", os.build ? "build " + os.build : "");
+        g && g.vram_mb ? (function () { try { return ctx.fmtMb(g.vram_mb); } catch (e) { return ""; } })() : "", "gpu");
+      html += chip(appIcon("memory"), ram.total_gb !== undefined ? s("config_ram", { g: gb(ram.total_gb) }) : "—", "", "ram");
+      html += chip(svgIcon("monitor"), [os.name, os.version].filter(Boolean).join(" ") || "—", os.build ? "build " + os.build : "", "os");
       if (sys) {
-        html += chip(svgIcon("disk"), String(sys.mountpoint || sys.device || ""), s("config_free", { f: gb(sys.free_gb) }) + " / " + gb(sys.total_gb));
+        html += chip(svgIcon("disk"), String(sys.mountpoint || sys.device || ""), s("config_free", { f: gb(sys.free_gb) }) + " / " + gb(sys.total_gb), "disk");
       }
       box.innerHTML = '<div class="hm-specs">' + html + "</div>";
     }
@@ -1800,7 +2109,7 @@
       return true;
     }
 
-    function pWanted() { return !!pCtx && fxOn() && !doc.hidden && pVisible && !overlayOpen(); }
+    function pWanted() { return !!pCtx && fxOn() && !doc.hidden && pVisible && !leavingPage && !overlayOpen(); }
 
     function startParticles() {
       if (pRaf || !pWanted()) { return; }
@@ -1875,21 +2184,24 @@
       });
       mo.observe(root, { attributes: true, attributeFilter: ["data-motion", "data-motion-paused", "data-theme"] });
       observers.push(mo);
-      /* QCM ouvert / fermé : boucles suspendues dessous, entrée rejouée à la
-         fermeture si elle avait été retenue. */
-      var ovRoot = doc.getElementById("overlay-root");
-      if (ovRoot) {
-        var mo2 = new MutationObserver(function () {
-          if (!ok()) { return; }
-          syncLoops();
-          if (!overlayOpen()) {
-            if (pendingEntrance) { pendingEntrance = false; playEntrance(); }
-            if (!liveTimer) { liveSchedule(200); }
-          }
-        });
-        mo2.observe(ovRoot, { attributes: true, attributeFilter: ["hidden"], childList: true });
-        observers.push(mo2);
-      }
+      /* QCM ou modale ouverts / fermés : boucles suspendues dessous, entrée
+         rejouée à la fermeture si elle avait été retenue. */
+      var onCover = function () {
+        if (!ok()) { return; }
+        syncLoops();
+        if (!overlayOpen()) {
+          if (pendingEntrance) { pendingEntrance = false; playEntrance(); }
+          liveSchedule(200);
+        }
+      };
+      var mo2 = new MutationObserver(onCover);
+      ["overlay-root", "modal-root"].forEach(function (id) {
+        var box = doc.getElementById(id);
+        if (box) { mo2.observe(box, { attributes: true, attributeFilter: ["hidden"], childList: true }); }
+      });
+      observers.push(mo2);
+      /* Palette de commandes (palette.js) : même traitement. */
+      on(window, "overdrive:palette", onCover);
     }
 
     if (window.IntersectionObserver) {
@@ -1922,6 +2234,10 @@
       if (overlayOpen()) { pendingEntrance = true; return; }
       entranceDone();
       rootEl.classList.remove("hm-await-intro");
+      /* Accueil enfin visible (après l'intro ou le QCM) : la dérive du
+         carrousel attend de nouveau 7 s, la 1re jaquette reste entière. */
+      idleUntil = Math.max(idleUntil, Date.now() + (DRIFT_IDLE || 7000));
+      later(syncLoops, (DRIFT_IDLE || 7000) + 100);
       if (!entrance) { return; }
       void rootEl.offsetWidth;
       rootEl.classList.add("hm-entering");
@@ -1973,6 +2289,8 @@
       var g0 = mainGpu(hw0);
       heroGpu = g0 ? cleanName(g0.name) : null;
     }
+    /* Puce « Ta machine » (statique) : niveau / GPU déjà connus. */
+    updateMachineChips();
 
     if (hw0) { showConfig(hw0); }
 
@@ -2015,20 +2333,56 @@
 
     var tweaksP = Promise.resolve().then(function () { return ctx.tweaks(); }).catch(function () { return null; });
     var benchP = sharedJSON("/api/bench/history", 2500).then(function (d) { return (d && d.history) || []; }).catch(function () { return null; });
-    Promise.all([tweaksP, insP, benchP, hwP.catch(function () { return null; })]).then(function (r) {
-      if (!ok()) { return; }
+    var idxData = null;   /* données de l'indice : {tweaks, insights, bench, tier} */
+    function indexResult() {
       var prof = null;
       try { prof = ctx.profile(); } catch (e) { prof = null; }
-      var res = computeIndex({
-        tweaks: r[0], insights: r[1], bench: r[2], profile: prof,
-        tier: statusTier() || (r[3] && r[3].tier) || null
+      return computeIndex({
+        tweaks: idxData.tweaks, insights: idxData.insights, bench: idxData.bench, profile: prof,
+        tier: statusTier() || idxData.tier || null
       });
-      /* L'anneau se dessine une fois l'accueil visible (après l'intro). */
+    }
+    Promise.all([tweaksP, insP, benchP, hwP.catch(function () { return null; })]).then(function (r) {
+      if (!ok()) { return; }
+      idxData = { tweaks: r[0], insights: r[1], bench: r[2], tier: (r[3] && r[3].tier) || null };
+      /* L'anneau se dessine une fois l'accueil visible (après l'intro) ET
+         le panneau à l'écran (il est sous les jaquettes) : l'animation
+         n'est pas jouée pour rien hors de la vue. */
       entranceP.then(function () {
         if (!ok()) { return; }
-        later(function () { showIndex(res); }, entrance ? 420 : 0);
+        var t0 = Date.now();
+        onceVisible(rootEl.querySelector(".hm-index"), function () {
+          later(function () { showIndex(indexResult()); }, entrance && Date.now() - t0 < 300 ? 420 : 80);
+        });
       });
     });
+
+    /* Benchmark terminé (modale ouverte depuis l'accueil, une tuile ou la
+       palette) : l'indice est recalculé sur place, sans re-rendre la page ;
+       le bouton « Lancer un benchmark +20 » disparaît aussitôt. */
+    on(window, "overdrive:bench-done", function () {
+      delete sharedReq["/api/bench/history"];
+      sharedJSON("/api/bench/history", 2500).then(function (d) {
+        if (!ok() || !idxData) { return; }
+        idxData.bench = (d && d.history) || [];
+        var panel = rootEl.querySelector(".hm-index");
+        if (panel && panel.classList.contains("is-ready")) { showIndex(indexResult()); }
+      }).catch(function () { /* indice inchangé */ });
+    });
+
+    /** Appelle fn une fois que el est (au moins en partie) à l'écran. */
+    function onceVisible(el, fn) {
+      if (!el || !window.IntersectionObserver || !fadeOn()) { fn(); return; }
+      var done = false;
+      var io2 = new IntersectionObserver(function (entries) {
+        if (done || !entries.some(function (en) { return en.isIntersecting; })) { return; }
+        done = true;
+        io2.disconnect();
+        if (!dead) { fn(); }
+      }, { threshold: 0.2 });
+      io2.observe(el);
+      observers.push(io2);
+    }
 
     try { ctx.loadPrograms(); } catch (e3) { /* rendu existant indisponible */ }
 
@@ -2091,6 +2445,7 @@
     function destroy() {
       if (dead) { return; }
       dead = true;
+      if (railBuilt && railEl) { railLeft = railEl.scrollLeft; }
       timers.forEach(function (id) { clearTimeout(id); });
       timers = [];
       rafs.forEach(function (fn) { try { fn(); } catch (e) { /* déjà arrêté */ } });

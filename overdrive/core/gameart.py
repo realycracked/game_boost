@@ -864,8 +864,9 @@ def set_custom(game_id: str, kind: str, data: bytes) -> dict:
                           "Image too large (8 MB maximum).")
         ext = sniff_image(bytes(data[:16]))
         if ext is None:
-            return _error("invalid_image", "Format non pris en charge : PNG, JPEG ou WebP.",
-                          "Unsupported format: PNG, JPEG or WebP.")
+            # Même libellé que le contrôle côté client (app.js, art_bad_type).
+            return _error("invalid_image", "Format non pris en charge : choisis une image PNG, JPEG ou WebP.",
+                          "Unsupported format: choose a PNG, JPEG or WebP image.")
         written = _atomic_write(_custom_dir(gid), kind, bytes(data), ext)
         if written is None:
             return _error("io", "Impossible d'enregistrer l'image.", "Could not save the image.")

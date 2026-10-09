@@ -32,7 +32,8 @@
   var MIN_MS = 1800;      /* durée minimale avant la sortie (effets complets) */
   var MAX_MS = 3200;      /* chargement lent : on sort quand même */
   var MIN_REDUCED = 450;  /* animations réduites : courte pause puis fondu */
-  var LINE_MS = 420;      /* durée minimale d'affichage d'une ligne */
+  var LINE_MS = 600;      /* durée minimale d'affichage d'une ligne (lisible) */
+  var HW_LINE_MS = 300;   /* « Détection du matériel… » seulement si plus long */
 
   var STR = {
     fr: {
@@ -145,7 +146,7 @@
       '<span class="oi-sweep-clip"><span class="oi-sweep"></span></span>' +
       "</div>" +
       '<div class="oi-foot">' +
-      '<div class="oi-lines" aria-live="polite"><div class="oi-line">' + esc(s("l_hw")) + "</div></div>" +
+      '<div class="oi-lines" aria-live="polite"></div>' +
       '<div class="oi-bar" aria-hidden="true"><i></i></div>' +
       '<div class="oi-skip">' + esc(s("skip")) + "</div>" +
       "</div>";
@@ -159,9 +160,9 @@
     /* ---- lignes qui défilent (durée minimale de lecture) ---- */
 
     var lineQueue = [];
-    var lineBusyUntil = nowMs() + LINE_MS;
+    var lineBusyUntil = nowMs();
     var lineTimer = 0;
-    var lastLine = s("l_hw");
+    var lastLine = "";
 
     function pushLine(text, ready) {
       if (text === lastLine) { return; }
@@ -197,14 +198,19 @@
 
     /* ---- progression : vrai chargement + part liée au temps ---- */
 
+    /* Remplissage régulier sur la durée minimale ; le vrai chargement ne
+       fait que plafonner la barre (35 % avant /api/status, 75 % avant
+       /api/hardware) : elle n'attend que si le chargement est lent, elle ne
+       « saute » plus à 75 % dès les premières réponses. */
     function progress() {
       if (leaving) { return; }
       var minDur = reduced ? MIN_REDUCED : MIN_MS;
       var tp = Math.min(1, (nowMs() - startedAt) / minDur);
-      var p = 0.08 + (loaded.status ? 0.27 : 0) + (loaded.hw ? 0.4 : 0) + 0.25 * tp;
-      barEl.style.transform = "scaleX(" + Math.min(1, p).toFixed(3) + ")";
+      var cap = !loaded.status ? 0.35 : (!loaded.hw ? 0.75 : 1);
+      var p = Math.max(0.04, Math.min(cap, 1 - Math.pow(1 - tp, 2)));
+      barEl.style.transform = "scaleX(" + p.toFixed(3) + ")";
     }
-    var progTimer = setInterval(progress, 200);
+    var progTimer = setInterval(progress, 120);
     timers.push(progTimer);
     /* Style calculé avant la première valeur : la barre part de zéro. */
     try { void window.getComputedStyle(barEl).transform; } catch (e0) { /* sans effet */ }
@@ -247,6 +253,10 @@
       readyCheck();
     });
 
+    /* Matériel long à détecter : on le dit ; sinon on passe directement au
+       résultat (pas de ligne affichée 0,3 s puis remplacée). */
+    later(function () { if (!loaded.hw) { pushLine(s("l_hw")); } }, HW_LINE_MS);
+
     fetchJson("/api/hardware").then(function (hw) {
       loaded.hw = true;
       var gpus = (hw && hw.gpus) || [];
@@ -275,21 +285,35 @@
 
     /* ---- passer l'intro ---- */
 
+    /* Touches qui font défiler la page : passer l'intro ne doit PAS aussi
+       faire défiler l'accueil caché dessous (on arriverait en milieu de
+       page, héros hors écran). */
+    var SCROLL_KEYS = /^( |Spacebar|PageDown|PageUp|End|Home|ArrowDown|ArrowUp)$/;
+    var WHEEL_OPTS = { passive: false };
+
     function onSkip(e) {
       /* Touche de modification seule : on attend la suite. Un raccourci
          (Ctrl+K pour la palette, etc.) fait sortir l'intro tout de suite :
          la palette ne s'ouvre jamais invisible sous l'overlay. */
       if (e && e.type === "keydown" && /^(Control|Shift|Alt|Meta|AltGraph|OS)$/.test(String(e.key || ""))) { return; }
+      if (e && e.cancelable && (e.type === "wheel" ||
+          (e.type === "keydown" && !e.ctrlKey && !e.metaKey && !e.altKey && SCROLL_KEYS.test(String(e.key || ""))))) {
+        e.preventDefault();
+      }
       exit(true);
     }
     el.addEventListener("click", onSkip);
-    doc.addEventListener("keydown", onSkip, true);
-    el.addEventListener("wheel", onSkip, { passive: true });
+    /* Sur window en capture, comme le raccourci de la palette (palette.js) :
+       son stopPropagation n'empêche pas ce gestionnaire de s'exécuter. */
+    window.addEventListener("keydown", onSkip, true);
+    /* Non passif : la molette qui passe l'intro est annulée (pas de
+       défilement de la page dessous). */
+    el.addEventListener("wheel", onSkip, WHEEL_OPTS);
 
     function cleanupListeners() {
       el.removeEventListener("click", onSkip);
-      doc.removeEventListener("keydown", onSkip, true);
-      el.removeEventListener("wheel", onSkip);
+      window.removeEventListener("keydown", onSkip, true);
+      el.removeEventListener("wheel", onSkip, WHEEL_OPTS);
     }
 
     function exit(fast) {
@@ -299,6 +323,8 @@
       timers.forEach(function (id) { clearTimeout(id); clearInterval(id); });
       timers = [];
       barEl.style.transform = "scaleX(1)";
+      /* Garde-fou : l'accueil apparaît toujours depuis le haut. */
+      if (window.scrollY) { try { window.scrollTo(0, 0); } catch (e) { /* défilement impossible */ } }
       if (fast) { el.classList.add("is-fast"); }
       el.classList.add("is-leaving");
       emit("overdrive:intro-exit");

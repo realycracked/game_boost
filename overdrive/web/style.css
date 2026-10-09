@@ -302,6 +302,11 @@ kbd {
 ::-webkit-scrollbar-thumb:hover { background-color: var(--border-strong); }
 ::-webkit-scrollbar-corner { background: transparent; }
 
+/* Intro de lancement affichée (classe posée / retirée par intro.js) : la
+   page cachée dessous ne défile pas ; la gouttière de la barre reste
+   réservée, l'accueil ne se décale pas quand l'intro s'en va. */
+html.od-intro-on { overflow: hidden; scrollbar-gutter: stable; }
+
 /* Centrage optique du texte dans les contrôles (rogne à la hauteur de capitale). */
 .btn, .badge, .chip, .seg button, kbd { text-box: trim-both cap alphabetic; }
 
@@ -1021,6 +1026,9 @@ html[data-theme="light"] .card { background-image: none; }
   opacity: 0;
   transition: opacity var(--dur-3) var(--ease-out);
 }
+/* Très grand conteneur (motion.js) : pas de halo suivi au pointeur. */
+.card.od-spot-off::before,
+.card.od-spot-off::after { content: none; }
 html.od-fx .card:hover::before,
 html.od-fx .card:hover::after,
 html.od-fx .quiz-opt:hover::before,
@@ -3109,8 +3117,13 @@ html:not(.od-ready) .od-ring .od-ring-bar { stroke: var(--accent); }
 
 .theme-meta { display: flex; align-items: center; gap: 8px; padding: 0 2px; min-height: 20px; }
 .theme-name { font-size: 13px; font-weight: 620; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Coche du thème actif posée dans le coin de l'aperçu : la ligne du nom
+   garde toute sa largeur (« Émeraude » entier même à 980 px). */
 .theme-check {
-  margin-left: auto;
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 14px;
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
@@ -3611,6 +3624,8 @@ html[data-theme="light"] .gart { background: #1f1f2a; }
     radial-gradient(95% 60% at 15% 8%, color-mix(in srgb, var(--accent) 58%, transparent), transparent 70%),
     radial-gradient(85% 60% at 92% 96%, color-mix(in srgb, var(--accent-2) 48%, transparent), transparent 72%),
     linear-gradient(var(--turn, 160deg), #1a1726, #0b0b12);
+  /* Teinte propre à chaque jeu (±35° autour de l'accent, app.js artFbHue). */
+  filter: hue-rotate(var(--fbh, 0deg));
 }
 .gart-fb::after {
   content: "";
@@ -3650,6 +3665,7 @@ html[data-theme="light"] .gart { background: #1f1f2a; }
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, .35));
 }
+.gart-fb-mono.is-long { font-size: 42px; letter-spacing: -.03em; }
 /* Bandeaux : le nom est déjà écrit en grand, le monogramme devient un filigrane à droite. */
 .gart-wide .gart-fb::before { left: 78%; top: 50%; width: 70%; }
 .gart-wide .gart-fb-mono {
@@ -3871,6 +3887,14 @@ html.od-fx .gposter:hover .gglare::after { animation: gglare-sweep 1100ms var(--
 }
 .gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded):is(:hover, :focus-visible, .selected) .gposter-shade::after { opacity: 1; }
 .gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded):is(:hover, :focus-visible, .selected) .gposter-info { opacity: 1; transform: none; }
+/* Visuel paysage recadré qui porte déjà le nom du jeu (wordmark de
+   Fortnite) : pas de second titre HTML par-dessus. */
+.gposter:has(.gart[data-mode="crop"].is-loaded) .gposter-title { display: none; }
+/* Jaquette Steam (logo imprimé en haut) : puce « Détecté » en bas à droite,
+   hors du logo ; elle s'efface au survol pour laisser la place au titre. */
+.gposter.gposter-logo .gposter-top { top: auto; bottom: 10px; left: auto; right: 10px; transition: opacity 220ms var(--ease-out); }
+.gposter.gposter-logo:is(:hover, :focus-visible, .selected) .gposter-top { opacity: 0; }
+.gposter.gposter-logo.is-installed .gposter-shade::before { content: none; }
 .card.game-card.gposter.selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft), 0 18px 40px -20px var(--glow), var(--highlight);
@@ -3894,8 +3918,10 @@ html .card.cs2-hero.has-art { background-image: none; }
 }
 .cs2-hero.has-art:has(#amd-area:empty) .gfeat { border-radius: 11px; }
 .gfeat .gart { border-radius: inherit; }
+/* Parallaxe du bandeau : transform écrit directement par app.js
+   (bindFeatureParallax) sur l'image et le logo, pas de variable héritée. */
 .gfeat .gart.is-loaded .gart-img[data-primary] {
-  transform: scale(1.06) translate3d(calc(var(--gx, 0) * -1.1%), calc(var(--gy, 0) * -1.4%), 0);
+  transform: scale(1.06);
   transition: opacity 600ms var(--ease-out), transform 1200ms var(--ease-out);
 }
 .gfeat.is-live .gart.is-loaded .gart-img[data-primary] { transition: opacity 600ms var(--ease-out), transform 260ms ease-out; }
@@ -3932,7 +3958,6 @@ html .card.cs2-hero.has-art { background-image: none; }
   align-items: flex-end;
   min-height: 40px;
   margin-bottom: 16px;
-  transform: translate3d(calc(var(--gx, 0) * 5px), calc(var(--gy, 0) * 3px), 0);
   transition: transform 1200ms var(--ease-out);
 }
 .gfeat.is-live .gfeat-brand { transition: transform 260ms ease-out; }
@@ -4022,7 +4047,11 @@ html .card.cs2-hero.has-art { background-image: none; }
 /* Cadrage propre au bandeau (très large) : logo imprimé en haut du visuel
    Fortnite et casques des personnages CS2 gardés dans le cadre. */
 .gd-banner .gart-img { object-position: var(--bfocus, var(--focus, 50% 50%)); }
-.gd-banner .gart[data-art-game="fortnite"] { --bfocus: 40% 8%; }
+/* Fortnite : on cadre les personnages (bas droit du visuel) ; le wordmark
+   imprimé en haut sort du champ, il ne double plus le titre de la fiche.
+   Visuel d'origine seulement (pas une bannière personnalisée). */
+.gd-banner .gart[data-art-game="fortnite"]:not([data-custom-hero]) { --bfocus: 70% 18%; }
+.gd-banner .gart[data-art-game="fortnite"]:not([data-custom-hero]) .gart-img { object-view-box: inset(46% 0% 0% 28%); }
 .gd-banner .gart[data-art-game="cs2"] { --bfocus: 50% 16%; }
 .gd-veil {
   position: absolute;
@@ -4107,7 +4136,56 @@ html .card.cs2-hero.has-art { background-image: none; }
 .art-thumb-hero,
 .art-thumb-logo { width: 124px; aspect-ratio: 16 / 7; }
 .art-thumb-logo .gart { background: #121219; }
+/* Aperçu de bannière : même point focal que l'accueil et la page Jeux
+   (sujet souvent à droite des visuels « hero » très larges) plutôt qu'un
+   recadrage centré sur un décor vide. */
+.art-thumb-hero .gart-img { object-position: var(--focus, 72% 30%); }
 .art-thumb .gart-fb-mono { margin-top: 0; font-size: 19px; }
+/* Carte « à la une » en repli : le nom du jeu est déjà écrit en grand,
+   pas de « CS2 » géant en filigrane en plus. Fond coloré et animé, comme
+   le repli du héros de l'accueil (.hm-fallback) : dégradé + deux halos qui
+   dérivent lentement, au lieu d'un aplat noir sous le voile. */
+.gfeat .gart-fb-mono { display: none; }
+.gfeat .gart-fb {
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 88% 0%, color-mix(in srgb, var(--accent-2) 42%, #07070d) 0%, transparent 58%),
+    linear-gradient(135deg, #0c0a1a 0%, #111733 100%);
+}
+.gfeat .gart-fb::before,
+.gfeat .gart-fb::after {
+  content: "";
+  position: absolute;
+  left: auto;
+  top: auto;
+  right: -8%;
+  bottom: -50%;
+  width: 62%;
+  aspect-ratio: 1;
+  transform: none;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 55%, transparent), transparent);
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: .55;
+  animation: gfeat-fb-drift 18s ease-in-out infinite alternate;
+}
+.gfeat .gart-fb::after {
+  right: 22%;
+  bottom: auto;
+  top: -40%;
+  width: 46%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent-2) 55%, transparent), transparent);
+  opacity: .4;
+  animation-duration: 22s;
+  animation-direction: alternate-reverse;
+}
+@keyframes gfeat-fb-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-12%, 8%, 0) scale(1.18); }
+}
+html[data-motion="reduced"] .gfeat .gart-fb::before,
+html[data-motion="reduced"] .gfeat .gart-fb::after { animation: none; }
 .art-thumb .gart-fb::after { display: none; }
 .gart .gart-logo { inset: 10%; width: 80%; height: 80%; object-fit: contain; }
 .art-tile-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -4138,7 +4216,7 @@ html[data-motion="reduced"] .gart-img,
 html[data-motion="reduced"] .gd-portrait,
 html[data-motion="reduced"] .glogo { transform: none !important; transition: opacity 300ms ease-out; }
 html[data-motion="reduced"] .gfeat-brand,
-html[data-motion="off"] .gfeat-brand { transform: none; }
+html[data-motion="off"] .gfeat-brand { transform: none !important; }
 html[data-motion="off"] .gart-img,
 html[data-motion="off"] .gd-portrait,
 html[data-motion="off"] .glogo,

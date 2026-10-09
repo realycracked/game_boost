@@ -729,11 +729,20 @@
     }
     if (tilt) { applyTilt(tilt, x, y); }
 
+    /* Spotlight : --mx / --my sont des propriétés HÉRITÉES ; les réécrire à
+       chaque image sur un grand conteneur (.card qui englobe tout un
+       panneau, ex. #cs2-hero) recalculait le style de tout son sous-arbre.
+       On s'arrête à la carte survolée et à un seul parent, et les très
+       grands conteneurs n'ont plus de halo (classe od-spot-off). */
     var spot = t.closest(SPOT_SEL), guard = 0;
-    while (spot && guard < 4) {
-      var r = (spot === tilt && tilt.__odRect) ? tilt.__odRect : spot.getBoundingClientRect();
-      spot.style.setProperty("--mx", (x - r.left).toFixed(1) + "px");
-      spot.style.setProperty("--my", (y - r.top).toFixed(1) + "px");
+    while (spot && guard < 2) {
+      if (spotTooBig(spot)) {
+        spot.classList.add("od-spot-off");
+      } else {
+        var r = (spot === tilt && tilt.__odRect) ? tilt.__odRect : spot.getBoundingClientRect();
+        spot.style.setProperty("--mx", (x - r.left).toFixed(1) + "px");
+        spot.style.setProperty("--my", (y - r.top).toFixed(1) + "px");
+      }
       spot = spot.parentElement ? spot.parentElement.closest(SPOT_SEL) : null;
       guard++;
     }
@@ -748,6 +757,19 @@
     if (mag) { applyMag(mag, x, y); }
   }
 
+  /** Conteneur sans halo suivi à chaque image : trop lourd (plus de 120
+      descendants) ou entièrement couvert par un visuel (.has-art, ex. le
+      bandeau CS2 : le halo serait invisible, le reflet du visuel a ses
+      propres variables) ; résultat gardé 2 s (contenu re-rendu). */
+  function spotTooBig(el) {
+    var now = Date.now();
+    if (el.__odBigAt && now - el.__odBigAt < 2000) { return el.__odBig; }
+    el.__odBigAt = now;
+    el.__odBig = el.classList.contains("has-art") || el.getElementsByTagName("*").length > 120;
+    if (!el.__odBig) { el.classList.remove("od-spot-off"); }
+    return el.__odBig;
+  }
+
   function applyTilt(el, x, y) {
     var r = el.__odRect;
     if (!r || !r.width || !r.height) { return; }
@@ -760,9 +782,14 @@
     /* Léger soulèvement 2D plutôt qu'un scale3d (texte plus net). */
     el.style.transform = "translateY(-2px) perspective(900px) rotateX(" + rx.toFixed(2) + "deg) rotateY(" +
       ry.toFixed(2) + "deg)";
-    /* Parallaxe 2D des éléments non textuels (anneau, pictogramme, viseur). */
-    el.style.setProperty("--tx", ((px - 0.5) * 6).toFixed(2));
-    el.style.setProperty("--ty", ((py - 0.5) * 6).toFixed(2));
+    /* Parallaxe 2D des éléments non textuels (anneau, pictogramme, viseur) :
+       variables posées seulement si la carte en contient (sinon, ex. les
+       jaquettes, elles recalculaient le style de la carte pour rien). */
+    if (el.__odPar === undefined) { el.__odPar = !!el.querySelector(".od-ring, .xhair-preview, .gauge-ic"); }
+    if (el.__odPar) {
+      el.style.setProperty("--tx", ((px - 0.5) * 6).toFixed(2));
+      el.style.setProperty("--ty", ((py - 0.5) * 6).toFixed(2));
+    }
   }
 
   function releaseTilt(el) {
@@ -771,6 +798,7 @@
     el.style.removeProperty("--tx");
     el.style.removeProperty("--ty");
     el.__odRect = null;
+    el.__odPar = undefined;   /* contenu re-vérifié au prochain survol */
   }
 
   function applyMag(el, x, y) {
@@ -927,6 +955,9 @@
     hash = String(hash || "#/");
     var cur = window.location.hash || "#/";
     if (cur === hash || (hash === "#/" && (cur === "" || cur === "#"))) { return; }
+    /* Annoncé avant la capture de la transition (~250 ms) : la page quittée
+       (accueil) arrête aussitôt ses relevés et boucles d'animation. */
+    try { window.dispatchEvent(new CustomEvent("overdrive:navigate", { detail: { hash: hash } })); } catch (e0) { /* sans effet */ }
     if (!canVT()) { window.location.hash = hash; return; }
     transition(function () {
       return new Promise(function (resolve) {
