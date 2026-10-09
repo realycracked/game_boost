@@ -4,11 +4,14 @@ import ctypes
 import logging
 import os
 import sys
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 log = logging.getLogger("overdrive.server")
@@ -21,6 +24,9 @@ _ALLOWED_HOSTS: set[str] = {"127.0.0.1", "localhost", "::1"}
 _ACCESS_TOKEN: str | None = None
 
 _TOKEN_COOKIE = "overdrive_token"
+
+#: Un seul mini-benchmark à la fois (voir POST /api/bench).
+_BENCH_LOCK = threading.Lock()
 
 
 def configure_security(token: str | None = None,
@@ -36,9 +42,19 @@ from . import APP_NAME, VERSION
 from .core.ai.chat import ask
 from .core.boost import run_boost
 from .core.cleaner import clean, scan
-from .core.games.cs2 import cs2_info, write_autoexec
+from .core.games.cs2 import (
+    TIERS,
+    apply_video_settings,
+    cs2_info,
+    detect_tier,
+    max_refresh_hz,
+    recommended_fps_max,
+    suggest_maxping,
+    write_autoexec,
+)
 from .core.games.detect import detect_games
-from .core.hardware import detect_hardware
+from .core.gamewatch import current_game
+from .core.hardware import cached_tier, detect_hardware
 from .core.latency import REGIONS, measure
 from .core.monitor import sample
 from .core.programs import PROGRAMS, install_program, winget_available
@@ -58,6 +74,42 @@ from .paths import is_windows, web_dir
 from .store import get_settings, update_settings
 
 _SIMPLE_TYPES = (str, int, float, bool, type(None))
+
+#: Bornes du convertisseur de sensibilité (POST /api/sens/convert) : valeur
+#: de jeu maximale acceptée et cm/360 minimal plausible.
+_SENS_MAX = 1000.0
+_CM360_MIN = 0.1
+
+#: Thèmes acceptés par POST /api/settings et /api/profile/import ; les
+#: anciennes valeurs "dark"/"light" sont normalisées (voir _THEME_ALIASES).
+_THEMES = ("midnight", "midnight-ocean", "midnight-emerald", "midnight-rose",
+           "daylight", "dark", "light")
+_THEME_ALIASES = {"dark": "midnight", "light": "daylight"}
+_DEFAULT_THEME = "midnight"
+
+#: Niveaux d'animation de l'interface.
+_MOTIONS = ("max", "reduced", "off")
+_DEFAULT_MOTION = "max"
+
+
+def _normalize_theme(value: Any) -> str | None:
+    """Thème normalisé (dark→midnight, light→daylight), ``None`` si invalide."""
+    if not isinstance(value, str) or value not in _THEMES:
+        return None
+    return _THEME_ALIASES.get(value, value)
+
+
+def _normalize_motion(value: Any) -> str | None:
+    """Niveau d'animation valide, ``None`` sinon."""
+    return value if isinstance(value, str) and value in _MOTIONS else None
+
+
+def _normalized_settings(settings: dict) -> dict:
+    """Copie des réglages avec ``theme`` et ``motion`` normalisés."""
+    out = dict(settings)
+    out["theme"] = _normalize_theme(settings.get("theme")) or _DEFAULT_THEME
+    out["motion"] = _normalize_motion(settings.get("motion")) or _DEFAULT_MOTION
+    return out
 
 
 def _platform_name() -> str:
@@ -95,9 +147,48 @@ def _require_ids(payload: Any) -> list[str]:
     return ids
 
 
+def _start_art_prefetch() -> None:
+    """Lance le préchargement des visuels de jeux (fil démon, jamais d'exception)."""
+    try:
+        from .core.gameart import prefetch
+
+        prefetch()
+    except Exception:  # noqa: BLE001 — le serveur démarre quoi qu'il arrive
+        log.exception("Préchargement des visuels de jeux impossible")
+
+
+@asynccontextmanager
+async def _lifespan(_application: FastAPI):
+    """Cycle de vie : préchargement des visuels de jeux au démarrage du serveur.
+
+    Lancé ici et non dans le corps de ``create_app`` (exécuté à l'import du
+    module) : les modes --widget et --clean-safe importent aussi ce module et
+    ne doivent rien télécharger. ``prefetch()`` rend la main immédiatement.
+    """
+    _start_art_prefetch()
+    yield
+
+
+def _art_error(status: int, code: str, fr: str, en: str) -> JSONResponse:
+    """Réponse d'erreur des routes /api/art (``detail`` FR + ``detail_en``)."""
+    return JSONResponse(
+        status_code=status,
+        content={"ok": False, "error": code, "detail": fr, "detail_en": en},
+    )
+
+
 def create_app() -> FastAPI:
     """Construit et retourne l'application FastAPI d'Overdrive."""
-    application = FastAPI(title=APP_NAME, version=VERSION, docs_url=None, redoc_url=None)
+    application = FastAPI(title=APP_NAME, version=VERSION, docs_url=None, redoc_url=None,
+                          lifespan=_lifespan)
+
+    # Warm-up matériel : la détection (cpu_percent 0,2 s + PowerShell GPU,
+    # timeout 10 s) tourne en arrière-plan dès le démarrage, pour que
+    # /api/status reste instantané (il lit cached_tier, jamais bloquant) et
+    # que le tier soit prêt avant que l'utilisateur atteigne la page
+    # Optimisations. La double vérification sous _CACHE_LOCK de
+    # detect_hardware rend ce thread sûr face aux appels concurrents.
+    threading.Thread(target=detect_hardware, daemon=True, name="hw-warmup").start()
 
     @application.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
@@ -153,8 +244,26 @@ def create_app() -> FastAPI:
 
     @application.get("/api/status")
     async def api_status() -> dict:
-        """État général de l'application."""
-        settings = get_settings()
+        """État général de l'application.
+
+        ``hardware_tier`` (et son alias ``tier``) vaut ``null`` tant que la
+        détection matérielle n'a pas tourné : le front le traite comme
+        inconnu et retente après un chargement de ``/api/hardware``. La
+        lecture passe par :func:`cached_tier` qui ne déclenche JAMAIS de
+        détection — cette route doit rester instantanée.
+
+        ``game_running`` : un jeu du catalogue tourne
+        (:func:`overdrive.core.gamewatch.current_game`, cache 3 s, scan
+        exécuté hors de la boucle d'événements). ``theme`` et ``motion``
+        sont normalisés (dark→midnight, light→daylight ; motion par défaut
+        "max").
+        """
+        settings = _normalized_settings(get_settings())
+        tier = cached_tier()
+        try:
+            game_running = (await run_in_threadpool(current_game)) is not None
+        except Exception:  # noqa: BLE001 — l'état ne doit jamais échouer
+            game_running = False
         return {
             "app": APP_NAME,
             "version": VERSION,
@@ -163,33 +272,58 @@ def create_app() -> FastAPI:
             "is_admin": _is_admin(),
             "first_run": bool(settings.get("first_run", True)),
             "profile": settings.get("profile"),
-            "theme": settings.get("theme", "light"),
+            "theme": settings["theme"],
+            "motion": settings["motion"],
             "lang": settings.get("lang", "fr"),
+            "hardware_tier": tier,
+            "tier": tier,
+            "game_running": game_running,
         }
 
     # --------------------------------------------------------------- settings
 
     @application.get("/api/settings")
     async def api_get_settings() -> dict:
-        """Réglages complets (jamais de clés API dedans)."""
-        return get_settings()
+        """Réglages complets (jamais de clés API dedans), thème/motion normalisés."""
+        return _normalized_settings(get_settings())
 
     @application.post("/api/settings")
     async def api_post_settings(payload: Any = Body(...)) -> dict:
-        """Met à jour des réglages simples (liste blanche : thème, langue)."""
+        """Met à jour des réglages simples (liste blanche : thème, animations, langue).
+
+        ``theme`` ∈ midnight, midnight-ocean, midnight-emerald, midnight-rose,
+        daylight (dark/light acceptés et normalisés en midnight/daylight) ;
+        ``motion`` ∈ max, reduced, off.
+        """
         data = _require_dict(payload)
+        updates: dict[str, Any] = {}
         theme = data.get("theme")
-        if theme is not None and theme not in ("light", "dark"):
-            raise HTTPException(status_code=400, detail="Thème invalide : 'light' ou 'dark'.")
+        if theme is not None:
+            normalized = _normalize_theme(theme)
+            if normalized is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Thème invalide : choix possibles : {', '.join(_THEMES)}.",
+                )
+            updates["theme"] = normalized
+        motion = data.get("motion")
+        if motion is not None:
+            if _normalize_motion(motion) is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Animations invalides : choix possibles : {', '.join(_MOTIONS)}.",
+                )
+            updates["motion"] = motion
         lang = data.get("lang")
         if lang is not None and lang not in ("fr", "en"):
             raise HTTPException(status_code=400, detail="Langue invalide : 'fr' ou 'en'.")
+        if lang is not None:
+            updates["lang"] = lang
         # Liste blanche stricte : les clés typées (profile, quiz_answers,
         # ai_provider, first_run) ont leurs propres routes validées.
-        updates = {key: data[key] for key in ("theme", "lang") if data.get(key) is not None}
         if not updates:
-            return get_settings()
-        return update_settings(**updates)
+            return _normalized_settings(get_settings())
+        return _normalized_settings(update_settings(**updates))
 
     # --------------------------------------------------------------- hardware
 
@@ -227,19 +361,209 @@ def create_app() -> FastAPI:
         """Catalogue des jeux avec détection d'installation."""
         return {"games": detect_games()}
 
-    @application.get("/api/games/cs2")
-    def api_games_cs2() -> dict:
-        """Informations détaillées Counter-Strike 2."""
-        return cs2_info()
+    def _require_tier(value: Any) -> str | None:
+        """Valide un tier optionnel (``None`` accepté, sinon un tier connu)."""
+        if value is None:
+            return None
+        if not isinstance(value, str) or value not in TIERS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tier invalide : choix possibles : {', '.join(TIERS)}.",
+            )
+        return value
 
-    @application.post("/api/games/cs2/autoexec")
-    def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
-        """Écrit l'autoexec recommandé pour CS2."""
+    @application.get("/api/games/cs2")
+    def api_games_cs2(tier: str | None = None) -> dict:
+        """Informations détaillées Counter-Strike 2 (``?tier=`` force un tier)."""
+        return cs2_info(_require_tier(tier))
+
+    @application.post("/api/games/cs2/video")
+    def api_cs2_video(payload: Any = Body(default=None)) -> dict:
+        """Applique le plan vidéo du tier au cs2_video.txt du joueur.
+
+        Corps optionnel ``{"user_id": str|None, "tier": str|None}`` ; sans
+        tier, le tier détecté est utilisé. L'écriture est sécurisée côté
+        module (sauvegarde coffre, refus si CS2 tourne, clés présentes
+        uniquement) ; sous Linux la réponse est un refus propre.
+        """
         data = payload if isinstance(payload, dict) else {}
         user_id = data.get("user_id")
         if user_id is not None and not isinstance(user_id, str):
             raise HTTPException(status_code=400, detail="Le champ 'user_id' doit être une chaîne.")
-        return write_autoexec(user_id=user_id)
+        tier = _require_tier(data.get("tier"))
+        if tier is None:
+            tier = detect_tier().get("tier") or "midrange"
+        return apply_video_settings(user_id, tier)
+
+    @application.get("/api/games/cs2/suggestions")
+    def api_cs2_suggestions() -> dict:
+        """Suggestions dynamiques CS2 (appel coûteux isolé, à la demande).
+
+        La mesure de latence (bornée à ~8 s) vit ici et non dans
+        ``/api/games/cs2`` : le front l'appelle sur clic, pas au chargement.
+        """
+        tier_info = detect_tier()
+        hz_max = max_refresh_hz()
+        return {
+            "maxping": suggest_maxping(),
+            "fps_max": recommended_fps_max(tier_info, hz_max),
+            "hz_max": hz_max,
+            "tier": tier_info,
+        }
+
+    @application.post("/api/games/cs2/autoexec")
+    def api_cs2_autoexec(payload: Any = Body(default=None)) -> dict:
+        """Écrit l'autoexec recommandé pour CS2 (rétrocompatible sans corps).
+
+        Corps optionnel ``{"user_id", "tier", "fps_max", "maxping",
+        "sensitivity", "zoom_ratio"}`` ; bornes alignées sur celles de
+        ``generate_autoexec`` (hors bornes => HTTP 400 plutôt qu'une ligne
+        commentée silencieuse dans le fichier écrit).
+        """
+        data = payload if isinstance(payload, dict) else {}
+        user_id = data.get("user_id")
+        if user_id is not None and not isinstance(user_id, str):
+            raise HTTPException(status_code=400, detail="Le champ 'user_id' doit être une chaîne.")
+        tier = _require_tier(data.get("tier"))
+        fps_max = data.get("fps_max")
+        if fps_max is not None and (
+                isinstance(fps_max, bool) or not isinstance(fps_max, int)
+                or not (fps_max == 0 or 60 <= fps_max <= 1000)):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'fps_max' doit valoir 0 (illimité) ou un entier de 60 à 1000.",
+            )
+        maxping = data.get("maxping")
+        if maxping is not None and (
+                isinstance(maxping, bool) or not isinstance(maxping, int)
+                or not 25 <= maxping <= 350):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'maxping' doit être un entier de 25 à 350.",
+            )
+        sensitivity = data.get("sensitivity")
+        if sensitivity is not None and (
+                isinstance(sensitivity, bool)
+                or not isinstance(sensitivity, (int, float))
+                or not 0 < float(sensitivity) <= 10):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'sensitivity' doit être un nombre entre 0 (exclu) et 10.",
+            )
+        zoom_ratio = data.get("zoom_ratio")
+        if zoom_ratio is not None and (
+                isinstance(zoom_ratio, bool)
+                or not isinstance(zoom_ratio, (int, float))
+                or not 0.5 <= float(zoom_ratio) <= 2.0):
+            raise HTTPException(
+                status_code=400,
+                detail="Le champ 'zoom_ratio' doit être un nombre entre 0,5 et 2,0.",
+            )
+        return write_autoexec(
+            user_id=user_id,
+            tier=tier,
+            fps_max=fps_max,
+            maxping=maxping,
+            sensitivity=float(sensitivity) if sensitivity is not None else None,
+            zoom_ratio=float(zoom_ratio) if zoom_ratio is not None else None,
+        )
+
+    # -------------------------------------------------- visuels des jeux (v7)
+    # Images téléchargées depuis les CDN des éditeurs / API communautaires et
+    # mises en cache (overdrive.core.gameart). Import tardif : le serveur
+    # démarre même si le module venait à manquer.
+
+    @application.get("/api/art")
+    def api_art() -> dict:
+        """Visuels disponibles par jeu (sans réseau) : source, types, perso."""
+        from .core.gameart import art_info
+
+        return art_info()
+
+    @application.get("/api/art/{game_id}/{kind}")
+    def api_art_image(game_id: str, kind: str, request: Request):
+        """Image d'un jeu (cover, header, hero, logo, portrait) ou 404 JSON.
+
+        Ne bloque JAMAIS sur le réseau : cache servi tout de suite (même
+        périmé, rafraîchi en fond), sinon téléchargement attendu 1 s au plus
+        puis 404 (le téléchargement continue en fond ; le front relit
+        /api/art plus tard). Avec ``?v=<rev>`` égal à la révision du fichier
+        servi : cache navigateur d'un an (URL propre au contenu) ; sinon 24 h.
+        ``If-None-Match`` → 304 sans renvoyer le fichier.
+        """
+        from .core.gameart import file_rev, is_valid_target, media_type, serve_art
+
+        if not is_valid_target(game_id, kind):
+            raise HTTPException(status_code=404, detail="Jeu ou type d'image inconnu.")
+        path = serve_art(game_id, kind)
+        if path is None:
+            raise HTTPException(status_code=404, detail="Image indisponible.")
+        try:
+            st = path.stat()
+        except OSError:
+            raise HTTPException(status_code=404, detail="Image indisponible.") from None
+        etag = f'"{st.st_size:x}-{st.st_mtime_ns:x}"'
+        wanted = request.query_params.get("v")
+        if wanted is None:
+            cache = "public, max-age=86400"
+        elif wanted == str(file_rev(path)):
+            cache = "public, max-age=31536000, immutable"
+        else:
+            # Révision périmée côté front : revalidation à chaque affichage.
+            cache = "no-cache"
+        headers = {
+            "Cache-Control": cache,
+            "ETag": etag,
+            "X-Content-Type-Options": "nosniff",
+        }
+        inm = request.headers.get("if-none-match") or ""
+        if etag in [t.strip().removeprefix("W/") for t in inm.split(",")]:
+            return Response(status_code=304, headers=headers)
+        return FileResponse(path, media_type=media_type(path), headers=headers)
+
+    @application.post("/api/art/{game_id}/{kind}/custom")
+    def api_art_custom_set(game_id: str, kind: str, payload: Any = Body(...)):
+        """Image personnalisée : corps ``{"data_url": "data:image/...;base64,..."}``.
+
+        PNG, JPEG ou WebP de 8 Mo maximum (octets magiques vérifiés).
+        """
+        from .core.gameart import is_valid_target, parse_data_url, set_custom
+
+        if not is_valid_target(game_id, kind):
+            return _art_error(404, "unknown_target", "Jeu ou type d'image inconnu.",
+                              "Unknown game or image type.")
+        raw, error = parse_data_url(_require_dict(payload).get("data_url"))
+        if error == "too_large":
+            return _art_error(400, "too_large", "Image trop lourde (8 Mo maximum).",
+                              "Image too large (8 MB maximum).")
+        if raw is None:
+            return _art_error(
+                400, "invalid_image",
+                "Image invalide : data URL PNG, JPEG ou WebP (8 Mo maximum) attendue.",
+                "Invalid image: a PNG, JPEG or WebP data URL (8 MB maximum) is expected.",
+            )
+        result = set_custom(game_id, kind, raw)
+        if not result.get("ok"):
+            status = 500 if result.get("error") == "io" else 400
+            return _art_error(status, str(result.get("error") or "invalid_image"),
+                              str(result.get("message") or ""),
+                              str(result.get("message_en") or ""))
+        return result
+
+    @application.delete("/api/art/{game_id}/{kind}/custom")
+    def api_art_custom_delete(game_id: str, kind: str):
+        """Supprime l'image personnalisée (retour au visuel téléchargé)."""
+        from .core.gameart import delete_custom, is_valid_target
+
+        if not is_valid_target(game_id, kind):
+            return _art_error(404, "unknown_target", "Jeu ou type d'image inconnu.",
+                              "Unknown game or image type.")
+        result = delete_custom(game_id, kind)
+        if not result.get("ok"):
+            return _art_error(500, str(result.get("error") or "io"),
+                              str(result.get("message") or ""),
+                              str(result.get("message_en") or ""))
+        return result
 
     # --------------------------------------------------------------- programs
 
@@ -266,8 +590,29 @@ def create_app() -> FastAPI:
 
     @application.post("/api/clean")
     def api_clean(payload: Any = Body(...)) -> dict:
-        """Nettoie les cibles sélectionnées."""
-        return {"results": clean(_require_ids(payload))}
+        """Nettoie les cibles sélectionnées (Windows uniquement).
+
+        Hors Windows, la seule cible analysée est /tmp (mode développement) :
+        la supprimer emporterait des fichiers ouverts et des sockets d'autres
+        processus. L'analyse reste consultable, le nettoyage est refusé
+        proprement, cible par cible.
+        """
+        ids = _require_ids(payload)
+        if not is_windows():
+            return {
+                "results": [
+                    {
+                        "id": target_id,
+                        "ok": False,
+                        "freed_mb": 0.0,
+                        "message": "Disponible uniquement sous Windows.",
+                        "message_en": "Windows only.",
+                    }
+                    for target_id in ids
+                ],
+                "supported": False,
+            }
+        return {"results": clean(ids)}
 
     # ---------------------------------------------------------------- monitor
 
@@ -343,6 +688,45 @@ def create_app() -> FastAPI:
             )
         return run_boost(create_restore=restore_point)
 
+    # -------------------------------------------------------- CS2 / AMD (v6)
+    # Imports tardifs (même motif que la vague 3) : le serveur démarre même
+    # si l'un de ces modules venait à manquer.
+
+    @application.get("/api/cs2/boost/plan")
+    def api_cs2_boost_plan(tier: str | None = None) -> dict:
+        """Aperçu du Boost CS2 (``?tier=`` force un tier), aucune modification."""
+        from .core.cs2boost import plan
+
+        return plan(_require_tier(tier))
+
+    @application.post("/api/cs2/boost")
+    def api_cs2_boost(payload: Any = Body(default=None)) -> dict:
+        """Boost CS2 en un clic : restauration, tweaks, vidéo et autoexec du tier.
+
+        Corps optionnel ``{"tier", "apply_video", "write_autoexec",
+        "restore_point"}`` (booléens à ``true`` par défaut). Sous Linux,
+        chaque étape répond par un refus propre.
+        """
+        from .core.cs2boost import run
+
+        data = payload if isinstance(payload, dict) else {}
+        flags: dict[str, bool] = {}
+        for key in ("apply_video", "write_autoexec", "restore_point"):
+            value = data.get(key, True)
+            if not isinstance(value, bool):
+                raise HTTPException(
+                    status_code=400, detail=f"Le champ '{key}' doit être un booléen."
+                )
+            flags[key] = value
+        return run(tier=_require_tier(data.get("tier")), **flags)
+
+    @application.get("/api/amd")
+    def api_amd() -> dict:
+        """Conseils AMD (checklist Adrenalin CS2, Ryzen) pour le matériel détecté."""
+        from .core.amd import amd_overview
+
+        return amd_overview()
+
     # ------------------------------------------------------------------- quiz
 
     @application.get("/api/quiz")
@@ -352,12 +736,18 @@ def create_app() -> FastAPI:
 
     @application.post("/api/quiz")
     def api_quiz_submit(payload: Any = Body(...)) -> dict:
-        """Calcule le profil, le sauvegarde et le retourne."""
+        """Calcule le profil, le sauvegarde et le retourne.
+
+        Le tier matériel est transmis via :func:`cached_tier` (jamais de
+        détection bloquante ici : le warm-up lancé par ``create_app`` rend
+        le cache presque toujours chaud à ce stade) pour basculer sur le
+        profil « petite_config » quand l'utilisateur ne connaît pas sa machine.
+        """
         data = _require_dict(payload)
         answers = data.get("answers")
         if not isinstance(answers, dict):
             raise HTTPException(status_code=400, detail="Le champ 'answers' doit être un objet.")
-        profile = compute_profile(answers)
+        profile = compute_profile(answers, tier=cached_tier())
         update_settings(profile=profile, quiz_answers=answers, first_run=False)
         return {"profile": profile}
 
@@ -429,6 +819,253 @@ def create_app() -> FastAPI:
                 "provider": provider or "",
             }
 
+    # ------------------------------------------------------- vague 3 (outils)
+    # Imports tardifs : ces modules sont déployés progressivement et le
+    # serveur doit démarrer même si l'un d'eux manque encore.
+
+    @application.post("/api/bench")
+    def api_bench_run() -> dict:
+        """Lance le mini-benchmark (10-15 s) et renvoie le résultat.
+
+        Un seul benchmark à la fois : deux mesures simultanées se gêneraient
+        (CPU, RAM, disque) et fausseraient l'historique avant/après.
+        """
+        from .core.bench import run_bench
+
+        if not _BENCH_LOCK.acquire(blocking=False):
+            return {
+                "ok": False,
+                "busy": True,
+                "message": "Un benchmark est déjà en cours.",
+                "message_en": "A benchmark is already running.",
+            }
+        try:
+            return run_bench()
+        finally:
+            _BENCH_LOCK.release()
+
+    @application.get("/api/bench/history")
+    def api_bench_history() -> dict:
+        """Historique des benchmarks."""
+        from .core.bench import get_history
+
+        return {"history": get_history()}
+
+    @application.get("/api/insights")
+    def api_insights() -> dict:
+        """Détections intelligentes (écran, overlays, pilotes, alimentation)."""
+        from .core.insights import get_insights
+
+        return {"insights": get_insights()}
+
+    @application.get("/api/debloat")
+    def api_debloat_list() -> dict:
+        """Applications préinstallées supprimables."""
+        from .core.debloat import list_installed
+
+        return {"apps": list_installed()}
+
+    @application.post("/api/debloat/remove")
+    def api_debloat_remove(payload: Any = Body(...)) -> dict:
+        """Supprime les applications préinstallées sélectionnées."""
+        from .core.debloat import remove
+
+        return {"results": remove(_require_ids(payload))}
+
+    @application.get("/api/update/check")
+    def api_update_check() -> dict:
+        """Vérifie si une version plus récente est publiée."""
+        from .core.updater import check_update
+
+        return check_update()
+
+    @application.get("/api/profile/export")
+    def api_profile_export() -> JSONResponse:
+        """Exporte le profil et les réglages dans un fichier JSON."""
+        from datetime import datetime, timezone
+
+        from .core.widgetcfg import get_widget_settings
+
+        settings = _normalized_settings(get_settings())
+        payload = {
+            "app": APP_NAME,
+            "version": VERSION,
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "profile": settings.get("profile"),
+            "quiz_answers": settings.get("quiz_answers"),
+            "theme": settings.get("theme"),
+            "motion": settings.get("motion"),
+            "lang": settings.get("lang", "fr"),
+            "widget": get_widget_settings(),
+        }
+        filename = "overdrive-profil.json"
+        return JSONResponse(
+            content=payload,
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+
+    @application.post("/api/profile/import")
+    def api_profile_import(payload: Any = Body(...)) -> dict:
+        """Importe un profil exporté (profil, réponses, réglages, widget)."""
+        from .core.widgetcfg import update_widget_settings
+
+        data = _require_dict(payload)
+        if data.get("app") != APP_NAME:
+            raise HTTPException(status_code=400, detail="Fichier d'export Overdrive invalide.")
+        updates: dict[str, Any] = {}
+        if isinstance(data.get("profile"), dict):
+            updates["profile"] = data["profile"]
+            updates["first_run"] = False
+        if isinstance(data.get("quiz_answers"), dict):
+            updates["quiz_answers"] = data["quiz_answers"]
+        # Même normalisation que POST /api/settings (dark→midnight,
+        # light→daylight) ; valeur inconnue ignorée silencieusement.
+        theme = _normalize_theme(data.get("theme"))
+        if theme is not None:
+            updates["theme"] = theme
+        motion = _normalize_motion(data.get("motion"))
+        if motion is not None:
+            updates["motion"] = motion
+        if data.get("lang") in ("fr", "en"):
+            updates["lang"] = data["lang"]
+        if updates:
+            update_settings(**updates)
+        if isinstance(data.get("widget"), dict):
+            update_widget_settings(data["widget"])
+        return {"ok": True, "message": "Profil importé.", "imported": sorted(updates.keys())}
+
+    # ------------------------------------------------------- vague 4 (outils)
+
+    @application.get("/api/sens/games")
+    def api_sens_games() -> dict:
+        """Jeux pris en charge par le convertisseur de sensibilité."""
+        from .core.sensitivity import GAMES_SENS
+
+        return {"games": GAMES_SENS}
+
+    @application.post("/api/sens/convert")
+    def api_sens_convert(payload: Any = Body(...)) -> dict:
+        """Convertit une sensibilité (jeu, sens, DPI) vers tous les jeux."""
+        from .core.sensitivity import convert
+
+        data = _require_dict(payload)
+        game = data.get("game")
+        sens = data.get("sens")
+        dpi = data.get("dpi")
+        if not isinstance(game, str) or not isinstance(sens, (int, float)) \
+                or isinstance(sens, bool) or not isinstance(dpi, int):
+            raise HTTPException(
+                status_code=400,
+                detail="Champs requis : 'game' (str), 'sens' (nombre), 'dpi' (entier).",
+            )
+        # Borne haute : au-delà, les conversions n'ont plus de sens physique
+        # (ex. 99 999 999 → 0 cm/360 et eDPI à 12 chiffres). Les valeurs
+        # nulles, négatives ou non finies restent refusées par convert().
+        if not float(sens) > _SENS_MAX:
+            result = convert(game, float(sens), dpi)
+        else:
+            result = {"ok": False, "cm360": 0.0, "edpi": None, "conversions": [],
+                      "message": f"Sensibilité hors plage : entre 0 et {_SENS_MAX:g} attendu.",
+                      "message_en": f"Sensitivity out of range: between 0 and {_SENS_MAX:g} expected."}
+        if result.get("ok") and float(result.get("cm360") or 0.0) < _CM360_MIN:
+            result = {"ok": False, "cm360": 0.0, "edpi": None, "conversions": [],
+                      "message": "Combinaison sensibilité × DPI irréaliste : moins de "
+                                 "0,1 cm pour un tour complet.",
+                      "message_en": "Unrealistic sensitivity × DPI combination: less than "
+                                    "0.1 cm for a full turn."}
+        return result
+
+    @application.get("/api/crosshairs")
+    def api_crosshairs() -> dict:
+        """Bibliothèque de viseurs CS2."""
+        from .core.crosshairs import CROSSHAIRS
+
+        return {"crosshairs": CROSSHAIRS}
+
+    @application.get("/api/vault")
+    def api_vault() -> dict:
+        """Cibles sauvegardables et sauvegardes existantes du coffre de configs."""
+        from .core.configvault import list_backups, vault_targets
+
+        return {"targets": vault_targets(), "backups": list_backups()}
+
+    @application.post("/api/vault/backup")
+    def api_vault_backup(payload: Any = Body(default=None)) -> dict:
+        """Sauvegarde les configurations de jeux sélectionnées (ou toutes)."""
+        from .core.configvault import backup
+
+        data = payload if isinstance(payload, dict) else {}
+        ids = data.get("ids")
+        if ids is not None and (not isinstance(ids, list)
+                                or not all(isinstance(i, str) for i in ids)):
+            raise HTTPException(status_code=400, detail="Le champ 'ids' doit être une liste de chaînes.")
+        return backup(ids)
+
+    @application.post("/api/vault/restore")
+    def api_vault_restore(payload: Any = Body(...)) -> dict:
+        """Restaure une sauvegarde du coffre (sauvegarde de sécurité automatique)."""
+        from .core.configvault import restore
+
+        data = _require_dict(payload)
+        backup_id = data.get("id")
+        ids = data.get("ids")
+        if not isinstance(backup_id, str) or not backup_id:
+            raise HTTPException(status_code=400, detail="Le champ 'id' est requis.")
+        if ids is not None and (not isinstance(ids, list)
+                                or not all(isinstance(i, str) for i in ids)):
+            raise HTTPException(status_code=400, detail="Le champ 'ids' doit être une liste de chaînes.")
+        return restore(backup_id, ids)
+
+    @application.post("/api/vault/delete")
+    def api_vault_delete(payload: Any = Body(...)) -> dict:
+        """Supprime une sauvegarde du coffre."""
+        from .core.configvault import delete_backup
+
+        data = _require_dict(payload)
+        backup_id = data.get("id")
+        if not isinstance(backup_id, str) or not backup_id:
+            raise HTTPException(status_code=400, detail="Le champ 'id' est requis.")
+        return delete_backup(backup_id)
+
+    @application.post("/api/netstab")
+    def api_netstab(payload: Any = Body(default=None)) -> dict:
+        """Test de stabilité réseau (perte de paquets et gigue)."""
+        from .core.netstab import run_stability
+
+        data = payload if isinstance(payload, dict) else {}
+        region = data.get("region")
+        duration = data.get("duration")
+        if region is not None and not isinstance(region, str):
+            raise HTTPException(status_code=400, detail="Le champ 'region' doit être une chaîne.")
+        if duration is not None and not isinstance(duration, int):
+            raise HTTPException(status_code=400, detail="Le champ 'duration' doit être un entier.")
+        return run_stability(region, duration if duration is not None else 20)
+
+    @application.get("/api/netusage")
+    def api_netusage() -> dict:
+        """Activité réseau : débits globaux, connexions par application, suspects."""
+        from .core.netusage import snapshot
+
+        return snapshot()
+
+    @application.get("/api/schedule")
+    def api_schedule_get() -> dict:
+        """État du nettoyage planifié hebdomadaire."""
+        from .core.scheduler import get_schedule
+
+        return get_schedule()
+
+    @application.post("/api/schedule")
+    def api_schedule_set(payload: Any = Body(...)) -> dict:
+        """Active ou désactive le nettoyage planifié hebdomadaire."""
+        from .core.scheduler import set_schedule
+
+        data = _require_dict(payload)
+        enabled = data.get("enabled")
+        if not isinstance(enabled, bool):
+            raise HTTPException(status_code=400, detail="Le champ 'enabled' doit être un booléen.")
+        return set_schedule(enabled)
+
     # ----------------------------------------------------------------- widget
 
     @application.get("/api/widget")
@@ -448,10 +1085,26 @@ def create_app() -> FastAPI:
         from .core.widgetcfg import update_widget_settings
 
         data = _require_dict(payload)
-        config = update_widget_settings(data)
         autostart_result = None
         if "autostart" in data:
-            autostart_result = set_widget_autostart(config["autostart"])
+            # L'entrée de démarrage est écrite AVANT la persistance : en cas
+            # d'échec (hors Windows, registre inaccessible), le réglage
+            # enregistré reprend le mode réel au lieu du choix refusé.
+            requested = data.get("autostart")
+            real_before = get_autostart()
+            if (
+                requested == "never"
+                and not real_before.get("supported", True)
+                and real_before.get("widget_mode") == "never"
+            ):
+                # Rien à désactiver là où le démarrage auto n'existe pas.
+                autostart_result = {"ok": True, "message": ""}
+            else:
+                autostart_result = set_widget_autostart(requested)
+            if not autostart_result.get("ok"):
+                data = dict(data)
+                data["autostart"] = get_autostart().get("widget_mode", "never")
+        config = update_widget_settings(data)
         return {
             "widget": config,
             "autostart": get_autostart(),
@@ -460,8 +1113,32 @@ def create_app() -> FastAPI:
 
     @application.post("/api/widget/launch")
     def api_widget_launch() -> dict:
-        """Lance le widget dans un processus détaché."""
+        """Lance le widget dans un processus détaché (Windows uniquement).
+
+        Hors Windows, ou sans pywebview, le processus enfant quitterait
+        aussitôt : refus propre plutôt qu'un faux succès. Le processus lancé
+        est attendu dans un fil démon pour ne pas laisser de zombie.
+        """
+        import importlib.util
         import subprocess
+
+        if not is_windows():
+            return {
+                "ok": False,
+                "message": "Widget disponible uniquement sous Windows.",
+                "message_en": "The widget is only available on Windows.",
+            }
+        if not getattr(sys, "frozen", False):
+            try:
+                webview_missing = importlib.util.find_spec("webview") is None
+            except (ImportError, ValueError):
+                webview_missing = True
+            if webview_missing:
+                return {
+                    "ok": False,
+                    "message": "Widget indisponible : pywebview n'est pas installé.",
+                    "message_en": "Widget unavailable: pywebview is not installed.",
+                }
 
         if getattr(sys, "frozen", False):
             command = [sys.executable, "--widget"]
@@ -475,17 +1152,23 @@ def create_app() -> FastAPI:
                 | getattr(subprocess, "DETACHED_PROCESS", 0)
             )
         try:
-            subprocess.Popen(
+            proc = subprocess.Popen(
                 command,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 stdin=subprocess.DEVNULL,
                 **kwargs,
             )
-            return {"ok": True, "message": "Widget lancé."}
         except Exception:
             log.exception("Échec du lancement du widget")
-            return {"ok": False, "message": "Impossible de lancer le widget."}
+            return {
+                "ok": False,
+                "message": "Impossible de lancer le widget.",
+                "message_en": "Could not launch the widget.",
+            }
+        # Récupère le code de sortie à la fin du widget (pas de zombie).
+        threading.Thread(target=proc.wait, name="widget-reaper", daemon=True).start()
+        return {"ok": True, "message": "Widget lancé.", "message_en": "Widget launched."}
 
     return application
 

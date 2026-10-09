@@ -17,7 +17,12 @@ _SYSTEM_BASE = (
     "Defender, et ne propose JAMAIS de commande destructrice ou irréversible (formatage, "
     "suppression de fichiers système, modification de partitions, ni modification du "
     "registre non documentée). Privilégie des actions réversibles et recommande un point "
-    "de restauration avant tout changement avancé."
+    "de restauration avant tout changement avancé. "
+    "Quand ta recommandation correspond exactement à une optimisation du catalogue "
+    "Overdrive (liste d'identifiants fournie dans le contexte), ajoute à la fin de la "
+    "phrase concernée le marqueur [[tweak:identifiant]] — l'application affichera alors "
+    "un bouton « Appliquer ». N'utilise ce marqueur qu'avec un identifiant exact de la "
+    "liste, au plus 3 par réponse, jamais pour un tweak déjà appliqué."
 )
 
 
@@ -52,6 +57,11 @@ def _context_lines() -> list[str]:
         # tracked = appliqué via Overdrive et non annulé (sémantique engine).
         applied = sum(1 for t in tweaks if t.get("tracked"))
         lines.append(f"Tweaks appliqués via Overdrive : {applied} sur {len(tweaks)} disponibles")
+        pending = [t["id"] for t in tweaks if not t.get("tracked")]
+        lines.append(
+            "Identifiants d'optimisations utilisables avec [[tweak:...]] "
+            "(non encore appliquées) : " + ", ".join(pending)
+        )
     except Exception:
         try:
             from ...paths import data_dir

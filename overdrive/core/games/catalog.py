@@ -18,11 +18,39 @@ GAMES: list[dict] = [
         "install_hints": [
             "Steam/steamapps/common/Counter-Strike Global Offensive",
         ],
-        "launch_options": "-high -fullscreen +fps_max 0",
+        # Valeur « midrange » conservée pour la rétrocompatibilité de
+        # /api/games ; les variantes par tier sont dans launch_options_tiers.
+        # Le cap FPS vit désormais dans l'autoexec (une seule source de
+        # vérité), plus dans les options de lancement.
+        "launch_options": "-fullscreen -console -high +exec autoexec.cfg",
         "launch_options_note": (
             "Steam > Bibliothèque > clic droit sur CS2 > Propriétés > Options de lancement. "
-            "Note : -novid, -tickrate et -nojoy n'ont plus d'effet dans CS2."
+            "-high est réservé aux CPU d'au moins 6 cœurs physiques : sur 4 cœurs, la "
+            "priorité haute peut affamer le thread audio et les services Windows "
+            "(saccades, crachotements). Sans effet dans CS2 : -novid, -tickrate, -nojoy, "
+            "-threads, -d3d9ex, +cl_forcepreload, -refresh/-freq (la fréquence d'écran "
+            "se règle dans cs2_video.txt)."
         ),
+        "launch_options_tiers": {
+            "lowend": "-fullscreen -console +exec autoexec.cfg",
+            "midrange": "-fullscreen -console -high +exec autoexec.cfg",
+            "highend": "-fullscreen -console +exec autoexec.cfg",
+        },
+        "launch_options_tiers_note": {
+            "lowend": (
+                "Pas de -high : sur 4 cœurs physiques ou moins, la priorité haute peut "
+                "affamer le thread audio et les services système (saccades, "
+                "crachotements). Le cap FPS vit dans l'autoexec."
+            ),
+            "midrange": (
+                "-high acceptable dès 6 cœurs : gain faible mais réel quand des tâches "
+                "de fond tournent. Le cap FPS vit dans l'autoexec."
+            ),
+            "highend": (
+                "-high superflu (l'ordonnanceur Windows et Reflex suffisent) ; à tester "
+                "en option. Le cap FPS vit dans l'autoexec."
+            ),
+        },
         "optimizations": [
             {
                 "title": "Qualité des ombres : Faible",
@@ -39,10 +67,13 @@ GAMES: list[dict] = [
                 ),
             },
             {
-                "title": "Anticrénelage : CMAA2 (ou MSAA 2x)",
+                "title": "Anticrénelage : MSAA 2x (4x en haut de gamme)",
                 "detail": (
-                    "Mode d'anticrénelage : CMAA2 pour un maximum de FPS, MSAA 2x si la lisibilité "
-                    "des contours à longue distance prime. Éviter MSAA 4x/8x, trop coûteux."
+                    "Mode d'anticrénelage : MSAA 2x, le compromis netteté/FPS ; MSAA 4x "
+                    "seulement sur machine haut de gamme (lisibilité à longue distance), "
+                    "jamais 8x. CMAA2 reste un choix valide sur petite config, mais c'est "
+                    "un mode distinct : il ne correspond PAS à msaa_samples 2 dans "
+                    "cs2_video.txt (la valeur observée est alors 1)."
                 ),
             },
             {
@@ -53,10 +84,13 @@ GAMES: list[dict] = [
                 ),
             },
             {
-                "title": "FPS non plafonnés : fps_max 0",
+                "title": "Cap de FPS adapté à la machine (fps_max)",
                 "detail": (
-                    "Console ou autoexec.cfg : fps_max 0. CS2 gère le frame pacing en subtick ; "
-                    "laisser les FPS libres (ou caper juste sous la limite thermique, ex. fps_max 400)."
+                    "Console ou autoexec.cfg : fps_max 0 (FPS libres) uniquement avec un CPU "
+                    "costaud (8 cœurs ou plus). Sur un CPU modeste, fps_max 0 produit des "
+                    "frametimes en dents de scie : capez à environ 2× la fréquence de "
+                    "l'écran (ex. 144 Hz → fps_max 288). L'onglet CS2 d'Overdrive calcule "
+                    "la valeur pour votre machine."
                 ),
             },
             {
@@ -768,8 +802,29 @@ _GAMES_EN: dict[str, dict] = {
     "cs2": {
         "note": (
             "Steam > Library > right-click CS2 > Properties > Launch Options. "
-            "Note: -novid, -tickrate and -nojoy no longer have any effect in CS2."
+            "-high is for CPUs with at least 6 physical cores: on 4 cores, "
+            "high priority can starve the audio thread and Windows services "
+            "(stutters, audio crackling). No effect in CS2: -novid, -tickrate, "
+            "-nojoy, -threads, -d3d9ex, +cl_forcepreload, -refresh/-freq (the "
+            "refresh rate lives in cs2_video.txt)."
         ),
+        "launch_options_tiers_note": {
+            "lowend": (
+                "No -high: on 4 physical cores or fewer, high priority can "
+                "starve the audio thread and system services (stutters, "
+                "crackling). The FPS cap lives in the autoexec."
+            ),
+            "midrange": (
+                "-high is fine from 6 cores up: a small but real gain when "
+                "background tasks are running. The FPS cap lives in the "
+                "autoexec."
+            ),
+            "highend": (
+                "-high is unnecessary (the Windows scheduler and Reflex are "
+                "enough); worth testing as an option. The FPS cap lives in "
+                "the autoexec."
+            ),
+        },
         "optimizations": [
             ("Shadow quality: Low",
              "Advanced video settings > Shadow quality: Low. Keeps shadows "
@@ -778,17 +833,21 @@ _GAMES_EN: dict[str, dict] = {
             ("Shader and particle detail: Low, ambient occlusion: Disabled",
              "Shader detail: Low, particle detail: Low, ambient occlusion: "
              "Disabled. A big FPS gain in smokes and firefights."),
-            ("Anti-aliasing: CMAA2 (or MSAA 2x)",
-             "Anti-aliasing mode: CMAA2 for maximum FPS, MSAA 2x if edge "
-             "clarity at long range matters most. Avoid MSAA 4x/8x, far too "
-             "costly."),
+            ("Anti-aliasing: MSAA 2x (4x on high-end machines)",
+             "Anti-aliasing mode: MSAA 2x, the clarity/FPS trade-off; MSAA 4x "
+             "only on a high-end machine (long-range readability), never 8x. "
+             "CMAA2 remains a valid choice on a low-end machine, but it is a "
+             "separate mode: it does NOT correspond to msaa_samples 2 in "
+             "cs2_video.txt (the observed value is then 1)."),
             ("NVIDIA Reflex: Enabled (+ Boost)",
              "Video settings > NVIDIA Reflex Low Latency: Enabled + Boost on "
              "NVIDIA GPUs. Cuts system latency when the GPU is saturated."),
-            ("Uncapped FPS: fps_max 0",
-             "Console or autoexec.cfg: fps_max 0. CS2 handles frame pacing "
-             "with subtick; leave FPS uncapped (or cap just below your thermal "
-             "limit, e.g. fps_max 400)."),
+            ("FPS cap matched to your machine (fps_max)",
+             "Console or autoexec.cfg: fps_max 0 (uncapped) only with a "
+             "strong CPU (8 cores or more). On a modest CPU, fps_max 0 "
+             "produces sawtooth frametimes: cap at about 2x your monitor's "
+             "refresh rate (e.g. 144 Hz -> fps_max 288). Overdrive's CS2 tab "
+             "computes the value for your machine."),
             ("Autoexec.cfg in the profile's cfg folder",
              "Place an autoexec.cfg under Steam/userdata/<id>/730/local/cfg "
              "(generated by Overdrive, CS2 tab). CS:GO relics (rate, "
@@ -1126,6 +1185,10 @@ for _game in GAMES:
     _en = _GAMES_EN.get(_game["id"], {})
     _game["launch_options_note_en"] = _en.get(
         "note", _game.get("launch_options_note"))
+    # Notes de tiers (cs2 uniquement à ce jour) : miroir EN additif.
+    _tiers_note_en = _en.get("launch_options_tiers_note")
+    if isinstance(_tiers_note_en, dict):
+        _game["launch_options_tiers_note_en"] = _tiers_note_en
     _pairs = _en.get("optimizations", [])
     for _index, _opt in enumerate(_game["optimizations"]):
         if _index < len(_pairs):

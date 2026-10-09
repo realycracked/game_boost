@@ -1,0 +1,42 @@
+name: Signaler un bug
+description: Quelque chose ne fonctionne pas comme prévu.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Que se passe-t-il ?
+      description: Ce que tu as fait, ce que tu attendais, ce qui s'est produit.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: |
+        1. Ouvrir la page Optimisations
+        2. Appliquer « … »
+        3. …
+  - type: input
+    id: version
+    attributes:
+      label: Version d'Overdrive
+      description: Réglages → Mise à jour → Vérifier (ex. build 29).
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows
+      placeholder: Windows 11 24H2
+  - type: input
+    id: hardware
+    attributes:
+      label: Configuration
+      placeholder: Ryzen 5 8400F, Radeon RX 9060 XT, 16 Go
+  - type: textarea
+    id: report
+    attributes:
+      label: Rapport système (facultatif)
+      description: Réglages → Télécharger le rapport système. Il ne contient aucune clé API.
+      render: text

@@ -1,35 +1,59 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="midnight" data-motion="max">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Overdrive</title>
   <script>
-    /* Applique thème et langue depuis localStorage AVANT le premier rendu (aucun flash).
-       Absence de préférence enregistrée = thème SOMBRE par défaut. */
+    /* Applique thème, niveau d'animation et langue depuis localStorage AVANT le
+       premier rendu (aucun flash). Thèmes : midnight (défaut), midnight-ocean,
+       midnight-emerald, midnight-rose, daylight ; anciennes valeurs reprises :
+       dark → midnight, light → daylight. Animation : max (défaut) | reduced | off ;
+       sans choix enregistré, prefers-reduced-motion donne « reduced ». */
     (function () {
-      var t = "dark";
+      var d = document.documentElement;
+      var themes = ["midnight", "midnight-ocean", "midnight-emerald", "midnight-rose", "daylight"];
+      var t = "midnight";
       try {
         var s = localStorage.getItem("overdrive-theme");
-        if (s === "dark" || s === "light") { t = s; }
-      } catch (e) { /* stockage indisponible : thème sombre par défaut */ }
-      document.documentElement.setAttribute("data-theme", t);
+        if (s === "dark") { s = "midnight"; } else if (s === "light") { s = "daylight"; }
+        if (themes.indexOf(s) !== -1) { t = s; }
+      } catch (e) { /* stockage indisponible : Midnight par défaut */ }
+      d.setAttribute("data-theme", t);
+      var m = null;
+      try { m = localStorage.getItem("overdrive-motion"); } catch (e1) { m = null; }
+      if (m !== "max" && m !== "reduced" && m !== "off") {
+        m = "max";
+        try {
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { m = "reduced"; }
+        } catch (e2) { /* média indisponible : max */ }
+      }
+      d.setAttribute("data-motion", m);
       try {
         var l = localStorage.getItem("overdrive-lang");
-        if (l === "fr" || l === "en") { document.documentElement.lang = l; }
-      } catch (e2) { /* langue par défaut : fr */ }
+        if (l === "fr" || l === "en") { d.lang = l; }
+      } catch (e3) { /* langue par défaut : fr */ }
     })();
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232383e2'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='7.5'%20fill='none'%20stroke='white'%20stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%238b5cf6'/%3E%3Cstop%20offset='1'%20stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='url(%23g)'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='7.5'%20fill='none'%20stroke='white'%20stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/home.css">
 </head>
 <body>
+  <!-- Intro de lancement : posée avant le premier affichage de l'interface. -->
+  <script src="/static/intro.js"></script>
+  <div id="od-backdrop" aria-hidden="true"></div>
   <div id="app">
     <aside id="sidebar">
       <div class="brand">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
         Overdrive
       </div>
+      <button id="palette-open" class="sidebar-search" type="button" aria-keyshortcuts="Control+K" aria-label="Rechercher une page ou une action (Ctrl+K)" data-od-i18n-aria="search_aria">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span class="sidebar-search-label" data-od-i18n="search_btn">Rechercher…</span>
+        <span class="sidebar-search-kbd" aria-hidden="true"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+      </button>
       <nav class="nav" aria-label="Navigation principale">
         <a class="nav-item" href="#/" data-route="/">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9.5 9-7 9 7V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20Z"/><path d="M9 21.5v-8h6v8"/></svg>
@@ -88,6 +112,9 @@
     <div style="padding:24px;font-family:sans-serif;">Overdrive nécessite JavaScript pour fonctionner. / Overdrive requires JavaScript.</div>
   </noscript>
 
+  <script src="/static/home.js"></script>
   <script src="/static/app.js"></script>
+  <script src="/static/motion.js" defer></script>
+  <script src="/static/palette.js" defer></script>
 </body>
 </html>

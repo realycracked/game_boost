@@ -25,14 +25,15 @@
   }
 
   /* ---------- thèmes ---------- */
+  /* sombre = palette « Midnight » de l'application (noir profond, accent violet) */
   #root[data-theme="dark"] {
-    --card-bg: rgba(25, 25, 25, var(--alpha));
-    --card-border: rgba(55, 55, 55, var(--alpha));
-    --text: #d4d4d4; --label: #8f8f8f; --sep: rgba(255, 255, 255, 0.09);
+    --card-bg: rgba(17, 17, 23, var(--alpha));
+    --card-border: rgba(44, 44, 58, var(--alpha));
+    --text: #ececf1; --label: #a1a1ad; --sep: rgba(255, 255, 255, 0.08);
     --halo: none;
-    --panel-bg: #202020; --panel-border: #2f2f2f;
-    --panel-text: #d4d4d4; --panel-label: #9b9b9b;
-    --hover: #2a2a2a; --accent: #529cca; --danger: #e06c66;
+    --panel-bg: #16161e; --panel-border: #2a2a37;
+    --panel-text: #ececf1; --panel-label: #a1a1ad;
+    --hover: #1f1f2a; --accent: #a78bfa; --danger: #f2797f;
   }
   #root[data-theme="light"] {
     --card-bg: rgba(255, 255, 255, var(--alpha));
@@ -123,6 +124,8 @@
     overflow: hidden; text-overflow: ellipsis;
     font-size: calc(13px * var(--k));
   }
+  /* température > 85 °C : couleur d'alerte du thème (pas de néon) */
+  .val .temp-hot { color: var(--danger); }
   #root[data-layout="column"] .item-fps .val { line-height: 1.05; }
 
   /* ---------- bouton engrenage ---------- */
@@ -233,6 +236,9 @@
       <div class="item" data-el="ram">
         <span class="lbl">RAM</span><span class="val" id="v-ram">&#8212;</span>
       </div>
+      <div class="item" data-el="temp">
+        <span class="lbl">Temp</span><span class="val" id="v-temp">&#8212;</span>
+      </div>
       <div class="item" data-el="net">
         <span class="lbl">R&eacute;seau Mb/s</span><span class="val" id="v-net">&#8212;</span>
       </div>
@@ -259,6 +265,7 @@
         <label class="chk"><input type="checkbox" data-el-chk="ram"><span>RAM</span></label>
         <label class="chk"><input type="checkbox" data-el-chk="net"><span>R&eacute;seau</span></label>
         <label class="chk"><input type="checkbox" data-el-chk="clock"><span>Heure</span></label>
+        <label class="chk"><input type="checkbox" data-el-chk="temp"><span>Temp&eacute;rature</span></label>
       </div>
     </div>
     <div class="sec">
@@ -298,6 +305,7 @@
       <button class="btn" id="btn-hide" type="button">Masquer</button>
       <button class="btn" id="btn-quit" type="button">Quitter</button>
     </div>
+    <div class="note">Ctrl+F10 : afficher ou masquer le widget &agrave; tout moment (Windows).</div>
   </div>
 </div>
 
@@ -326,6 +334,7 @@
   var vRam = document.getElementById("v-ram");
   var vNet = document.getElementById("v-net");
   var vClock = document.getElementById("v-clock");
+  var vTemp = document.getElementById("v-temp");
 
   var DASH = "—";
   var SCALE_K = { s: 0.85, m: 1, l: 1.2 };
@@ -337,6 +346,24 @@
   }
   function fmt1(v) {
     return (v === null || v === undefined) ? DASH : (Math.round(v * 10) / 10).toFixed(1);
+  }
+
+  var TEMP_HOT_C = 85; // au-delà : couleur d'alerte du thème
+
+  function renderTemp(temps) {
+    var t = temps || {};
+    var parts = [];
+    if (typeof t.gpu_c === "number" && isFinite(t.gpu_c)) { parts.push(["GPU", t.gpu_c]); }
+    if (typeof t.cpu_c === "number" && isFinite(t.cpu_c)) { parts.push(["CPU", t.cpu_c]); }
+    vTemp.textContent = "";
+    if (!parts.length) { vTemp.textContent = DASH; return; }
+    for (var i = 0; i < parts.length; i++) {
+      vTemp.appendChild(document.createTextNode((i ? " " : "") + parts[i][0] + " "));
+      var span = document.createElement("span");
+      span.textContent = Math.round(parts[i][1]) + "°";
+      if (parts[i][1] > TEMP_HOT_C) { span.className = "temp-hot"; }
+      vTemp.appendChild(span);
+    }
   }
 
   /* ---------- application de la configuration ---------- */
@@ -398,6 +425,7 @@
       vRam.title = fmt1(ram.used_gb) + " Go";
     }
     vNet.textContent = "↓" + fmt1(net.down_mbps) + " ↑" + fmt1(net.up_mbps);
+    renderTemp(s.temps);
     vClock.textContent = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   }
 

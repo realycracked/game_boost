@@ -1,4 +1,13 @@
-"""Nettoyage des fichiers temporaires et caches (scan rapide, suppression tolérante)."""
+"""Nettoyage des fichiers temporaires et caches (scan rapide, suppression tolérante).
+
+Les caches de shaders AMD (``amd_dxcache``, ``amd_dxccache``,
+``amd_vkcache``) et le cache de shaders Steam de CS2
+(``steam_shadercache_cs2``) sont des cibles MANUELLES : utiles après une
+mise à jour du pilote ou en cas de saccades persistantes, elles ne font
+pas partie du nettoyage « sûr » automatique (boost, ``--clean-safe``
+planifié, dont les listes d'identifiants sont fermées) et sont signalées
+``default_selected: False`` dans :func:`scan`.
+"""
 
 from __future__ import annotations
 
@@ -8,12 +17,109 @@ from pathlib import Path
 
 from overdrive.paths import is_windows
 
+#: Identifiants des cibles à ne jamais cocher ni nettoyer automatiquement
+#: (recompilation des shaders = saccades temporaires aux parties suivantes).
+MANUAL_ONLY_IDS = frozenset(
+    {"amd_dxcache", "amd_dxccache", "amd_vkcache", "steam_shadercache_cs2"}
+)
+
+_SHADER_REBUILD_NOTE = (
+    "À vider seulement après une mise à jour du pilote graphique ou en cas "
+    "de saccades persistantes : les premières parties suivantes recompilent "
+    "les shaders (saccades temporaires). Jamais inclus dans le nettoyage "
+    "automatique."
+)
+_SHADER_REBUILD_NOTE_EN = (
+    "Only clear it after a graphics driver update or if stutters persist: "
+    "the next few matches recompile the shaders (temporary stutters). Never "
+    "part of the automatic cleanup."
+)
+
+
+def _steam_cs2_shadercache_paths() -> list[Path]:
+    """Dossiers ``steamapps/shadercache/730`` des bibliothèques Steam (best effort)."""
+    try:
+        from overdrive.core.games.detect import steam_libraries  # noqa: PLC0415
+
+        return [lib / "steamapps" / "shadercache" / "730" for lib in steam_libraries()]
+    except Exception:
+        return []
+
+
+def _amd_and_steam_targets(local: Path) -> list[dict]:
+    """Cibles manuelles : caches de shaders AMD et cache de shaders Steam de CS2."""
+    targets = [
+        {
+            "id": "amd_dxcache",
+            "name": "Cache shaders AMD (DirectX 9/11)",
+            "name_en": "AMD shader cache (DirectX 9/11)",
+            "paths": [local / "AMD" / "DxCache"],
+            "pattern": None,
+            "special": None,
+            "description": ("Shaders compilés par le pilote AMD pour les jeux "
+                            "DirectX 9/11 (dont CS2 par défaut). "
+                            + _SHADER_REBUILD_NOTE),
+            "description_en": ("Shaders compiled by the AMD driver for DirectX "
+                               "9/11 games (including CS2 by default). "
+                               + _SHADER_REBUILD_NOTE_EN),
+            "default_selected": False,
+        },
+        {
+            "id": "amd_dxccache",
+            "name": "Cache shaders AMD (DirectX 12)",
+            "name_en": "AMD shader cache (DirectX 12)",
+            "paths": [local / "AMD" / "DxcCache"],
+            "pattern": None,
+            "special": None,
+            "description": ("Cache du compilateur de shaders DirectX 12 du "
+                            "pilote AMD. " + _SHADER_REBUILD_NOTE),
+            "description_en": ("The AMD driver's DirectX 12 shader compiler "
+                               "cache. " + _SHADER_REBUILD_NOTE_EN),
+            "default_selected": False,
+        },
+        {
+            "id": "amd_vkcache",
+            "name": "Cache shaders AMD (Vulkan)",
+            "name_en": "AMD shader cache (Vulkan)",
+            "paths": [local / "AMD" / "VkCache"],
+            "pattern": None,
+            "special": None,
+            "description": ("Shaders Vulkan compilés par le pilote AMD (CS2 "
+                            "lancé avec -vulkan, par exemple). "
+                            + _SHADER_REBUILD_NOTE),
+            "description_en": ("Vulkan shaders compiled by the AMD driver (CS2 "
+                               "launched with -vulkan, for instance). "
+                               + _SHADER_REBUILD_NOTE_EN),
+            "default_selected": False,
+        },
+    ]
+    steam_paths = _steam_cs2_shadercache_paths()
+    if steam_paths:
+        targets.append({
+            "id": "steam_shadercache_cs2",
+            "name": "Cache shaders Steam de CS2",
+            "name_en": "CS2 Steam shader cache",
+            "paths": steam_paths,
+            "pattern": None,
+            "special": None,
+            "description": ("Cache de shaders tenu par Steam pour Counter-Strike "
+                            "2 (steamapps/shadercache/730), reconstruit par "
+                            "Steam et le jeu. " + _SHADER_REBUILD_NOTE),
+            "description_en": ("Shader cache kept by Steam for Counter-Strike 2 "
+                               "(steamapps/shadercache/730), rebuilt by Steam "
+                               "and the game. " + _SHADER_REBUILD_NOTE_EN),
+            "default_selected": False,
+        })
+    return targets
+
 
 def _targets() -> list[dict]:
     """Cibles de nettoyage selon la plateforme.
 
     Chaque cible : id, name, paths (liste), pattern (préfixe de nom de fichier
-    ou None = tous), special ("recycle_bin" ou None).
+    ou None = tous), special ("recycle_bin" ou None) ; facultativement
+    name_en, description, description_en et default_selected (cibles
+    manuelles, voir :data:`MANUAL_ONLY_IDS`).
     """
     if not is_windows():
         # Mode développement Linux : /tmp uniquement.
@@ -59,6 +165,7 @@ def _targets() -> list[dict]:
             "pattern": None,
             "special": None,
         },
+        *_amd_and_steam_targets(local),
         {
             "id": "thumbnails",
             "name": "Cache des vignettes",
@@ -125,7 +232,13 @@ def _measure(target: dict) -> tuple[int, int]:
 
 
 def scan() -> list[dict]:
-    """Analyse les cibles de nettoyage et renvoie leur taille et nombre de fichiers."""
+    """Analyse les cibles de nettoyage et renvoie leur taille et nombre de fichiers.
+
+    Clés historiques : id, name, path, size_mb, files. Clés additives :
+    name_en, description, description_en (``None`` si absentes) et
+    default_selected (``False`` pour les cibles manuelles, à ne pas cocher
+    d'office côté interface).
+    """
     results: list[dict] = []
     for target in _targets():
         size_bytes, files = _measure(target)
@@ -136,6 +249,10 @@ def scan() -> list[dict]:
                 "path": " ; ".join(str(p) for p in target["paths"]),
                 "size_mb": round(size_bytes / 2**20, 1),
                 "files": files,
+                "name_en": target.get("name_en"),
+                "description": target.get("description"),
+                "description_en": target.get("description_en"),
+                "default_selected": bool(target.get("default_selected", True)),
             }
         )
     return results

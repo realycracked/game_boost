@@ -26,8 +26,6 @@
       nav_startup: "Démarrage",
       nav_assistant: "Assistant",
       nav_settings: "Réglages",
-      theme_to_dark: "Thème sombre",
-      theme_to_light: "Thème clair",
       loading_ui: "Chargement de l'interface…",
 
       /* Commun */
@@ -40,7 +38,7 @@
       refresh: "Actualiser",
       retry: "Réessayer",
       loading: "Chargement…",
-      err_conn: "Connexion au serveur impossible. Vérifiez qu'Overdrive est en cours d'exécution.",
+      err_conn: "Connexion au serveur impossible. Vérifie qu'Overdrive est en cours d'exécution.",
       err_server: "Erreur serveur",
       unit_gb: "Go",
       unit_mb: "Mo",
@@ -101,7 +99,7 @@
       boost_title: "Boost en un clic",
       boost_intro: "Overdrive enchaîne trois étapes sûres pour préparer la machine à jouer :",
       boost_step1: "Point de restauration Windows (optionnel, recommandé)",
-      boost_step2: "Application des optimisations recommandées de votre profil",
+      boost_step2: "Application des optimisations recommandées de ton profil",
       boost_step3: "Nettoyage des caches sûrs (fichiers temporaires, caches de shaders)",
       boost_restore_check: "Créer un point de restauration avant le boost",
       boost_run: "Lancer le boost",
@@ -115,16 +113,20 @@
 
       /* Optimisations */
       tweaks_title: "Optimisations",
-      tweaks_sub: "Sélectionnez les réglages à appliquer. Chaque optimisation est réversible.",
+      tweaks_sub: "Sélectionne les réglages à appliquer. Chaque optimisation est réversible.",
       tweaks_loading: "Chargement du catalogue…",
       tweaks_unavail_title: "Catalogue indisponible",
-      tweaks_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+      tweaks_unavail_body: "Le serveur n'a pas répondu. Réessaie dans un instant.",
       notice_not_windows: "Système non Windows détecté : les optimisations sont affichées à titre informatif (mode développement), leur application est désactivée.",
-      notice_not_admin: "Overdrive n'est pas lancé en administrateur : certains réglages (registre machine, services) pourraient échouer. Relancez l'application en tant qu'administrateur pour un résultat complet.",
+      clean_not_windows: "Système non Windows détecté : l'analyse reste consultable (mode développement), le nettoyage est désactivé.",
+      notice_not_admin: "Overdrive n'est pas lancé en administrateur : certains réglages (registre machine, services) pourraient échouer. Relance l'application en tant qu'administrateur pour un résultat complet.",
       sel_profile: "Sélection profil",
-      sel_profile_hint: "Répondez d'abord au questionnaire",
+      sel_profile_hint: "Réponds d'abord au questionnaire",
       sel_safe: "Tout sûr",
       sel_none: "Tout désélectionner",
+      tweak_more: "Plus",
+      tweak_less: "Moins",
+      tweak_more_aria: "Afficher toute l'explication : {name}",
       restore_point: "Point de restauration",
       revert_applied: "Annuler les tweaks appliqués",
       apply_n: "Appliquer ({n})",
@@ -138,6 +140,9 @@
       risk_moderate: "Modéré",
       risk_advanced: "Avancé",
       tweak_unsupported: "Non supporté ici",
+      modal_busy: "Une opération est en cours : attends qu'elle se termine.",
+      bench_busy: "Un benchmark est déjà en cours.",
+      widget_auto_unsupported: "Démarrage automatique disponible uniquement sous Windows.",
       tweak_applied: "Appliqué",
       tweaks_none_cat: "Aucune optimisation dans cette catégorie.",
       adv_modal_title: "Tweaks avancés sélectionnés",
@@ -158,6 +163,14 @@
       restore_created: "Point de restauration créé.",
       restore_failed: "Création impossible.",
 
+      /* Optimisations — petites configs */
+      tweak_lowend_badge: "Petite config",
+      chip_lowend: "Petite config",
+      lowend_banner: "Petite configuration détectée — sélection adaptée disponible.",
+      lowend_banner_btn: "Cocher la sélection petite config",
+      lowend_selected_one: "{n} optimisation petite config cochée (risque sûr ou modéré).",
+      lowend_selected_many: "{n} optimisations petite config cochées (risque sûr ou modéré).",
+
       /* Jeux */
       games_title: "Jeux",
       games_sub: "Options de lancement et réglages recommandés pour les jeux compétitifs courants.",
@@ -168,6 +181,41 @@
       badge_not_detected: "Non détecté",
       launch_options: "Options de lancement",
       recommended_settings: "Réglages recommandés",
+      /* Vague 7 : visuels des jeux (page Jeux + Réglages). */
+      games_lib: "Bibliothèque",
+      games_lib_detected: "{n} détecté(s)",
+      games_featured: "À la une",
+      game_open: "Voir la fiche",
+      game_cta: "Optimiser",
+      game_open_aria: "{name} : ouvrir la fiche",
+      game_art_credit: "Visuels © leurs éditeurs respectifs, téléchargés depuis Steam, Riot ou des API communautaires et mis en cache sur ce PC.",
+      art_group: "Images des jeux",
+      art_name: "Visuels des jeux (Accueil et Jeux)",
+      art_desc: "Jaquettes, bannières et logos de l'Accueil et de la page Jeux viennent des CDN officiels (Steam, Riot) ou d'API communautaires. Remplace-les par tes propres images : PNG, JPEG ou WebP, 8 Mo maximum.",
+      art_kind_aria: "Type d'image à personnaliser",
+      art_kind_cover: "Jaquette",
+      art_kind_hero: "Bannière",
+      art_kind_logo: "Logo",
+      art_pick: "Choisir une image…",
+      art_pick_aria: "Choisir une image pour {name}",
+      art_reset: "Réinitialiser",
+      art_reset_aria: "Réinitialiser l'image de {name}",
+      art_src_steam: "Steam",
+      art_src_riot: "Riot Data Dragon",
+      art_src_community: "API communautaire",
+      art_src_none: "Aucune source en ligne",
+      art_state_custom: "Personnalisée",
+      art_state_missing: "Visuel de secours",
+      art_state_composed: "Composée à partir des autres visuels",
+      art_state_nologo: "Pas de logo : nom affiché en texte",
+      art_drop_hint: "Astuce : tu peux aussi déposer une image sur un jeu.",
+      art_saved: "Image enregistrée.",
+      art_reset_done: "Visuel d'origine rétabli.",
+      art_bad_type: "Format non pris en charge : choisis une image PNG, JPEG ou WebP.",
+      art_too_big: "Image trop lourde (8 Mo maximum).",
+      art_read_err: "Lecture du fichier impossible.",
+      art_save_err: "Enregistrement de l'image impossible.",
+      art_unavailable: "Visuels indisponibles pour le moment.",
       cs2_loading: "Lecture de la configuration CS2…",
       cs2_unavailable: "Informations CS2 indisponibles.",
       cs2_config: "Configuration CS2",
@@ -185,6 +233,29 @@
       th_recommended: "Recommandé",
       th_note: "Note",
 
+      /* Panneau CS2 — « Pour ta machine » (tiers) */
+      cs2_machine_group: "Pour ta machine",
+      cs2_tier_detected: "Tier détecté",
+      cs2_tier_reasons: "Pourquoi ce classement",
+      cs2_tier_select: "Tier des recommandations",
+      tier_lowend: "Petite config",
+      tier_midrange: "Milieu de gamme",
+      tier_highend: "Haut de gamme",
+      advice_kind_reco: "Recommandé",
+      advice_kind_opinion: "Avis",
+      advice_kind_info: "Info",
+      cs2_video_read: "Fichier cs2_video.txt lu : comparaison avec tes valeurs actuelles.",
+      cs2_apply_video: "Appliquer les réglages vidéo",
+      cs2_apply_video_body: "Overdrive ne modifie que les réglages déjà présents dans ton cs2_video.txt — jamais ta résolution. Une sauvegarde automatique est créée dans le coffre de configurations avant toute écriture : tu pourras revenir en arrière. Si CS2 est lancé, l'application sera refusée : ferme d'abord le jeu.",
+      cs2_apply_count_one: "{n} réglage sera modifié (tier « {t} »).",
+      cs2_apply_count_many: "{n} réglages seront modifiés (tier « {t} »).",
+      cs2_apply_none: "Tes réglages correspondent déjà aux recommandations de ce tier : rien à appliquer.",
+      cs2_val_same: "Conforme",
+      cs2_res_changed: "Réglages modifiés",
+      cs2_res_skipped: "Réglages ignorés",
+      cs2_autoexec_group: "Autoexec par tier",
+      cs2_launch_group: "Options de lancement par tier",
+
       /* Latence */
       latency_group: "Latence estimée",
       latency_desc: "Estimation de la latence TCP vers chaque zone (3 connexions par région, aucune donnée envoyée). Ce n'est pas un ping in-game.",
@@ -200,7 +271,7 @@
       clean_title: "Nettoyage",
       clean_sub: "Fichiers temporaires, caches de shaders et autres fichiers récupérables.",
       clean_none_title: "Aucune analyse pour l'instant",
-      clean_none_body: "Lancez une analyse pour mesurer l'espace récupérable.",
+      clean_none_body: "Lance une analyse pour mesurer l'espace récupérable.",
       scan: "Analyser",
       scanning: "Analyse en cours…",
       rescan: "Réanalyser",
@@ -239,7 +310,7 @@
       th_ram: "RAM",
       mon_waiting: "Collecte des premières mesures…",
       mon_unavail_title: "Moniteur indisponible",
-      mon_unavail_body: "Le serveur n'a pas répondu. Réessayez dans un instant.",
+      mon_unavail_body: "Le serveur n'a pas répondu. Réessaie dans un instant.",
 
       /* Démarrage */
       startup_title: "Démarrage",
@@ -258,20 +329,20 @@
       src_user_folder: "Dossier utilisateur",
       src_common_folder: "Dossier commun",
       hklm_modal_title: "Entrée machine (HKLM)",
-      hklm_modal_body: "Cette entrée s'applique à tous les utilisateurs de la machine (registre HKLM). Confirmez la modification.",
+      hklm_modal_body: "Cette entrée s'applique à tous les utilisateurs de la machine (registre HKLM). Confirme la modification.",
       startup_toggle_failed: "Modification impossible.",
 
       /* Assistant */
       assistant_title: "Assistant",
-      assistant_sub: "Un assistant qui connaît votre matériel, votre profil et vos optimisations.",
+      assistant_sub: "Un assistant qui connaît ton matériel, ton profil et tes optimisations.",
       checking_keys: "Vérification des clés API…",
       assistant_unavailable: "Assistant indisponible pour le moment.",
       no_key_title: "Aucune clé API configurée",
-      no_key_body: "Ajoutez une clé (Groq propose une clé gratuite) pour activer l'assistant.",
+      no_key_body: "Ajoute une clé (Groq propose une clé gratuite) pour activer l'assistant.",
       open_settings: "Ouvrir les réglages",
       provider: "Fournisseur",
       chat_clear: "Effacer la conversation",
-      chat_placeholder: "Votre question sur l'optimisation…",
+      chat_placeholder: "Ta question sur l'optimisation…",
       send: "Envoyer",
       chat_empty: "Aucun message pour l'instant.",
       chat_example: "Exemple : « Quels réglages pour gagner des FPS sur ma machine ? »",
@@ -283,7 +354,7 @@
       settings_title: "Réglages",
       settings_sub: "Clés API, fournisseur par défaut, apparence, langue et questionnaire.",
       keys_group: "Clés API",
-      keys_note: "Les clés sont chiffrées localement et ne quittent jamais cette machine, sauf vers le fournisseur que vous choisissez.",
+      keys_note: "Les clés sont chiffrées localement et ne quittent jamais cette machine, sauf vers le fournisseur que tu choisis.",
       key_configured: "Configurée",
       key_not_configured: "Non configurée",
       key_placeholder: "Clé API",
@@ -296,9 +367,7 @@
       no_keys_yet: "Aucune clé configurée pour l'instant.",
       appearance_group: "Apparence",
       theme: "Thème",
-      theme_desc: "Sombre par défaut, clair disponible.",
-      light: "Clair",
-      dark: "Sombre",
+      theme_desc: "Quatre variantes sombres « Midnight » et un thème clair. Changement instantané.",
       language: "Langue",
       language_desc: "Langue de l'interface. Les catalogues sont traduits automatiquement.",
       report_group: "Rapport",
@@ -314,7 +383,7 @@
       badge_admin: "administrateur",
       badge_not_admin: "non administrateur",
       about_note: "Les clés API sont chiffrées localement et ne quittent jamais cette machine, sauf vers l'API du fournisseur d'IA sélectionné. Les optimisations appliquées sont journalisées et réversibles depuis la page Optimisations.",
-      key_enter_first: "Saisissez une clé API avant d'enregistrer.",
+      key_enter_first: "Saisis une clé API avant d'enregistrer.",
       saving: "Enregistrement…",
       key_save_err: "Échec de l'enregistrement de la clé.",
       key_saved: "Clé {p} enregistrée.",
@@ -361,12 +430,226 @@
       widget_saved: "Réglages du widget enregistrés.",
       widget_save_err: "Impossible d'enregistrer les réglages du widget.",
       ob_title: "Démarrage automatique",
-      ob_sub: "Choisissez quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
+      ob_last_step: "Dernière étape",
+      ob_sub: "Choisis quand le widget (FPS et infos par-dessus le jeu) doit se lancer. Modifiable à tout moment dans Réglages.",
       ob_never_desc: "Le widget ne se lance que manuellement.",
       ob_always_desc: "Le widget est présent dès l'allumage du PC.",
-      ob_game_desc: "Invisible au quotidien, il apparaît quand un de vos jeux démarre et disparaît à sa fermeture.",
+      ob_game_desc: "Invisible au quotidien, il apparaît quand un de tes jeux démarre et disparaît à sa fermeture.",
       ob_launch_now: "Lancer le widget maintenant",
-      ob_finish: "Terminer"
+      ob_finish: "Terminer",
+      chat_apply: "Appliquer",
+      chat_applied: "Appliqué",
+      chat_apply_fail: "Échec de l'application.",
+      chat_tweak_unknown: "Optimisation inconnue : rien n'a été appliqué.",
+      chat_tweak_unsupported: "Cette optimisation n'est pas prise en charge sur cette machine.",
+      debloat_modal_body: "Les applications suivantes seront supprimées de ta session Windows. Chacune reste réinstallable depuis le Microsoft Store.",
+      insights_group: "Conseils pour ta machine",
+      insights_none: "Rien à signaler : ta configuration ne présente aucun des problèmes courants détectables.",
+      insights_badge_important: "Important",
+      insights_badge_conseil: "Conseil",
+      insights_action: "Ouvrir la page",
+      bench_btn: "Benchmark",
+      bench_title: "Benchmark rapide",
+      bench_intro: "Mesure CPU (mono et multi-cœur), mémoire et disque en une dizaine de secondes. Ferme les applications lourdes pour un résultat fiable. Idéal avant/après l'application d'optimisations.",
+      bench_run: "Lancer la mesure",
+      bench_running: "Mesure en cours (~10 s)…",
+      bench_score: "Score global",
+      bench_cpu_single: "CPU (1 cœur)",
+      bench_cpu_multi: "CPU (multi)",
+      bench_ram: "Mémoire",
+      bench_disk_w: "Disque (écriture)",
+      bench_disk_r: "Disque (lecture)",
+      bench_prev: "Mesure précédente : {s} ({d})",
+      bench_err: "Échec du benchmark.",
+      debloat_group: "Applications préinstallées",
+      debloat_note: "Applications livrées avec Windows et rarement utiles sur un PC de jeu. La suppression ne concerne que ta session et chaque application reste réinstallable depuis le Microsoft Store.",
+      debloat_installed: "Installée",
+      debloat_absent: "Absente",
+      debloat_unknown: "État inconnu",
+      debloat_remove: "Supprimer la sélection ({n})",
+      debloat_removing: "Suppression…",
+      debloat_done: "{n} application(s) supprimée(s).",
+      update_group: "Mise à jour",
+      update_name: "Version de l'application",
+      update_check: "Vérifier",
+      update_checking: "Vérification…",
+      update_available: "Nouvelle version disponible : {t}",
+      update_download: "Télécharger",
+      update_none: "Tu es à jour.",
+      backup_group: "Sauvegarde du profil",
+      backup_export: "Exporter",
+      backup_export_desc: "Profil, réponses au questionnaire et réglages du widget dans un fichier JSON.",
+      backup_import: "Importer",
+      backup_imported: "Profil importé.",
+      backup_import_err: "Fichier d'export invalide.",
+      gamemode_name: "Mode jeu automatique",
+      gamemode_desc: "Quand un jeu démarre : plan d'alimentation performance et priorité haute du jeu ; tout est restauré à sa fermeture. Nécessite que le widget tourne.",
+
+      /* Convertisseur de sensibilité */
+      sens_group: "Convertisseur de sensibilité",
+      sens_desc: "Même rotation réelle (cm/360) d'un jeu à l'autre : choisis le jeu source, ta sensibilité et le DPI de la souris.",
+      sens_game: "Jeu source",
+      sens_sens: "Sensibilité",
+      sens_dpi: "DPI souris",
+      sens_convert: "Convertir",
+      sens_converting: "Conversion…",
+      sens_cm360: "cm/360",
+      sens_cm360_note: "distance de souris pour un tour complet",
+      sens_edpi: "eDPI",
+      sens_edpi_note: "sensibilité × DPI",
+      sens_err_sens: "Sensibilité invalide : saisis un nombre strictement positif.",
+      sens_err_range: "Sensibilité hors plage : saisis une valeur supérieure à 0 et au plus égale à 1000.",
+      sens_err_dpi: "DPI invalide : saisis un entier entre 100 et 26000.",
+      sens_failed: "Conversion impossible.",
+      sens_unavailable: "Convertisseur indisponible pour le moment.",
+      th_game: "Jeu",
+      th_sens_conv: "Sensibilité convertie",
+
+      /* Viseurs CS2 */
+      xhair_group: "Viseurs CS2",
+      xhair_desc: "Styles réalistes inspirés de joueurs professionnels, avec aperçu et code de partage prêt à importer.",
+      xhair_inspired: "Inspiré de {p}",
+      xhair_howto: "Pour importer : CS2 > Paramètres > Équipement > Partager ou importer le code du viseur. Les commandes console sont un repli garanti si un code était refusé.",
+      xhair_copy_code: "Copier le code",
+      xhair_copy_console: "Copier les commandes",
+      xhair_unavailable: "Viseurs indisponibles pour le moment.",
+
+      /* Coffre de configurations */
+      vault_group: "Coffre de configurations",
+      vault_desc: "Sauvegarde locale (zip) des fichiers de configuration de tes jeux, restaurable à tout moment.",
+      vault_backup_now: "Sauvegarder maintenant",
+      vault_backing_up: "Sauvegarde…",
+      vault_backups_title: "Sauvegardes",
+      vault_no_backups: "Aucune sauvegarde pour l'instant.",
+      vault_none_found: "Aucune configuration de jeu détectée sur cette machine : rien à sauvegarder pour le moment.",
+      vault_restore: "Restaurer",
+      vault_restoring: "Restauration…",
+      vault_deleting: "Suppression…",
+      vault_restore_title: "Restaurer une sauvegarde",
+      vault_restore_body: "Les fichiers de configuration actuels seront remplacés par ceux de « {id} ». Une sauvegarde de sécurité automatique est créée avant toute écriture : tu pourras revenir en arrière.",
+      vault_delete_title: "Supprimer la sauvegarde",
+      vault_delete_body: "La sauvegarde « {id} » sera définitivement supprimée.",
+      vault_unavailable: "Coffre indisponible pour le moment.",
+      th_date: "Date",
+      th_games: "Jeux",
+
+      /* Test de stabilité réseau */
+      netstab_btn: "Test de stabilité (20 s)",
+      netstab_running: "Test de stabilité en cours (~20 s)…",
+      netstab_loss: "Perte",
+      netstab_jitter: "Gigue",
+      netstab_region: "Région testée : {r}",
+
+      /* Activité réseau (moniteur) */
+      netusage_group: "Activité réseau",
+      netusage_desc: "Applications avec des connexions actives (TCP/UDP) et téléchargements probables.",
+      th_app: "Application",
+      th_connections: "Connexions",
+      netusage_empty: "Aucune application avec des connexions actives n'a pu être détectée sur ce système.",
+      netusage_suspects: "Téléchargements probables",
+      netusage_unavailable: "Activité réseau indisponible pour le moment.",
+
+      /* Réglages : widget + maintenance */
+      widget_el_temp: "Température",
+      pause_updates_name: "Suspendre Windows Update pendant la partie",
+      pause_updates_desc: "Le service de mise à jour est suspendu au lancement d'un jeu, puis rétabli à sa fermeture.",
+      maintenance_group: "Maintenance",
+      sched_name: "Nettoyage automatique hebdomadaire (dimanche 11 h)",
+      sched_desc: "Nettoie les caches sûrs via le Planificateur de tâches Windows, sans ouvrir l'interface.",
+      sched_unavailable: "Planification indisponible pour le moment.",
+
+      /* Vague 6 : thèmes, animations, pause en jeu */
+      theme_name_midnight: "Midnight",
+      theme_name_ocean: "Océan",
+      theme_name_emerald: "Émeraude",
+      theme_name_rose: "Rose",
+      theme_name_daylight: "Clair",
+      theme_sub_midnight: "Violet → bleu",
+      theme_sub_ocean: "Bleu → cyan",
+      theme_sub_emerald: "Vert → turquoise",
+      theme_sub_rose: "Rose → violet",
+      theme_sub_daylight: "Fond clair, accent violet",
+      theme_label: "Thème : {t}",
+      theme_next: "Thème suivant : {t}",
+      motion_name: "Animations",
+      motion_max: "Max",
+      motion_reduced: "Réduites",
+      motion_off: "Désactivées",
+      motion_max_desc: "Effets complets : 3D, halos, compteurs et transitions. Tout se fige pendant que tu joues.",
+      motion_reduced_desc: "Fondus courts uniquement, sans 3D ni mouvement continu.",
+      motion_off_desc: "Aucune animation : l'interface change instantanément.",
+      game_pause_ind: "En jeu — animations en pause",
+      game_pause_title: "Un jeu est en cours : les effets visuels sont suspendus pour ne rien coûter au processeur ni à la carte graphique.",
+
+      /* Vague 6 : jauges de l'accueil */
+      gauge_threads: "{n} threads",
+      gauge_unavailable: "Mesure indisponible",
+
+      /* Vague 6 : palette de commandes */
+      pal_boost: "Boost",
+      pal_boost_sub: "Optimiser la machine en un clic",
+      pal_boost_cs2_sub: "Aperçu puis optimisation ciblée de Counter-Strike 2",
+      pal_bench_sub: "Mini-benchmark avant / après",
+      pal_clean_sub: "Rechercher les fichiers inutiles",
+      pal_widget_sub: "Overlay FPS, CPU et RAM en jeu",
+      pal_motion_max: "Animations maximales",
+      pal_motion_reduced: "Animations réduites",
+      pal_motion_off: "Animations désactivées",
+      pal_lang_fr: "Langue : français",
+      pal_lang_en: "Langue : anglais (English)",
+      pal_lang_sub: "Langue de l'interface",
+
+      /* Vague 6 : Boost CS2 */
+      cs2b_btn: "Boost CS2",
+      cs2b_hero_title: "Boost CS2 en un clic",
+      cs2b_hero_sub: "Tweaks Windows ciblés, réglages vidéo et autoexec adaptés à ta machine. Aperçu détaillé avant toute modification, tout reste réversible.",
+      cs2b_title: "Boost CS2",
+      cs2b_loading: "Préparation de l'aperçu…",
+      cs2b_plan_failed: "Aperçu du Boost CS2 indisponible pour le moment.",
+      cs2b_tier_detected: "Plan pour ta machine",
+      cs2b_tier_forced: "Plan choisi dans le panneau CS2",
+      cs2b_steps_title: "Étapes",
+      cs2b_planned: "Prévu",
+      cs2b_not_planned: "Rien à faire",
+      cs2b_waiting: "En attente",
+      cs2b_step_running: "En cours…",
+      cs2b_step_ok: "Terminé",
+      cs2b_step_fail: "Échec",
+      cs2b_step_skipped: "Ignoré",
+      cs2b_details: "Détail ({n})",
+      cs2b_tw_pending: "à appliquer",
+      cs2b_tw_already: "déjà en place",
+      cs2b_tw_skipped: "écarté",
+      cs2b_tw_unsupported: "non pris en charge",
+      cs2b_tw_applied: "appliqué",
+      cs2b_tw_failed: "échec",
+      cs2b_opt_title: "Options",
+      cs2b_opt_restore: "Créer un point de restauration avant de commencer",
+      cs2b_opt_video: "Appliquer les réglages vidéo du plan",
+      cs2b_opt_autoexec: "Écrire l'autoexec du plan",
+      cs2b_manual_preview: "Ensuite : {n} étape(s) à faire toi-même (Adrenalin, options de lancement…), listées après le Boost.",
+      cs2b_run: "Lancer le Boost CS2",
+      cs2b_running: "Boost CS2 en cours…",
+      cs2b_failed: "Le Boost CS2 n'a pas pu être lancé.",
+      cs2b_reboot: "Redémarre le PC pour terminer (accélération GPU matérielle).",
+      cs2b_manual_title: "À faire toi-même",
+      cs2b_manual_sub: "Coche au fur et à mesure : la progression est mémorisée sur ce PC.",
+      cs2b_kind_adrenalin: "Adrenalin",
+      cs2b_kind_launch_options: "Steam",
+      cs2b_kind_insight: "Constat",
+      cs2b_kind_cpu: "Processeur",
+      cs2b_kind_lowend: "Petite config",
+      cs2b_kind_option: "Option",
+      cs2b_optional: "optionnel",
+
+      /* Vague 6 : réglages AMD Adrenalin */
+      amd_title: "Réglages AMD Adrenalin",
+      amd_ryzen_only_title: "Conseils AMD Ryzen",
+      amd_sub: "Profil de jeu Counter-Strike 2 dans AMD Software. Coche chaque réglage une fois fait.",
+      amd_ryzen_title: "Processeur Ryzen",
+      amd_progress: "{d} / {n} faits",
+      amd_arch_other: "GPU AMD",
+      amd_reset: "Tout décocher"
     },
     en: {
       /* Navigation and chrome */
@@ -378,8 +661,6 @@
       nav_startup: "Startup",
       nav_assistant: "Assistant",
       nav_settings: "Settings",
-      theme_to_dark: "Dark theme",
-      theme_to_light: "Light theme",
       loading_ui: "Loading interface…",
 
       /* Common */
@@ -472,11 +753,15 @@
       tweaks_unavail_title: "Catalog unavailable",
       tweaks_unavail_body: "The server did not respond. Try again in a moment.",
       notice_not_windows: "Non-Windows system detected: optimizations are shown for reference (development mode) and cannot be applied.",
+      clean_not_windows: "Non-Windows system detected: the scan is shown for reference (development mode) and cleaning is disabled.",
       notice_not_admin: "Overdrive is not running as administrator: some tweaks (machine registry, services) may fail. Restart the app as administrator for full results.",
       sel_profile: "Profile selection",
       sel_profile_hint: "Take the questionnaire first",
       sel_safe: "All safe",
       sel_none: "Deselect all",
+      tweak_more: "More",
+      tweak_less: "Less",
+      tweak_more_aria: "Show the full explanation: {name}",
       restore_point: "Restore point",
       revert_applied: "Revert applied tweaks",
       apply_n: "Apply ({n})",
@@ -490,6 +775,9 @@
       risk_moderate: "Moderate",
       risk_advanced: "Advanced",
       tweak_unsupported: "Not supported here",
+      modal_busy: "An operation is in progress: wait for it to finish.",
+      bench_busy: "A benchmark is already running.",
+      widget_auto_unsupported: "Automatic startup is only available on Windows.",
       tweak_applied: "Applied",
       tweaks_none_cat: "No optimization in this category.",
       adv_modal_title: "Advanced tweaks selected",
@@ -510,6 +798,14 @@
       restore_created: "Restore point created.",
       restore_failed: "Creation failed.",
 
+      /* Optimizations — low-end machines */
+      tweak_lowend_badge: "Low-end",
+      chip_lowend: "Low-end",
+      lowend_banner: "Low-end machine detected — a tailored selection is available.",
+      lowend_banner_btn: "Select the low-end picks",
+      lowend_selected_one: "{n} low-end optimization selected (safe or moderate risk).",
+      lowend_selected_many: "{n} low-end optimizations selected (safe or moderate risk).",
+
       /* Games */
       games_title: "Games",
       games_sub: "Launch options and recommended settings for popular competitive games.",
@@ -520,6 +816,41 @@
       badge_not_detected: "Not detected",
       launch_options: "Launch options",
       recommended_settings: "Recommended settings",
+      /* Wave 7: game artwork (Games page + Settings). */
+      games_lib: "Library",
+      games_lib_detected: "{n} detected",
+      games_featured: "Featured",
+      game_open: "View details",
+      game_cta: "Optimize",
+      game_open_aria: "{name}: open details",
+      game_art_credit: "Artwork © their respective publishers, downloaded from Steam, Riot or community APIs and cached on this PC.",
+      art_group: "Game artwork",
+      art_name: "Game visuals (Home & Games)",
+      art_desc: "Covers, banners and logos on Home and the Games page come from official CDNs (Steam, Riot) or community APIs. Replace them with your own images: PNG, JPEG or WebP, 8 MB maximum.",
+      art_kind_aria: "Image type to customize",
+      art_kind_cover: "Cover",
+      art_kind_hero: "Banner",
+      art_kind_logo: "Logo",
+      art_pick: "Choose an image…",
+      art_pick_aria: "Choose an image for {name}",
+      art_reset: "Reset",
+      art_reset_aria: "Reset the image of {name}",
+      art_src_steam: "Steam",
+      art_src_riot: "Riot Data Dragon",
+      art_src_community: "Community API",
+      art_src_none: "No online source",
+      art_state_custom: "Custom",
+      art_state_missing: "Fallback artwork",
+      art_state_composed: "Composed from the other artwork",
+      art_state_nologo: "No logo: name shown as text",
+      art_drop_hint: "Tip: you can also drop an image onto a game.",
+      art_saved: "Image saved.",
+      art_reset_done: "Original artwork restored.",
+      art_bad_type: "Unsupported format: choose a PNG, JPEG or WebP image.",
+      art_too_big: "Image too large (8 MB maximum).",
+      art_read_err: "Could not read the file.",
+      art_save_err: "Could not save the image.",
+      art_unavailable: "Artwork unavailable for now.",
       cs2_loading: "Reading CS2 configuration…",
       cs2_unavailable: "CS2 information unavailable.",
       cs2_config: "CS2 configuration",
@@ -536,6 +867,29 @@
       th_current: "Current",
       th_recommended: "Recommended",
       th_note: "Note",
+
+      /* CS2 panel — "For your machine" (tiers) */
+      cs2_machine_group: "For your machine",
+      cs2_tier_detected: "Detected tier",
+      cs2_tier_reasons: "Why this rating",
+      cs2_tier_select: "Recommendations tier",
+      tier_lowend: "Low-end",
+      tier_midrange: "Mid-range",
+      tier_highend: "High-end",
+      advice_kind_reco: "Recommended",
+      advice_kind_opinion: "Opinion",
+      advice_kind_info: "Info",
+      cs2_video_read: "cs2_video.txt read: compared against your current values.",
+      cs2_apply_video: "Apply video settings",
+      cs2_apply_video_body: "Overdrive only changes settings already present in your cs2_video.txt — never your resolution. An automatic backup is created in the config vault before anything is written, so you can roll back. If CS2 is running, the change will be refused: close the game first.",
+      cs2_apply_count_one: "{n} setting will be changed ({t} tier).",
+      cs2_apply_count_many: "{n} settings will be changed ({t} tier).",
+      cs2_apply_none: "Your settings already match this tier's recommendations: nothing to apply.",
+      cs2_val_same: "Matches",
+      cs2_res_changed: "Changed settings",
+      cs2_res_skipped: "Skipped settings",
+      cs2_autoexec_group: "Autoexec per tier",
+      cs2_launch_group: "Launch options per tier",
 
       /* Latency */
       latency_group: "Estimated latency",
@@ -648,9 +1002,7 @@
       no_keys_yet: "No key configured yet.",
       appearance_group: "Appearance",
       theme: "Theme",
-      theme_desc: "Dark by default, light available.",
-      light: "Light",
-      dark: "Dark",
+      theme_desc: "Four dark “Midnight” variants and a light theme. Switches instantly.",
       language: "Language",
       language_desc: "Interface language. Catalogs are translated automatically.",
       report_group: "Report",
@@ -713,12 +1065,226 @@
       widget_saved: "Widget settings saved.",
       widget_save_err: "Could not save widget settings.",
       ob_title: "Autostart",
+      ob_last_step: "Last step",
       ob_sub: "Choose when the widget (FPS and info over the game) should launch. You can change this anytime in Settings.",
       ob_never_desc: "The widget only launches manually.",
       ob_always_desc: "The widget is there as soon as the PC boots.",
       ob_game_desc: "Invisible day to day; it appears when one of your games starts and goes away when it closes.",
       ob_launch_now: "Launch the widget now",
-      ob_finish: "Finish"
+      ob_finish: "Finish",
+      chat_apply: "Apply",
+      chat_applied: "Applied",
+      chat_apply_fail: "Could not apply.",
+      chat_tweak_unknown: "Unknown optimization: nothing was applied.",
+      chat_tweak_unsupported: "This optimization is not supported on this machine.",
+      debloat_modal_body: "The following apps will be removed from your Windows account. Each one can be reinstalled from the Microsoft Store.",
+      insights_group: "Advice for your machine",
+      insights_none: "Nothing to report: your setup shows none of the common detectable issues.",
+      insights_badge_important: "Important",
+      insights_badge_conseil: "Tip",
+      insights_action: "Open page",
+      bench_btn: "Benchmark",
+      bench_title: "Quick benchmark",
+      bench_intro: "Measures CPU (single and multi-core), memory and disk in about ten seconds. Close heavy apps for a reliable result. Ideal before/after applying optimizations.",
+      bench_run: "Run benchmark",
+      bench_running: "Measuring (~10 s)…",
+      bench_score: "Overall score",
+      bench_cpu_single: "CPU (1 core)",
+      bench_cpu_multi: "CPU (multi)",
+      bench_ram: "Memory",
+      bench_disk_w: "Disk (write)",
+      bench_disk_r: "Disk (read)",
+      bench_prev: "Previous run: {s} ({d})",
+      bench_err: "Benchmark failed.",
+      debloat_group: "Preinstalled apps",
+      debloat_note: "Apps bundled with Windows and rarely useful on a gaming PC. Removal only affects your account and every app can be reinstalled from the Microsoft Store.",
+      debloat_installed: "Installed",
+      debloat_absent: "Not present",
+      debloat_unknown: "Unknown state",
+      debloat_remove: "Remove selection ({n})",
+      debloat_removing: "Removing…",
+      debloat_done: "{n} app(s) removed.",
+      update_group: "Update",
+      update_name: "Application version",
+      update_check: "Check",
+      update_checking: "Checking…",
+      update_available: "New version available: {t}",
+      update_download: "Download",
+      update_none: "You are up to date.",
+      backup_group: "Profile backup",
+      backup_export: "Export",
+      backup_export_desc: "Profile, questionnaire answers and widget settings in a JSON file.",
+      backup_import: "Import",
+      backup_imported: "Profile imported.",
+      backup_import_err: "Invalid export file.",
+      gamemode_name: "Automatic game mode",
+      gamemode_desc: "When a game starts: performance power plan and high priority for the game; everything is restored when it closes. Requires the widget to be running.",
+
+      /* Sensitivity converter */
+      sens_group: "Sensitivity converter",
+      sens_desc: "Same real rotation (cm/360) across games: pick the source game, your sensitivity and your mouse DPI.",
+      sens_game: "Source game",
+      sens_sens: "Sensitivity",
+      sens_dpi: "Mouse DPI",
+      sens_convert: "Convert",
+      sens_converting: "Converting…",
+      sens_cm360: "cm/360",
+      sens_cm360_note: "mouse distance for a full turn",
+      sens_edpi: "eDPI",
+      sens_edpi_note: "sensitivity × DPI",
+      sens_err_sens: "Invalid sensitivity: enter a strictly positive number.",
+      sens_err_range: "Sensitivity out of range: enter a value above 0 and no greater than 1000.",
+      sens_err_dpi: "Invalid DPI: enter an integer between 100 and 26000.",
+      sens_failed: "Conversion failed.",
+      sens_unavailable: "Converter unavailable right now.",
+      th_game: "Game",
+      th_sens_conv: "Converted sensitivity",
+
+      /* CS2 crosshairs */
+      xhair_group: "CS2 crosshairs",
+      xhair_desc: "Realistic styles inspired by professional players, with a preview and a ready-to-import share code.",
+      xhair_inspired: "Inspired by {p}",
+      xhair_howto: "To import: CS2 > Settings > Equipment > Share or import crosshair code. The console commands are a guaranteed fallback if a code were rejected.",
+      xhair_copy_code: "Copy code",
+      xhair_copy_console: "Copy commands",
+      xhair_unavailable: "Crosshairs unavailable right now.",
+
+      /* Config vault */
+      vault_group: "Config vault",
+      vault_desc: "Local zip backups of your games' configuration files, restorable at any time.",
+      vault_backup_now: "Back up now",
+      vault_backing_up: "Backing up…",
+      vault_backups_title: "Backups",
+      vault_no_backups: "No backup yet.",
+      vault_none_found: "No game configuration detected on this machine: nothing to back up right now.",
+      vault_restore: "Restore",
+      vault_restoring: "Restoring…",
+      vault_deleting: "Deleting…",
+      vault_restore_title: "Restore a backup",
+      vault_restore_body: "Current configuration files will be replaced by those from \"{id}\". An automatic safety backup is created before anything is written, so you can roll back.",
+      vault_delete_title: "Delete backup",
+      vault_delete_body: "The backup \"{id}\" will be permanently deleted.",
+      vault_unavailable: "Vault unavailable right now.",
+      th_date: "Date",
+      th_games: "Games",
+
+      /* Network stability test */
+      netstab_btn: "Stability test (20 s)",
+      netstab_running: "Stability test running (~20 s)…",
+      netstab_loss: "Loss",
+      netstab_jitter: "Jitter",
+      netstab_region: "Tested region: {r}",
+
+      /* Network activity (monitor) */
+      netusage_group: "Network activity",
+      netusage_desc: "Applications with active connections (TCP/UDP) and likely downloads.",
+      th_app: "Application",
+      th_connections: "Connections",
+      netusage_empty: "No application with active connections could be detected on this system.",
+      netusage_suspects: "Likely downloads",
+      netusage_unavailable: "Network activity unavailable right now.",
+
+      /* Settings: widget + maintenance */
+      widget_el_temp: "Temperature",
+      pause_updates_name: "Pause Windows Update during the game",
+      pause_updates_desc: "The update service is paused when a game starts, then resumed when it closes.",
+      maintenance_group: "Maintenance",
+      sched_name: "Weekly automatic cleanup (Sunday 11 AM)",
+      sched_desc: "Cleans safe caches via the Windows Task Scheduler, without opening the interface.",
+      sched_unavailable: "Scheduling unavailable right now.",
+
+      /* Wave 6: themes, animations, in-game pause */
+      theme_name_midnight: "Midnight",
+      theme_name_ocean: "Ocean",
+      theme_name_emerald: "Emerald",
+      theme_name_rose: "Rose",
+      theme_name_daylight: "Light",
+      theme_sub_midnight: "Violet → blue",
+      theme_sub_ocean: "Blue → cyan",
+      theme_sub_emerald: "Green → teal",
+      theme_sub_rose: "Pink → violet",
+      theme_sub_daylight: "Light, violet accent",
+      theme_label: "Theme: {t}",
+      theme_next: "Next theme: {t}",
+      motion_name: "Animations",
+      motion_max: "Max",
+      motion_reduced: "Reduced",
+      motion_off: "Off",
+      motion_max_desc: "Full effects: 3D, glows, counters and transitions. Everything freezes while you play.",
+      motion_reduced_desc: "Short fades only, no 3D or continuous motion.",
+      motion_off_desc: "No animation: the interface changes instantly.",
+      game_pause_ind: "In game — animations paused",
+      game_pause_title: "A game is running: visual effects are suspended so they cost no CPU or GPU time.",
+
+      /* Wave 6: home gauges */
+      gauge_threads: "{n} threads",
+      gauge_unavailable: "Reading unavailable",
+
+      /* Wave 6: command palette */
+      pal_boost: "Boost",
+      pal_boost_sub: "One-click machine optimization",
+      pal_boost_cs2_sub: "Preview, then targeted Counter-Strike 2 optimization",
+      pal_bench_sub: "Before / after mini benchmark",
+      pal_clean_sub: "Look for unneeded files",
+      pal_widget_sub: "In-game FPS, CPU and RAM overlay",
+      pal_motion_max: "Maximum animations",
+      pal_motion_reduced: "Reduced animations",
+      pal_motion_off: "Animations off",
+      pal_lang_fr: "Language: French (français)",
+      pal_lang_en: "Language: English",
+      pal_lang_sub: "Interface language",
+
+      /* Wave 6: CS2 Boost */
+      cs2b_btn: "CS2 Boost",
+      cs2b_hero_title: "One-click CS2 Boost",
+      cs2b_hero_sub: "Targeted Windows tweaks, video settings and autoexec tailored to your machine. Detailed preview before any change, everything stays revertible.",
+      cs2b_title: "CS2 Boost",
+      cs2b_loading: "Preparing the preview…",
+      cs2b_plan_failed: "CS2 Boost preview unavailable right now.",
+      cs2b_tier_detected: "Plan for your machine",
+      cs2b_tier_forced: "Plan chosen in the CS2 panel",
+      cs2b_steps_title: "Steps",
+      cs2b_planned: "Planned",
+      cs2b_not_planned: "Nothing to do",
+      cs2b_waiting: "Waiting",
+      cs2b_step_running: "Running…",
+      cs2b_step_ok: "Done",
+      cs2b_step_fail: "Failed",
+      cs2b_step_skipped: "Skipped",
+      cs2b_details: "Details ({n})",
+      cs2b_tw_pending: "to apply",
+      cs2b_tw_already: "already in place",
+      cs2b_tw_skipped: "left out",
+      cs2b_tw_unsupported: "unsupported",
+      cs2b_tw_applied: "applied",
+      cs2b_tw_failed: "failed",
+      cs2b_opt_title: "Options",
+      cs2b_opt_restore: "Create a restore point first",
+      cs2b_opt_video: "Apply the plan's video settings",
+      cs2b_opt_autoexec: "Write the plan's autoexec",
+      cs2b_manual_preview: "Then: {n} step(s) to do yourself (Adrenalin, launch options…), listed after the Boost.",
+      cs2b_run: "Run CS2 Boost",
+      cs2b_running: "CS2 Boost running…",
+      cs2b_failed: "CS2 Boost could not be started.",
+      cs2b_reboot: "Restart the PC to finish (hardware-accelerated GPU scheduling).",
+      cs2b_manual_title: "To do yourself",
+      cs2b_manual_sub: "Tick them off as you go: progress is saved on this PC.",
+      cs2b_kind_adrenalin: "Adrenalin",
+      cs2b_kind_launch_options: "Steam",
+      cs2b_kind_insight: "Finding",
+      cs2b_kind_cpu: "CPU",
+      cs2b_kind_lowend: "Low-end",
+      cs2b_kind_option: "Option",
+      cs2b_optional: "optional",
+
+      /* Wave 6: AMD Adrenalin settings */
+      amd_title: "AMD Adrenalin settings",
+      amd_ryzen_only_title: "AMD Ryzen tips",
+      amd_sub: "Counter-Strike 2 game profile in AMD Software. Tick each setting once done.",
+      amd_ryzen_title: "Ryzen CPU",
+      amd_progress: "{d} / {n} done",
+      amd_arch_other: "AMD GPU",
+      amd_reset: "Uncheck all"
     }
   };
 
@@ -745,6 +1311,37 @@
   }
 
   /* Champ traduit d'un objet de l'API : obj[field + "_en"] si lang=en, sinon obj[field]. */
+  /* Questionnaire : l'intro et l'accueil tutoient, le QCM aussi (FR
+     uniquement ; l'anglais est inchangé). Questions servies par le serveur
+     au vouvoiement : remplacées seulement si le texte reçu est exactement
+     celui connu (un texte modifié côté serveur reste affiché tel quel). */
+  var QUIZ_TU = {
+    "À quels types de jeux jouez-vous le plus souvent ?": "À quels types de jeux joues-tu le plus souvent ?",
+    "Qu'est-ce qui compte le plus pour vous en jeu ?": "Qu'est-ce qui compte le plus pour toi en jeu ?",
+    "Comment décririez-vous votre PC ?": "Comment décrirais-tu ton PC ?",
+    "Comment votre PC est-il connecté à Internet ?": "Comment ton PC est-il connecté à Internet ?",
+    "Jusqu'où acceptez-vous d'aller dans les optimisations ?": "Jusqu'où acceptes-tu d'aller dans les optimisations ?",
+    "À quoi sert votre PC en dehors du jeu ?": "À quoi sert ton PC en dehors du jeu ?",
+    "Quelle souris utilisez-vous ?": "Quelle souris utilises-tu ?"
+  };
+  function quizQuestionText(q) {
+    var txt = tr(q, "question");
+    return LANG === "en" ? txt : (Object.prototype.hasOwnProperty.call(QUIZ_TU, txt) ? QUIZ_TU[txt] : txt);
+  }
+
+  /* Textes serveur encore au vouvoiement (profil du QCM, fiche CS2) : en
+     français, l'app tutoie partout ; seules ces tournures exactes sont
+     reprises (un texte modifié côté serveur reste affiché tel quel). */
+  var SRV_TU = [
+    ["Votre machine sera réglée", "Ta machine sera réglée"],
+    ["calcule la valeur pour votre machine", "calcule la valeur pour ta machine"]
+  ];
+  function srvTu(v) {
+    if (typeof v !== "string" || v.indexOf("otre machine") < 0) { return v; }
+    SRV_TU.forEach(function (pair) { v = v.split(pair[0]).join(pair[1]); });
+    return v;
+  }
+
   function tr(obj, field) {
     if (!obj) { return ""; }
     if (LANG === "en") {
@@ -752,7 +1349,190 @@
       if (en !== undefined && en !== null && en !== "") { return en; }
     }
     var v = obj[field];
-    return v === undefined || v === null ? "" : v;
+    return v === undefined || v === null ? "" : (LANG === "en" ? v : srvTu(v));
+  }
+
+  /* Messages serveur sans variante anglaise (« message_en » absent) : table de
+     correspondance appliquée en anglais seulement ; un texte inconnu est
+     affiché tel quel. */
+  var SRV_EN = {
+    "Disponible uniquement sous Windows.": "Windows only.",
+    "Points de restauration disponibles uniquement sous Windows.": "Restore points are only available on Windows.",
+    "La gestion des programmes au démarrage est disponible uniquement sous Windows.":
+      "Startup programs can only be managed on Windows.",
+    "Installation disponible uniquement sous Windows.": "Installation is only available on Windows.",
+    "Widget disponible uniquement sous Windows.": "The widget is only available on Windows.",
+    "Tweak inconnu.": "Unknown tweak.",
+    "Steam introuvable sur cette machine.": "Steam was not found on this machine.",
+    "winget n'est pas disponible sur cette machine.": "winget is not available on this machine.",
+    "Nettoyage automatique programmé chaque dimanche à 11 h.": "Automatic cleanup scheduled every Sunday at 11 a.m.",
+    "Nettoyage automatique désactivé.": "Automatic cleanup disabled.",
+    "Chaque dimanche à 11 h.": "Every Sunday at 11 a.m.",
+    "Le mode jeu n'était pas actif.": "Game mode was not active.",
+    "Profil importé.": "Profile imported.",
+    "Rétabli (état d'origine de cette machine).": "Restored (this machine's original state).",
+    /* Tweaks (engine._run_actions) et erreurs génériques du serveur. */
+    "Appliqué.": "Applied.",
+    "Rétabli (valeurs par défaut).": "Restored (defaults).",
+    "Erreur interne du serveur.": "Internal server error.",
+    "Hôte non autorisé.": "Host not allowed.",
+    /* Assistant IA (chat.py, providers.py, server.py). */
+    "Aucun message valide à envoyer à l'assistant.": "No valid message to send to the assistant.",
+    "Aucun fournisseur IA configuré. Ajoutez une clé API dans Réglages (Groq propose une clé gratuite sur console.groq.com).":
+      "No AI provider configured. Add an API key in Settings (Groq offers a free key at console.groq.com).",
+    "Erreur inattendue lors de l'appel au fournisseur IA.": "Unexpected error while calling the AI provider.",
+    "Le champ 'messages' doit être une liste de messages {role, content}.":
+      "The 'messages' field must be a list of {role, content} messages.",
+    "Widget lancé.": "Widget launched.",
+    "Impossible de lancer le widget.": "Could not launch the widget.",
+    "La clé API est vide.": "The API key is empty.",
+    "Un benchmark est déjà en cours.": "A benchmark is already running.",
+    "Un Boost CS2 est déjà en cours.": "A CS2 Boost is already running.",
+    /* Raisons des réglages vidéo CS2 non appliqués (skip_reason). */
+    "absente du fichier": "missing from the file",
+    "clé inconnue : réglez-le dans CS2 (Paramètres > Vidéo avancé)":
+      "unknown key: set it in CS2 (Settings > Advanced Video)",
+    "GPU non NVIDIA : Reflex jamais écrit": "non-NVIDIA GPU: Reflex is never written",
+    "fréquence maximale de l'écran non détectable": "maximum display refresh rate not detectable",
+    "jamais modifiée automatiquement (choix personnel)": "never changed automatically (personal choice)",
+    /* Import de profil (détail du refus 400). */
+    "Fichier d'export Overdrive invalide.": "Invalid Overdrive export file.",
+    /* Coffre de configurations. */
+    "Aucun fichier de configuration à sauvegarder (aucun jeu détecté ou dossiers vides).":
+      "No configuration file to back up (no game detected or empty folders).",
+    "Identifiant de sauvegarde invalide ou inconnu (nom de fichier exact du coffre attendu).":
+      "Invalid or unknown backup identifier (exact vault file name expected).",
+    "Identifiant de sauvegarde invalide ou inconnu.": "Invalid or unknown backup identifier.",
+    "Archive illisible ou sans manifeste : restauration refusée.":
+      "Unreadable archive or missing manifest: restore refused.",
+    "Aucun des jeux demandés n'est présent dans cette sauvegarde.":
+      "None of the requested games is in this backup.",
+    /* CS2 (autoexec). */
+    "Aucun profil CS2 trouvé dans Steam/userdata (lancez CS2 une première fois).":
+      "No CS2 profile found in Steam/userdata (launch CS2 once first).",
+    /* Point de restauration. */
+    "Délai dépassé lors de la création du point de restauration.": "Timed out while creating the restore point.",
+    "Un point de restauration récent existe déjà (créé il y a moins de 24 h).":
+      "A recent restore point already exists (created less than 24 hours ago).",
+    /* Mise à jour. */
+    "Délai dépassé (10 s) en contactant GitHub. Réessayez plus tard.": "Timed out (10 s) contacting GitHub. Try again later.",
+    "Impossible de contacter GitHub : vérifiez votre connexion Internet (mode hors ligne ?).":
+      "Could not reach GitHub: check your Internet connection (offline mode?).",
+    "Limite de l'API GitHub atteinte. Réessayez dans quelques minutes.":
+      "GitHub API rate limit reached. Try again in a few minutes.",
+    "Aucune release publiée pour le moment sur GitHub.": "No release published on GitHub yet.",
+    "Réponse illisible de l'API GitHub.": "Unreadable response from the GitHub API.",
+    "Erreur interne lors de la vérification des mises à jour.": "Internal error while checking for updates.",
+    /* Latence : régions et échec global. */
+    "Point le plus proche (CDN anycast Cloudflare)": "Nearest point (Cloudflare anycast CDN)",
+    "Paris (datacenter Scaleway/Online)": "Paris (Scaleway/Online data center)",
+    "France Nord — Gravelines (OVHcloud)": "Northern France — Gravelines (OVHcloud)",
+    "Europe Ouest (Blizzard eu.battle.net)": "Western Europe (Blizzard eu.battle.net)",
+    "Amérique du Nord Est (Blizzard us.battle.net)": "North America East (Blizzard us.battle.net)",
+    "Canada — Beauharnois (OVHcloud)": "Canada — Beauharnois (OVHcloud)",
+    "Asie — Corée (Blizzard kr.battle.net)": "Asia — Korea (Blizzard kr.battle.net)",
+    "États-Unis (GitHub, référence web)": "United States (GitHub, web reference)",
+    "Délai global de mesure dépassé.": "Overall measurement timeout exceeded.",
+    /* Applications préinstallées (noms sans variante anglaise). */
+    "Actualités (Microsoft News)": "News (Microsoft News)",
+    "Météo (MSN Météo)": "Weather (MSN Weather)",
+    "Obtenir de l'aide": "Get Help",
+    "Conseils (Astuces Windows)": "Tips (Windows tips)",
+    "Portail de réalité mixte": "Mixed Reality Portal",
+    "Visionneuse 3D": "3D Viewer",
+    "Contacts (People)": "People",
+    "Hub de commentaires": "Feedback Hub",
+    "Groove Musique / Media Player": "Groove Music / Media Player",
+    "Films et TV": "Movies & TV",
+    /* Cibles de nettoyage sans variante anglaise. */
+    "Fichiers temporaires (/tmp)": "Temporary files (/tmp)",
+    "Fichiers temporaires utilisateur": "User temporary files",
+    "Fichiers temporaires Windows": "Windows temporary files",
+    "Cache shaders DirectX": "DirectX shader cache",
+    "Cache shaders NVIDIA": "NVIDIA shader cache",
+    "Cache des vignettes": "Thumbnail cache",
+    "Cache Windows Update": "Windows Update cache",
+    "Corbeille": "Recycle Bin"
+  };
+  /* Motifs (préfixes français suivis d'un détail technique). */
+  var SRV_EN_RE = [
+    [/^Échec : /, "Failed: "],
+    /* Assistant IA : erreurs des fournisseurs (providers.py, chat.py). */
+    [/^Clé API invalide ou non autorisée pour (.+?) \(HTTP (\d+)\)\. Vérifiez la clé dans Réglages\.$/,
+      "Invalid or unauthorized API key for $1 (HTTP $2). Check the key in Settings."],
+    [/^Quota ou limite de débit atteint pour (.+?) \(HTTP 429\)\. Réessayez dans quelques instants\.$/,
+      "Quota or rate limit reached for $1 (HTTP 429). Try again in a few moments."],
+    [/^Requête refusée par (.+?) \(HTTP (\d+)\) : /, "Request rejected by $1 (HTTP $2): "],
+    [/^Requête refusée par (.+?) \(HTTP (\d+)\)\.$/, "Request rejected by $1 (HTTP $2)."],
+    [/^Erreur du service (.+?) \(HTTP (\d+)\)\. Réessayez plus tard\.$/, "$1 service error (HTTP $2). Try again later."],
+    [/^Réponse inattendue ou vide du fournisseur (.+?) \(contenu bloqué ou format inconnu\)\.$/,
+      "Unexpected or empty response from $1 (blocked content or unknown format)."],
+    [/^Réponse illisible du fournisseur (.+)\.$/, "Unreadable response from $1."],
+    [/^Fournisseur IA inconnu : (.+)\.$/, "Unknown AI provider: $1."],
+    [/^Aucune clé API (?:configurée|enregistrée) pour (.+?)\. Ajoutez-la dans Réglages\.$/,
+      "No API key saved for $1. Add it in Settings."],
+    [/^Délai d'attente dépassé \(60 s\) en contactant (.+?)\. Vérifiez votre connexion réseau\.$/,
+      "Timed out (60 s) while contacting $1. Check your network connection."],
+    [/^Erreur réseau : impossible de joindre (.+?)\. Vérifiez votre connexion internet\.$/,
+      "Network error: could not reach $1. Check your internet connection."],
+    [/^Erreur inattendue de l'assistant : /, "Unexpected assistant error: "],
+    [/^Erreur inattendue : /, "Unexpected error: "],
+    [/ Go RAM · /, " GB RAM · "],
+    [/GPU non détecté$/, "GPU not detected"],
+    /* Coffre de configurations. */
+    [/^Sauvegarde créée : (.+) \((\d+) fichiers, (.*)\)\.$/, "Backup created: $1 ($2 files, $3)."],
+    [/^(\d+) fichier\(s\) restauré\(s\) depuis /, "$1 file(s) restored from "],
+    [/ Sauvegarde de sécurité : /, " Safety backup: "],
+    [/ Aucune sauvegarde de sécurité créée \(rien à sauvegarder\)\./, " No safety backup created (nothing to back up)."],
+    [/^Sauvegarde (.+) supprimée\.$/, "Backup $1 deleted."],
+    [/^Échec de la sauvegarde : /, "Backup failed: "],
+    [/^Échec de la restauration : /, "Restore failed: "],
+    [/^Échec de la suppression : /, "Deletion failed: "],
+    /* CS2 (autoexec). */
+    [/^autoexec\.cfg écrit pour le profil ([^ ]+)\./, "autoexec.cfg written for profile $1."],
+    [/ Ancien fichier sauvegardé en autoexec\.cfg\.bak\./, " Previous file saved as autoexec.cfg.bak."],
+    [/^Échec de l'écriture de l'autoexec : /, "Failed to write the autoexec: "],
+    [/^Profil utilisateur '(.+)' introuvable dans Steam\/userdata\.$/, "User profile '$1' not found in Steam/userdata."],
+    /* Point de restauration. */
+    [/^Point de restauration « (.+) » créé\.$/, "Restore point “$1” created."],
+    [/^Impossible de créer le point de restauration\. Vérifiez que la protection du système est activée\.$/,
+      "Could not create the restore point. Make sure System Protection is enabled."],
+    [/^Impossible de créer le point de restauration : /, "Could not create the restore point: "],
+    /* Mise à jour. */
+    [/^Version de développement \(build local inconnu\) ; dernier build publié : (\d+)\.$/,
+      "Development version (local build unknown); latest published build: $1."],
+    [/^Mise à jour disponible : build (\d+) \(vous utilisez le build (\d+)\)\.$/,
+      "Update available: build $1 (you are on build $2)."],
+    [/^Overdrive est à jour \(build (\d+)\)\.$/, "Overdrive is up to date (build $1)."],
+    [/^Dernière release trouvée \((.*)\), mais son numéro de build est illisible\.$/,
+      "Latest release found ($1), but its build number is unreadable."],
+    [/^Réponse inattendue de GitHub \(code (\d+)\)\.$/, "Unexpected response from GitHub (code $1)."],
+    /* Latence (échecs par région). */
+    [/^Résolution DNS impossible pour (.+)\.$/, "DNS resolution failed for $1."],
+    [/^Délai de connexion dépassé vers (.+)\.$/, "Connection timed out to $1."],
+    [/^Connexion refusée par (.+)\.$/, "Connection refused by $1."],
+    [/^Connexion impossible vers ([^ ]+) : /, "Could not connect to $1: "],
+    [/^Connexion impossible vers (.+)\.$/, "Could not connect to $1."]
+  ];
+
+  /** Texte serveur traduit en anglais quand c'est possible (sinon inchangé). */
+  function srvText(text) {
+    var str = text === undefined || text === null ? "" : String(text);
+    if (LANG !== "en" || !str) { return str; }
+    if (Object.prototype.hasOwnProperty.call(SRV_EN, str)) { return SRV_EN[str]; }
+    SRV_EN_RE.forEach(function (pair) { str = str.replace(pair[0], pair[1]); });
+    return str;
+  }
+
+  /** Champ d'un objet serveur : variante « _en » si elle existe, sinon table. */
+  function srvMsg(obj, field) {
+    var f = field || "message";
+    if (!obj) { return ""; }
+    if (LANG === "en") {
+      var en = obj[f + "_en"];
+      if (en !== undefined && en !== null && en !== "") { return en; }
+    }
+    return srvText(obj[f]);
   }
 
   /* Textes statiques de index.html (navigation, libellés fixes). */
@@ -762,6 +1542,7 @@
       el.textContent = t(el.dataset.i18n);
     });
     updateThemeLabel();
+    updatePauseIndicator();
   }
 
   /* ------------------------------------------------------------------ */
@@ -776,10 +1557,14 @@
     tweakSelection: new Set(),
     tweakSelectionInit: false,
     tweakFilter: "all",
+    tweakLowendOnly: false,  // filtre « Petite config » (cumulable aux catégories)
     tweakResults: {},        // id → {ok, message}
+    tweakDescOpen: new Set(), // explications dépliées (bouton « Plus »)
     games: null,             // GET /api/games → liste
     selectedGame: null,
     cs2: null,               // GET /api/games/cs2
+    cs2Tier: null,           // tier choisi dans le panneau (null = détecté)
+    cs2VideoResult: null,    // dernier résultat POST /api/games/cs2/video
     programs: null,          // GET /api/programs
     cleanTargets: null,      // GET /api/clean/scan (null = pas encore analysé)
     cleanScanning: false,
@@ -794,9 +1579,23 @@
     chatProvider: null,
     quiz: null,
     monitorHist: { cpu: [], ram: [], disk: [], net: [] },  // 60 derniers points
+    monitorHistAt: 0,        // horodatage du dernier point (continuité de l'historique)
     startupItems: null,      // GET /api/startup → liste
     latency: null,           // POST /api/latency → résultats
-    latencyBusy: false
+    latencyBusy: false,
+    netstab: null,           // POST /api/netstab → résultat du test de stabilité
+    netstabBusy: false,
+    sensGames: null,         // GET /api/sens/games → liste
+    sensForm: { game: null, sens: "", dpi: "800" },
+    sensResult: null,        // POST /api/sens/convert → résultat
+    sensError: null,         // erreur de validation côté client
+    crosshairs: null,        // GET /api/crosshairs → liste
+    vault: null,             // GET /api/vault → {targets, backups}
+    vaultSelection: new Set(),
+    schedule: null,          // GET /api/schedule → {enabled, supported, detail}
+    amd: null,               // GET /api/amd → {arch, gpu, cpu, tier, checklist, ryzen_tips}
+    amdLoading: false,
+    amdOpen: false           // encart Adrenalin déplié (mémorisé pendant la session)
   };
 
   var renderSeq = 0;
@@ -821,7 +1620,20 @@
     shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
     trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
     zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
-    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>'
+    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    cpu: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+    memory: '<path d="M6 19v-3"/><path d="M10 19v-3"/><path d="M14 19v-3"/><path d="M18 19v-3"/><path d="M8 11V9"/><path d="M16 11V9"/><path d="M12 11V9"/><path d="M2 15h20"/><path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z"/>',
+    crosshair: '<circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/>',
+    globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    widget: '<path d="M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h4"/><rect width="10" height="7" x="12" y="13" rx="2"/>',
+    chat: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    sparkles: '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>',
+    waves: '<path d="M2 8c.6.5 1.2 1 2.5 1C7 9 7 7 9.5 7c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 15c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>',
+    pause: '<circle cx="12" cy="12" r="10"/><line x1="10" x2="10" y1="15" y2="9"/><line x1="14" x2="14" y1="15" y2="9"/>',
+    list: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+    loader: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
+    minus: '<path d="M5 12h14"/>',
+    image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>'
   };
 
   function icon(name) {
@@ -849,6 +1661,13 @@
     return LANG === "en" ? s : s.replace(".", ",");
   }
 
+  /* Texte serveur français : « 15.7 Go » → « 15,7 Go » (seuls les nombres
+     suivis de « Go » / « Mo » : « 2.10GHz » d'un nom de CPU reste intact). */
+  function frDecUnits(text) {
+    var str = text === undefined || text === null ? "" : String(text);
+    return LANG === "en" ? str : str.replace(/(\d)\.(\d)(?=\s?[GM]o\b)/g, "$1,$2");
+  }
+
   function fmtMb(mb) {
     if (mb === null || mb === undefined) { return "—"; }
     if (mb >= 1024) { return dec((mb / 1024).toFixed(1)) + " " + t("unit_gb"); }
@@ -860,9 +1679,17 @@
     return dec(Math.round(gb * 10) / 10) + " " + t("unit_gb");
   }
 
+  /* Mesure en direct (RAM) : toujours une décimale (« 1,0 Go », jamais
+     « 1 Go ») pour une largeur stable d'un relevé à l'autre. */
+  function fmtGb1(gb) {
+    if (gb === null || gb === undefined || !isFinite(Number(gb))) { return "—"; }
+    return dec((Math.round(Number(gb) * 10) / 10).toFixed(1)) + " " + t("unit_gb");
+  }
+
   function fmtRate(mbps) {
     if (mbps === null || mbps === undefined) { return "—"; }
-    return dec((Math.round(mbps * 10) / 10).toFixed(1)) + " " + t("unit_mbps");
+    /* Espace insécable : l'unité ne se retrouve jamais seule à la ligne. */
+    return dec((Math.round(mbps * 10) / 10).toFixed(1)) + "\u00a0" + t("unit_mbps");
   }
 
   function setBusy(btn, label) {
@@ -893,15 +1720,25 @@
     } catch (e) { return false; }
   }
 
+  /* Retour « Copié » pendant 1,5 s. Le bouton n'est PAS désactivé (Chromium
+     retirerait le focus clavier d'un bouton désactivé) : un drapeau ignore
+     les clics répétés, aria-disabled l'annonce. */
   function copyFeedback(btn, ok) {
     if (!btn) { return; }
     var prev = btn.innerHTML;
+    btn.__odCopying = true;
+    btn.setAttribute("aria-disabled", "true");
     btn.innerHTML = ok ? icon("check") + " " + esc(t("copied")) : esc(t("copy_failed"));
-    btn.disabled = true;
-    setTimeout(function () { btn.innerHTML = prev; btn.disabled = false; }, 1500);
+    setTimeout(function () {
+      btn.innerHTML = prev;
+      btn.__odCopying = false;
+      btn.removeAttribute("aria-disabled");
+    }, 1500);
   }
 
   function copyText(text, btn) {
+    if (btn && btn.__odCopying) { return; }
+    if (btn) { btn.__odCopying = true; }   /* double clic avant la fin de la copie */
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
         function () { copyFeedback(btn, true); },
@@ -1018,7 +1855,7 @@
     var b = byId("banner");
     if (!b) { return; }
     b.className = kind === "error" ? "banner-error" : (kind === "ok" ? "banner-ok" : "");
-    b.innerHTML = "<span>" + esc(message) + "</span>" +
+    b.innerHTML = "<span>" + esc(srvText(message)) + "</span>" +
       '<button class="btn btn-ghost btn-sm banner-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button>";
     b.hidden = false;
     b.querySelector(".banner-close").addEventListener("click", hideBanner);
@@ -1037,6 +1874,7 @@
   /* ------------------------------------------------------------------ */
 
   function openModal(opts) {
+    if (modalIsBusy()) { showBanner(t("modal_busy"), "error"); return null; }
     var root = byId("modal-root");
     root.hidden = false;
     root.innerHTML =
@@ -1051,7 +1889,25 @@
       esc(opts.confirmLabel || t("confirm")) + "</button>" +
       "</div></div></div>";
 
+    var overlay = root.querySelector(".modal-overlay");
+    /* Contrôleur : setBusy(true) bloque toute fermeture (X, Annuler, fond,
+       Échap) pendant une opération qui doit aller au bout (ex. benchmark). */
+    var ctl = {
+      busy: false,
+      setBusy: function (b) {
+        ctl.busy = !!b;
+        setModalBusy(overlay, ctl.busy);
+        if (overlay.parentNode !== root) { return; }
+        ["modal-x", "modal-cancel"].forEach(function (id) {
+          var el = byId(id);
+          if (el) { el.disabled = ctl.busy; }
+        });
+      },
+      isOpen: function () { return overlay.parentNode === root && !root.hidden; }
+    };
+
     function close() {
+      if (ctl.busy || overlay.parentNode !== root) { return; }
       root.hidden = true;
       root.innerHTML = "";
       if (opts.onCancel) { opts.onCancel(); }
@@ -1059,42 +1915,515 @@
     byId("modal-x").addEventListener("click", close);
     byId("modal-cancel").addEventListener("click", close);
     byId("modal-confirm").addEventListener("click", function () {
+      if (opts.keepOpen) {
+        // La modale reste ouverte (ex. benchmark) : onConfirm gère l'affichage.
+        if (opts.onConfirm) { opts.onConfirm(); }
+        return;
+      }
       root.hidden = true;
       root.innerHTML = "";
       if (opts.onConfirm) { opts.onConfirm(); }
     });
-    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+    overlay.addEventListener("click", function (e) {
       if (e.target === e.currentTarget) { close(); }
     });
+    registerModalEscape(overlay, close);
     byId("modal-confirm").focus();
+    return ctl;
   }
 
   /* ------------------------------------------------------------------ */
-  /* Thème clair / sombre                                                */
+  /* Accessibilité des fenêtres modales et du QCM                        */
   /* ------------------------------------------------------------------ */
+
+  /* Fermeture par Échap de la modale courante : { el: overlay, close: fn }.
+     La modale Boost CS2 gère son propre Échap (phase « running »). */
+  var modalEscape = null;
+
+  function registerModalEscape(overlay, close) {
+    modalEscape = { el: overlay, close: close };
+  }
+
+  /* Modale occupée (benchmark, Boost, Boost CS2 en cours) : aucune autre
+     modale ne peut la remplacer (ex. action lancée depuis la palette). */
+  var busyOverlay = null;
+
+  function setModalBusy(overlay, busy) {
+    if (busy) { busyOverlay = overlay; } else if (busyOverlay === overlay) { busyOverlay = null; }
+  }
+
+  function modalIsBusy() {
+    var r = byId("modal-root");
+    return !!(busyOverlay && r && !r.hidden && busyOverlay.parentNode === r);
+  }
+
+  var FOCUSABLE_SEL = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), ' +
+    'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function paletteIsOpen() {
+    var pal = window.OverdrivePalette;
+    try { return !!(pal && typeof pal.isOpen === "function" && pal.isOpen()); } catch (e) { return false; }
+  }
+
+  /** Conteneur qui doit garder le focus : modale, sinon QCM, sinon null. */
+  function activeDialog() {
+    var mr = byId("modal-root");
+    if (mr && !mr.hidden) {
+      var m = mr.querySelector(".modal-overlay .modal");
+      if (m) { return m; }
+    }
+    var or = byId("overlay-root");
+    if (or && !or.hidden) {
+      var q = or.querySelector(".quiz-overlay");
+      if (q) { return q; }
+    }
+    return null;
+  }
+
+  function focusables(box) {
+    return $all(FOCUSABLE_SEL, box).filter(function (el) {
+      return el.getClientRects().length > 0 && !el.closest("[inert]");
+    });
+  }
+
+  /** Échap (modales génériques, Boost, QCM en mode « refaire ») et piège du Tab. */
+  function onDialogKey(e) {
+    if (e.defaultPrevented || paletteIsOpen()) { return; }
+    var box = activeDialog();
+    if (!box) { return; }
+    if (e.key === "Escape") {
+      var mr = byId("modal-root");
+      var overlay = mr && !mr.hidden ? mr.querySelector(".modal-overlay") : null;
+      if (overlay) {
+        if (modalEscape && modalEscape.el === overlay) {
+          e.preventDefault();
+          modalEscape.close();
+        }
+        return;
+      }
+      var quiz = state.quiz;
+      if (quiz && !quiz.firstRun && !quiz.submitting) {
+        e.preventDefault();
+        var hadResult = !!quiz.result;
+        closeQuiz();
+        if (hadResult) { render(); }
+      }
+      return;
+    }
+    if (e.key !== "Tab") { return; }
+    var list = focusables(box);
+    if (!list.length) { e.preventDefault(); return; }
+    var first = list[0], last = list[list.length - 1];
+    var cur = document.activeElement;
+    /* QCM ouvert, focus sur la fenêtre elle-même (ouverture à la souris ou au
+       lancement) : le 1er Tab mène à la réponse choisie (sinon la 1re), pas à
+       « Plus tard » — Tab puis Espace ne ferme jamais le questionnaire. */
+    if (cur === box && !e.shiftKey && box.classList.contains("quiz-overlay")) {
+      var opt = box.querySelector(".quiz-opt.selected") || box.querySelector(".quiz-opt");
+      if (opt) { e.preventDefault(); opt.focus(); return; }
+    }
+    if (!box.contains(cur)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && cur === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && cur === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  /* Fond inerte tant qu'une modale ou le QCM est affiché ; au retour, le focus
+     revient sur le dernier élément actif de l'interface s'il existe encore. */
+  var lastAppFocus = null;
+  var appBlocked = false;
+
+  function syncAppInert() {
+    var app = byId("app");
+    if (!app) { return; }
+    var blocked = !!activeDialog();
+    if (blocked === appBlocked) { return; }
+    appBlocked = blocked;
+    try { app.inert = blocked; } catch (e) { /* inert indisponible */ }
+    if (blocked) {
+      /* Focus resté derrière l'overlay : il passe dans la fenêtre. */
+      var box = activeDialog();
+      if (box && !box.contains(document.activeElement)) {
+        var list = focusables(box);
+        if (list.length) { try { list[0].focus({ preventScroll: true }); } catch (e1) { /* focus impossible */ } }
+      }
+    } else if (!document.activeElement || document.activeElement === document.body) {
+      if (lastAppFocus && lastAppFocus.isConnected && app.contains(lastAppFocus)) {
+        try { lastAppFocus.focus({ preventScroll: true }); } catch (e2) { /* focus impossible */ }
+      }
+      /* Élément mémorisé disparu (re-rendu, redirection après le QCM) : repli
+         sur le titre de la page, sinon sur l'entrée active de la navigation. */
+      scheduleFocusFallback();
+    }
+  }
+
+  /** Focus de repli quand il est retombé sur <body> : titre de la page
+      (tabindex=-1, sans anneau) ou entrée active de la navigation. Plusieurs
+      essais : un rendu (transition de page) peut remplacer le titre visé. */
+  function focusFallback() {
+    var a = document.activeElement;
+    if (a && a !== document.body && a !== document.documentElement && a.isConnected) { return; }
+    if (activeDialog() || paletteIsOpen()) { return; }
+    var target = document.querySelector("#page .page-title") || document.querySelector(".nav-item.active");
+    if (!target) { return; }
+    if (target.classList.contains("page-title") && !target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+    try { target.focus({ preventScroll: true }); } catch (e) { /* focus impossible */ }
+  }
+
+  function scheduleFocusFallback() {
+    [0, 400, 1000].forEach(function (d) { setTimeout(focusFallback, d); });
+  }
+
+  /* Dernière interaction au clavier ? (ouverture d'un QCM : focus sur la 1re
+     option au clavier, sur la fenêtre elle-même à la souris ou au lancement,
+     pour ne pas afficher d'anneau qui ressemblerait à une présélection). */
+  var lastInputKeyboard = false;
+
+  /** Élément à focaliser à l'ouverture d'une fenêtre plein écran (QCM). */
+  function dialogStartFocus(root, optionSel) {
+    var opt = root.querySelector(optionSel);
+    if (lastInputKeyboard && opt) { return opt; }
+    var ov = root.querySelector(".quiz-overlay");
+    if (ov) { ov.setAttribute("tabindex", "-1"); return ov; }
+    return opt;
+  }
+
+  function initDialogA11y() {
+    document.addEventListener("keydown", onDialogKey, true);
+    document.addEventListener("keydown", function (e) {
+      /* e.key peut manquer (événements synthétiques de l'autoremplissage). */
+      var k = String(e.key || "");
+      if (k === "Tab" || k === "Enter" || k === " " || k.indexOf("Arrow") === 0) { lastInputKeyboard = true; }
+    }, true);
+    document.addEventListener("pointerdown", function () { lastInputKeyboard = false; }, true);
+    var app = byId("app");
+    if (app) {
+      app.addEventListener("focusin", function (e) { lastAppFocus = e.target; });
+    }
+    if (typeof MutationObserver !== "function") { return; }
+    var obs = new MutationObserver(syncAppInert);
+    ["modal-root", "overlay-root"].forEach(function (id) {
+      var el = byId(id);
+      if (el) { obs.observe(el, { attributes: true, attributeFilter: ["hidden"], childList: true }); }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Moteur d'effets (motion.js, chargé en defer : lu à chaque appel)    */
+  /* ------------------------------------------------------------------ */
+
+  /** window.OverdriveMotion s'il est disponible, sinon null (replis directs). */
+  function motionApi() {
+    var m = window.OverdriveMotion;
+    return m && typeof m === "object" ? m : null;
+  }
+
+  /** Navigation vers un hash avec transition de page quand motion.js est là. */
+  function go(hash) {
+    var m = motionApi();
+    if (m && typeof m.navigate === "function") {
+      try { m.navigate(hash); return; } catch (e) { /* repli : hash direct */ }
+    }
+    window.location.hash = hash;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Thèmes (4 variantes Midnight + clair)                               */
+  /* ------------------------------------------------------------------ */
+
+  /* Couleurs d'aperçu (vignettes des Réglages, pastilles de la palette),
+     alignées sur les jetons de style.css. Anciennes valeurs reprises :
+     dark → midnight, light → daylight (localStorage ET réglage serveur). */
+  var THEMES = [
+    { id: "midnight", key: "midnight", bg: "#0a0a0f", surface: "#111117", surface2: "#1b1b25",
+      text: "#ececf1", text2: "#8a8a98", line: "rgba(255,255,255,.09)", a1: "#8b5cf6", a2: "#3b82f6" },
+    { id: "midnight-ocean", key: "ocean", bg: "#090c12", surface: "#0f141c", surface2: "#18212d",
+      text: "#ececf1", text2: "#8790a0", line: "rgba(255,255,255,.09)", a1: "#3b82f6", a2: "#22b8cf" },
+    { id: "midnight-emerald", key: "emerald", bg: "#090d0c", surface: "#0f1513", surface2: "#17211d",
+      text: "#ececf1", text2: "#87938e", line: "rgba(255,255,255,.09)", a1: "#22b58a", a2: "#36c2b0" },
+    { id: "midnight-rose", key: "rose", bg: "#0d0a0d", surface: "#151015", surface2: "#211921",
+      text: "#ececf1", text2: "#958a95", line: "rgba(255,255,255,.09)", a1: "#e85a77", a2: "#a66be8" },
+    { id: "daylight", key: "daylight", bg: "#f1f1f5", surface: "#ffffff", surface2: "#e9e9ef",
+      text: "#17171c", text2: "#686874", line: "rgba(16,16,36,.1)", a1: "#6d4aff", a2: "#2563eb" }
+  ];
+  var THEME_ALIASES = { dark: "midnight", light: "daylight" };
+
+  function themeMeta(id) {
+    for (var i = 0; i < THEMES.length; i++) { if (THEMES[i].id === id) { return THEMES[i]; } }
+    return null;
+  }
+
+  /** Identifiant de thème valide (alias dark/light normalisés), sinon null. */
+  function normTheme(value) {
+    var id = Object.prototype.hasOwnProperty.call(THEME_ALIASES, value) ? THEME_ALIASES[value] : value;
+    return themeMeta(id) ? id : null;
+  }
 
   function currentTheme() {
-    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    return normTheme(document.documentElement.getAttribute("data-theme")) || "midnight";
   }
 
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    try { localStorage.setItem("overdrive-theme", theme); } catch (e) { /* stockage indisponible */ }
-    updateThemeLabel();
+  function themeName(id) {
+    var m = themeMeta(id);
+    return m ? t("theme_name_" + m.key) : String(id || "");
   }
 
+  /** Thème suivant dans le cycle du bouton de la barre latérale. */
+  function nextTheme(id) {
+    for (var i = 0; i < THEMES.length; i++) {
+      if (THEMES[i].id === id) { return THEMES[(i + 1) % THEMES.length].id; }
+    }
+    return THEMES[0].id;
+  }
+
+  /* Dernier thème demandé : une transition encore en vol applique toujours
+     le choix le plus récent (clics rapprochés, palette + Réglages). */
+  var wantedTheme = null;
+
+  /** Applique un thème (fondu enchaîné si animate et motion.js présents). */
+  function applyTheme(theme, animate) {
+    var id = normTheme(theme) || "midnight";
+    wantedTheme = id;
+    function apply() {
+      var target = wantedTheme || id;
+      document.documentElement.setAttribute("data-theme", target);
+      try { localStorage.setItem("overdrive-theme", target); } catch (e) { /* stockage indisponible */ }
+      updateThemeLabel();
+    }
+    var m = motionApi();
+    if (animate && id !== currentTheme() && m && typeof m.transition === "function") {
+      try {
+        var p = m.transition(apply, "theme");
+        if (p && typeof p.catch === "function") { p.catch(function () { apply(); }); }
+        /* Filet : le thème est appliqué même si la transition n'aboutit pas. */
+        setTimeout(function () { if (currentTheme() !== wantedTheme) { apply(); } }, 900);
+        return;
+      } catch (e) { /* repli : application directe */ }
+    }
+    apply();
+  }
+
+  /** Libellé du bouton de thème (barre latérale) et état des vignettes. */
   function updateThemeLabel() {
+    var cur = currentTheme();
     var label = byId("theme-label");
-    if (label) { label.textContent = currentTheme() === "dark" ? t("theme_to_light") : t("theme_to_dark"); }
-    $all(".seg[data-seg='theme'] button").forEach(function (b) {
-      b.classList.toggle("active", b.dataset.theme === currentTheme());
+    if (label) { label.textContent = tf("theme_label", { t: themeName(cur) }); }
+    var btn = byId("theme-toggle");
+    if (btn) {
+      var tip = tf("theme_next", { t: themeName(nextTheme(cur)) });
+      btn.title = tip;
+      btn.setAttribute("aria-label", tf("theme_label", { t: themeName(cur) }) + " — " + tip);
+      if (!btn.querySelector(".theme-swatch") && label) {
+        var sw = document.createElement("i");
+        sw.className = "theme-swatch";
+        sw.setAttribute("aria-hidden", "true");
+        btn.insertBefore(sw, label);
+      }
+    }
+    $all(".theme-tile[data-theme-id]").forEach(function (tile) {
+      var on = tile.dataset.themeId === cur;
+      tile.classList.toggle("is-active", on);
+      tile.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
 
   async function setTheme(theme) {
-    applyTheme(theme);
-    try { await api("/api/settings", { body: { theme: theme } }); } catch (e) { /* déjà signalé */ }
+    var id = normTheme(theme);
+    if (!id) { return; }
+    applyTheme(id, true);
+    try { await api("/api/settings", { body: { theme: id } }); } catch (e) { /* déjà signalé */ }
   }
+
+  /** Grille des 5 vignettes (Réglages > Apparence) : mini-interface aux couleurs du thème. */
+  function themeGridHtml() {
+    var cur = currentTheme();
+    return '<div class="theme-grid" role="group" aria-label="' + esc(t("theme")) + '">' + THEMES.map(function (th) {
+      var on = th.id === cur;
+      var style = "--tp-bg:" + th.bg + ";--tp-surface:" + th.surface + ";--tp-surface-2:" + th.surface2 +
+        ";--tp-text:" + th.text + ";--tp-text-2:" + th.text2 + ";--tp-line:" + th.line +
+        ";--tp-a1:" + th.a1 + ";--tp-a2:" + th.a2;
+      return '<button type="button" class="theme-tile' + (on ? " is-active" : "") + '" data-theme-id="' + th.id +
+        '" aria-pressed="' + (on ? "true" : "false") + '" style="' + style + '">' +
+        '<span class="theme-preview" aria-hidden="true">' +
+        '<span class="tp-glow"></span>' +
+        '<span class="tp-side"><span class="tp-logo"></span><span class="tp-nav tp-nav-on"></span>' +
+        '<span class="tp-nav"></span><span class="tp-nav"></span><span class="tp-nav"></span></span>' +
+        '<span class="tp-main"><span class="tp-title"></span><span class="tp-line"></span>' +
+        '<span class="tp-cards"><span class="tp-card"><span class="tp-ring"></span></span>' +
+        '<span class="tp-card"><span class="tp-bar"></span><span class="tp-bar tp-bar-2"></span></span></span>' +
+        '<span class="tp-btn"></span></span>' +
+        "</span>" +
+        '<span class="theme-meta"><span class="theme-name">' + esc(themeName(th.id)) + "</span>" +
+        '<span class="theme-check" aria-hidden="true">' + icon("check") + "</span></span>" +
+        '<span class="theme-sub">' + esc(t("theme_sub_" + th.key)) + "</span>" +
+        "</button>";
+    }).join("") + "</div>";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Niveau d'animation (max / réduites / désactivées)                   */
+  /* ------------------------------------------------------------------ */
+
+  var MOTION_LEVELS = ["max", "reduced", "off"];
+  var MOTION_ICONS = { max: "sparkles", reduced: "waves", off: "pause" };
+
+  function currentMotion() {
+    var m = document.documentElement.getAttribute("data-motion");
+    return MOTION_LEVELS.indexOf(m) >= 0 ? m : "max";
+  }
+
+  /** Applique le niveau tout de suite (motion.js le persiste dans localStorage). */
+  function applyMotion(level) {
+    if (MOTION_LEVELS.indexOf(level) < 0) { return; }
+    var m = motionApi();
+    var done = false;
+    if (m && typeof m.setLevel === "function") {
+      try { m.setLevel(level); done = true; } catch (e) { done = false; }
+    }
+    if (!done) {
+      document.documentElement.setAttribute("data-motion", level);
+      try { localStorage.setItem("overdrive-motion", level); } catch (e2) { /* stockage indisponible */ }
+    }
+    updateMotionUi();
+  }
+
+  /** Contrôle segmenté et description du niveau dans les Réglages. */
+  function updateMotionUi() {
+    var cur = currentMotion();
+    $all(".seg[data-seg='motion'] button").forEach(function (b) {
+      var on = b.dataset.level === cur;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var desc = byId("motion-desc");
+    if (desc) { desc.textContent = t("motion_" + cur + "_desc"); }
+  }
+
+  async function setMotion(level) {
+    if (MOTION_LEVELS.indexOf(level) < 0) { return; }
+    applyMotion(level);
+    try { await api("/api/settings", { body: { motion: level } }); } catch (e) { /* déjà signalé */ }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Pause des animations pendant le jeu (GET /api/status toutes les 5 s) */
+  /* ------------------------------------------------------------------ */
+
+  var gameRunning = false;
+  var statusPollTimer = null;
+  var statusPollBusy = false;
+
+  /** Petit indicateur discret en bas de la barre latérale (créé à la demande). */
+  function ensurePauseIndicator() {
+    var el = byId("game-pause");
+    if (el) { return el; }
+    var foot = $(".sidebar-foot");
+    if (!foot) { return null; }
+    el = document.createElement("div");
+    el.id = "game-pause";
+    el.className = "game-pause";
+    el.setAttribute("role", "status");
+    el.hidden = true;
+    el.innerHTML = '<span class="game-pause-dot" aria-hidden="true"></span><span class="game-pause-text"></span>';
+    foot.insertBefore(el, foot.firstChild);
+    return el;
+  }
+
+  function updatePauseIndicator() {
+    var el = ensurePauseIndicator();
+    if (!el) { return; }
+    el.querySelector(".game-pause-text").textContent = t("game_pause_ind");
+    el.title = t("game_pause_title");
+    el.hidden = !gameRunning;
+  }
+
+  /** Jeu détecté → effets figés (motion.js), indicateur affiché. */
+  function applyGameRunning(running) {
+    gameRunning = !!running;
+    var root = document.documentElement;
+    if (root.hasAttribute("data-motion-paused") !== gameRunning) {
+      var m = motionApi();
+      var done = false;
+      if (m && typeof m.setPaused === "function") {
+        try { m.setPaused(gameRunning); done = true; } catch (e) { done = false; }
+      }
+      if (!done) {
+        if (gameRunning) { root.setAttribute("data-motion-paused", ""); } else { root.removeAttribute("data-motion-paused"); }
+      }
+    }
+    updatePauseIndicator();
+  }
+
+  /** Interrogation silencieuse (aucun bandeau : elle tourne en arrière-plan). */
+  async function pollStatus() {
+    if (statusPollBusy) { return; }
+    statusPollBusy = true;
+    try {
+      var res = await fetch("/api/status", { cache: "no-store" });
+      if (res.ok) {
+        var st = await res.json();
+        if (st && typeof st === "object") {
+          if (state.status) { state.status.game_running = !!st.game_running; }
+          applyGameRunning(st.game_running);
+        }
+      }
+    } catch (e) { /* serveur momentanément injoignable : prochain passage */ }
+    statusPollBusy = false;
+  }
+
+  function startStatusPoll() {
+    if (statusPollTimer) { return; }
+    statusPollTimer = setInterval(pollStatus, 5000);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Jauges anneaux et compteurs animés (Accueil, Moniteur)              */
+  /* ------------------------------------------------------------------ */
+
+  /* Même gabarit que motion.js (classes stylées par style.css) : motion.js
+     ne réinjecte pas d'anneau là où il en trouve déjà un. */
+  var RING_SVG =
+    '<svg class="od-ring" viewBox="0 0 44 44" aria-hidden="true" focusable="false">' +
+    '<circle class="od-ring-track" cx="22" cy="22" r="18"/>' +
+    '<circle class="od-ring-bar" cx="22" cy="22" r="18" pathLength="100"/></svg>';
+
+  /** Remplit l'anneau d'un conteneur (0-100 %) ; rouge à partir de 90 %. */
+  function setRing(host, pct) {
+    var ring = host ? host.querySelector(".od-ring") : null;
+    var bar = ring ? ring.querySelector(".od-ring-bar") : null;
+    if (!bar) { return; }
+    var p = Math.max(0, Math.min(100, Number(pct) || 0));
+    if (!ring.__odInit) {
+      /* Style calculé avant le premier remplissage : la jauge part de 0. */
+      ring.__odInit = true;
+      try { void window.getComputedStyle(bar).strokeDashoffset; } catch (e) { /* sans effet */ }
+    }
+    bar.style.strokeDashoffset = String(100 - p);
+    ring.classList.toggle("od-hot", p >= 90);
+  }
+
+  /** Valeur numérique animée (OverdriveMotion.countUp), repli : texte direct. */
+  function setCount(el, value, fmt) {
+    if (!el) { return; }
+    var v = Number(value);
+    var m = motionApi();
+    if (isFinite(v) && m && typeof m.countUp === "function") {
+      try { m.countUp(el, v, fmt); return; } catch (e) { /* repli : texte direct */ }
+    }
+    el.textContent = fmt(isFinite(v) ? v : 0);
+  }
+
+  function fmtPctInt(v) { return Math.round(v) + " %"; }
+  /* Toujours une décimale (« 10,0 % », jamais « 10 % ») : largeur stable. */
+  function fmtPct1(v) { return dec((Math.round(v * 10) / 10).toFixed(1)) + " %"; }
 
   /* ------------------------------------------------------------------ */
   /* Langue FR / EN                                                      */
@@ -1106,10 +2435,31 @@
     applyStaticI18n();
   }
 
+  /** Modale ouverte et inactive : fermée comme par Échap (elle ne resterait
+      pas dans l'ancienne langue). Renvoie l'état utile pour la rouvrir quand
+      c'est la modale Boost avant lancement. */
+  function closeIdleModalForLang() {
+    var mr = byId("modal-root");
+    if (!mr || mr.hidden || modalIsBusy()) { return null; }
+    var overlay = mr.querySelector(".modal-overlay");
+    if (!overlay || !modalEscape || modalEscape.el !== overlay) { return null; }
+    var restoreCb = byId("boost-restore");
+    var boost = byId("boost-run") && restoreCb ? { restore: !!restoreCb.checked } : null;
+    modalEscape.close();
+    return boost;
+  }
+
   async function setLang(lang) {
     if (lang === LANG) { return; }
+    var boost = closeIdleModalForLang();
     applyLang(lang);
     render();
+    if (boost) {
+      openBoostModal();
+      var cb = byId("boost-restore");
+      if (cb) { cb.checked = boost.restore; }
+    }
+    if (state.quiz) { renderQuiz(); }   /* QCM ouvert : question et boutons traduits */
     try { await api("/api/settings", { body: { lang: lang } }); } catch (e) { /* déjà signalé */ }
   }
 
@@ -1130,7 +2480,8 @@
 
   function currentRoute() {
     var h = window.location.hash || "#/";
-    var p = h.replace(/^#/, "");
+    /* Paramètres éventuels ignorés pour le routage (#/games?game=cs2). */
+    var p = h.replace(/^#/, "").split("?")[0];
     if (!routes[p]) { p = "/"; }
     return p;
   }
@@ -1141,10 +2492,72 @@
     });
   }
 
+  /* Rendu planifié (transition de page en cours) : les appels suivants s'y
+     rattachent, il lit l'état et la route au moment où il s'exécute. */
+  var renderQueued = false;
+
+  /** Rendu de la route courante, via OverdriveMotion.transition si disponible. */
   function render() {
+    /* On quitte l'accueil : ses boucles et relevés s'arrêtent tout de suite,
+       sans attendre la fin de la transition de page (renderNow). */
+    if (currentRoute() !== "/") {
+      var H = window.OverdriveHome;
+      try { if (H && typeof H.isActive === "function" && H.isActive()) { H.stop(); } } catch (e1) { /* déjà arrêté */ }
+    }
+    if (renderQueued) { return; }
+    var m = motionApi();
+    /* Intro de lancement affichée : rendu direct (l'instantané d'une
+       transition de page passerait au-dessus de l'overlay). */
+    var intro = window.OverdriveIntro;
+    var introOn = false;
+    try { introOn = !!(intro && typeof intro.isActive === "function" && intro.isActive()); } catch (e0) { introOn = false; }
+    if (!m || typeof m.transition !== "function" || introOn) { renderNow(); return; }
+    renderQueued = true;
+    var done = false;
+    function run() {
+      if (done) { return; }
+      done = true;
+      renderQueued = false;
+      renderNow();
+    }
+    var p = null;
+    try {
+      p = m.transition(run, "page");
+    } catch (e) {
+      if (done) { throw e; }   /* erreur du rendu lui-même : on ne la masque pas */
+      run();
+      return;
+    }
+    if (p && typeof p.catch === "function") {
+      p.catch(function (err) { if (window.console) { console.error(err); } });
+    }
+    /* Filet : le rendu a toujours lieu, même si la transition ne rappelle jamais. */
+    if (!done) { setTimeout(run, 1000); }
+  }
+
+  /* Route du dernier rendu : un changement de page repart du haut. */
+  var lastRoute = null;
+  /* Route du rendu PRÉCÉDENT, lue par l'accueil (homeCtx.sameRoute) : un
+     re-rendu de la même page (langue, retour de modale) ne rejoue pas son
+     entrée. */
+  var prevRenderRoute = null;
+
+  function renderNow() {
     renderSeq++;
     stopMonitor();           /* l'intervalle du moniteur ne survit jamais à la page */
+    stopHomeLive();          /* idem pour les jauges en direct de l'accueil */
     var route = currentRoute();
+    prevRenderRoute = lastRoute;
+    /* Nouvelle page : défilement remis en haut (instantané), sinon l'Accueil
+       s'ouvrirait au milieu et son héros animé resterait hors écran. Un
+       nouveau rendu de la MÊME page (langue, retour de modale) garde la
+       position ; openGameDetail défile ensuite vers la fiche. */
+    if (lastRoute !== null && route !== lastRoute) {
+      try { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); } catch (e) {
+        try { window.scrollTo(0, 0); } catch (e2) { /* défilement impossible */ }
+      }
+    }
+    lastRoute = route;
     setActiveNav(route);
     routes[route](renderSeq);
   }
@@ -1153,7 +2566,150 @@
   /* Page Accueil                                                        */
   /* ------------------------------------------------------------------ */
 
+  /** Accueil : rendu délégué au module home.js (écran « héros », vague 7) ;
+      repli sur l'accueil classique si le module manque ou échoue. */
   function renderHome(seq) {
+    var H = window.OverdriveHome;
+    if (H && typeof H.render === "function") {
+      try {
+        H.render(byId("page"), homeCtx(seq));
+        return;
+      } catch (e) {
+        if (window.console) { console.error(e); }
+        try { if (typeof H.stop === "function") { H.stop(); } } catch (e2) { /* déjà arrêté */ }
+      }
+    }
+    renderHomeClassic(seq);
+  }
+
+  /* Promesses en cours de l'accueil, par clé (retirées une fois réglées). */
+  var homeInflight = {};
+  function homeShared(key, make) {
+    if (homeInflight[key]) { return homeInflight[key]; }
+    var p = make();
+    homeInflight[key] = p;
+    function clear() { if (homeInflight[key] === p) { delete homeInflight[key]; } }
+    p.then(clear, clear);
+    return p;
+  }
+
+  /** Contexte fourni à home.js : aides et actions EXISTANTES de l'app (aucune
+      logique dupliquée : Boost, Boost CS2, benchmark, nettoyage, widget,
+      fiche d'un jeu, chargements partagés avec le cache state). */
+  function homeCtx(seq) {
+    return {
+      /* Vrai tant que l'accueil est la page affichée. Le hash change dès le
+         clic dans la navigation, avant la fin de la transition de page :
+         l'accueil s'arrête aussitôt (aucun relevé /api/monitor ni boucle
+         d'animation pendant les ~500 ms de la transition). */
+      alive: function () { return alive(seq) && currentRoute() === "/"; },
+      /* Rendu précédent déjà sur l'accueil (langue, retour de modale…). */
+      sameRoute: prevRenderRoute === "/",
+      lang: function () { return LANG; },
+      t: t,
+      tf: tf,
+      tr: tr,
+      srvMsg: srvMsg,
+      esc: esc,
+      icon: icon,
+      dec: dec,
+      fmtGb: fmtGb,
+      fmtMb: fmtMb,
+      storeLabel: storeLabel,
+      api: api,
+      status: function () { return state.status; },
+      profile: function () { return state.profile; },
+      gameRunning: function () { return gameRunning; },
+      motion: currentMotion,
+      cachedGames: function () { return state.games; },
+      cachedHardware: function () { return state.hardware; },
+      /* Requêtes en cours partagées (homeShared) : l'accueil construit deux
+         fois au démarrage (avant / après /api/status) ne double aucun appel. */
+      games: function () {
+        if (state.games) { return Promise.resolve(state.games); }
+        return homeShared("games", function () {
+          return api("/api/games").then(function (d) { state.games = (d && d.games) || []; return state.games; });
+        });
+      },
+      hardware: function (refresh) {
+        if (state.hardware && !refresh) { return Promise.resolve(state.hardware); }
+        if (refresh) {
+          return api("/api/hardware?refresh=1").then(function (h) { state.hardware = h; return h; });
+        }
+        return homeShared("hardware", function () {
+          return api("/api/hardware").then(function (h) { state.hardware = h; return h; });
+        });
+      },
+      tweaks: function () {
+        if (state.tweaks) { return Promise.resolve(state.tweaks); }
+        return homeShared("tweaks", function () {
+          return api("/api/tweaks").then(function (d) { state.tweaks = d; return d; });
+        });
+      },
+      artInfo: function () { return state.artInfo; },
+      artMonogram: artMonogram,
+      artTurn: artTurn,
+      artFbHue: artFbHue,
+      artFocus: function (id) { return ART_FOCUS[id] || ""; },
+      loadPrograms: function () { loadPrograms(seq); },
+      openBoost: openBoostModal,
+      openCs2Boost: openCs2BoostModal,
+      openBench: openBenchModal,
+      quickClean: quickClean,
+      launchWidget: launchWidget,
+      openQuiz: function () { openQuiz(false); },
+      openGame: openGameDetail,
+      go: go
+    };
+  }
+
+  /** Fiche d'un jeu sur la page Jeux (sélection + défilement vers la fiche). */
+  function openGameDetail(id) {
+    if (!id) { return; }
+    state.selectedGame = id;
+    if (currentRoute() === "/games") { render(); } else { go("#/games"); }
+    var tries = 0;
+    (function seek() {
+      var det = byId("game-detail-area");
+      if (det && det.firstElementChild && currentRoute() === "/games") {
+        /* Défile la carte de la fiche (scroll-margin-top 16 px, 72 px en
+           étroit), pas son conteneur ; la cible ignore le décalage de
+           l'entrée de page (translateY de #page, ~10 px) encore en cours. */
+        try {
+          var box0 = det.firstElementChild;
+          var page = byId("page");
+          var sc = document.scrollingElement;
+          var ty = 0;
+          if (page && page.classList.contains("od-page-enter")) {
+            var tf0 = window.getComputedStyle(page).transform;
+            if (tf0 && tf0 !== "none" && window.DOMMatrixReadOnly) { ty = new DOMMatrixReadOnly(tf0).m42 || 0; }
+          }
+          if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+            var want0 = parseFloat(window.getComputedStyle(box0).scrollMarginTop) || 0;
+            window.scrollBy({ top: box0.getBoundingClientRect().top - ty - want0, behavior: currentMotion() === "max" ? "smooth" : "auto" });
+          } else {
+            revealGameDetail();
+          }
+        } catch (e) { /* défilement impossible */ }
+        /* Contrôle après le défilement doux : recalage direct si besoin. */
+        setTimeout(function () {
+          var box = det.firstElementChild;
+          if (!box || !box.isConnected || state.selectedGame !== id || currentRoute() !== "/games") { return; }
+          var want = parseFloat(window.getComputedStyle(box).scrollMarginTop) || 0;
+          var top = box.getBoundingClientRect().top;
+          if (Math.abs(top - want) > 2 && top < window.innerHeight) {
+            try { box.scrollIntoView({ behavior: "auto", block: "start" }); } catch (e2) { /* défilement impossible */ }
+          }
+        }, currentMotion() === "max" ? 1100 : 60);
+        return;
+      }
+      /* La navigation (transition de page) est asynchrone : on patiente un peu. */
+      if (++tries < 30 && state.selectedGame === id) { setTimeout(seek, 100); }
+    })();
+  }
+
+  /** Accueil classique (repli si home.js est indisponible). */
+  function renderHomeClassic(seq) {
     var page = byId("page");
     page.innerHTML =
       '<h1 class="page-title">' + esc(t("home_title")) + "</h1>" +
@@ -1163,6 +2719,10 @@
       statCard("stat-tweaks", t("stat_tweaks"), "…", "") +
       statCard("stat-games", t("stat_games"), "…", "") +
       "</div>" +
+      '<div class="gauge-row">' +
+      gaugeCardHtml("cpu", t("mon_cpu")) +
+      gaugeCardHtml("ram", t("mon_ram")) +
+      "</div>" +
       '<div class="group-label">' + esc(t("hw_group")) + ' <span class="spacer"></span>' +
       '<button class="btn btn-ghost btn-sm" id="btn-hw-refresh" type="button">' + icon("refresh") + " " + esc(t("refresh")) + "</button></div>" +
       '<div id="hw-area"><div class="loading-line">' + esc(t("hw_detecting")) + "</div></div>" +
@@ -1170,15 +2730,16 @@
       '<div class="quick-actions">' +
       '<button class="btn btn-primary" id="btn-boost" type="button">' + icon("zap") + " " + esc(t("boost_btn")) + "</button>" +
       '<button class="btn" id="btn-quick-clean" type="button">' + icon("search") + " " + esc(t("quick_clean")) + "</button>" +
+      '<button class="btn" id="btn-bench" type="button">' + icon("activity") + " " + esc(t("bench_btn")) + "</button>" +
       "</div>" +
+      '<div class="group-label">' + esc(t("insights_group")) + "</div>" +
+      '<div id="insights-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
       '<div class="group-label">' + esc(t("programs_group")) + "</div>" +
       '<div id="programs-area"><div class="loading-line">' + esc(t("programs_loading")) + "</div></div>";
 
     byId("btn-boost").addEventListener("click", openBoostModal);
-    byId("btn-quick-clean").addEventListener("click", function () {
-      state.autoScan = true;
-      if (currentRoute() === "/clean") { render(); } else { window.location.hash = "#/clean"; }
-    });
+    byId("btn-bench").addEventListener("click", openBenchModal);
+    byId("btn-quick-clean").addEventListener("click", quickClean);
     byId("btn-hw-refresh").addEventListener("click", function () {
       var btn = byId("btn-hw-refresh");
       setBusy(btn, t("analyzing"));
@@ -1189,6 +2750,212 @@
     loadHardware(seq, false);
     loadHomeStats(seq);
     loadPrograms(seq);
+    loadInsights(seq);
+    startHomeLive(seq);
+  }
+
+  /** « Analyser le nettoyage » : page Nettoyage avec analyse automatique. */
+  function quickClean() {
+    state.autoScan = true;
+    if (currentRoute() === "/clean") { render(); } else { go("#/clean"); }
+  }
+
+  /* ---- Jauges CPU / RAM en direct (accueil) ---- */
+
+  var homeLiveTimer = null;
+  var homeLiveBusy = false;
+  var homeLiveHasData = false;
+  var homeLastRam = null;   /* dernier relevé RAM de l'accueil (carte Matériel) */
+
+  function gaugeCardHtml(id, label) {
+    return '<div class="card stat-card gauge-card" id="gauge-' + id + '">' +
+      '<div class="stat-label">' + esc(label) + "</div>" +
+      '<div class="stat-value" id="gauge-' + id + '-val">—</div>' +
+      '<div class="stat-note" id="gauge-' + id + '-note">' + esc(t("mon_waiting")) + "</div>" +
+      '<div class="gauge-ring">' + RING_SVG +
+      '<span class="gauge-ic">' + icon(id === "cpu" ? "cpu" : "memory") + "</span></div></div>";
+  }
+
+  function stopHomeLive() {
+    if (homeLiveTimer) { clearTimeout(homeLiveTimer); homeLiveTimer = null; }
+    /* Accueil home.js : relevés /api/monitor, boucles et écouteurs arrêtés. */
+    var H = window.OverdriveHome;
+    if (H && typeof H.stop === "function") {
+      try { H.stop(); } catch (e) { /* déjà arrêté */ }
+    }
+  }
+
+  /** Premier relevé tout de suite (psutil renvoie 0 % au tout premier appel :
+      un second relevé suit vite), puis toutes les 4 s tant que l'accueil est affiché. */
+  function startHomeLive(seq) {
+    stopHomeLive();
+    homeLiveHasData = false;
+    function loop(delay) {
+      homeLiveTimer = setTimeout(function () {
+        homeLiveTimer = null;
+        if (!alive(seq) || !byId("gauge-cpu")) { return; }
+        homeLiveTick(seq).then(function () {
+          if (alive(seq) && byId("gauge-cpu")) { loop(4000); }
+        });
+      }, delay);
+    }
+    homeLiveTick(seq).then(function () {
+      if (alive(seq) && byId("gauge-cpu")) { loop(1200); }
+    });
+  }
+
+  /** Relevé silencieux de /api/monitor (aucun bandeau) ; rien en jeu, rien fenêtre cachée. */
+  async function homeLiveTick(seq) {
+    if (homeLiveBusy) { return; }
+    if (homeLiveHasData && (gameRunning || document.hidden)) { return; }
+    homeLiveBusy = true;
+    var s = null;
+    try {
+      var res = await fetch("/api/monitor", { cache: "no-store" });
+      if (res.ok) { s = await res.json(); }
+    } catch (e) { s = null; }
+    homeLiveBusy = false;
+    if (!alive(seq) || !byId("gauge-cpu")) { return; }
+    if (!s || typeof s !== "object") {
+      if (!homeLiveHasData) {
+        ["cpu", "ram"].forEach(function (id) {
+          var note = byId("gauge-" + id + "-note");
+          if (note) { note.textContent = t("gauge_unavailable"); }
+        });
+      }
+      return;
+    }
+    homeLiveHasData = true;
+    var cpu = Number(s.cpu_percent) || 0;
+    var ramObj = s.ram || {};
+    var ram = Number(ramObj.percent) || 0;
+    setCount(byId("gauge-cpu-val"), cpu, fmtPctInt);
+    setRing(byId("gauge-cpu"), cpu);
+    var cores = (s.per_core || []).length;
+    var cpuNote = byId("gauge-cpu-note");
+    if (cpuNote) { cpuNote.textContent = cores ? tf("gauge_threads", { n: cores }) : ""; }
+    setCount(byId("gauge-ram-val"), ram, fmtPctInt);
+    setRing(byId("gauge-ram"), ram);
+    var ramNote = byId("gauge-ram-note");
+    if (ramNote) { ramNote.textContent = fmtGb1(ramObj.used_gb) + " / " + fmtGb1(ramObj.total_gb); }
+    homeLastRam = ramObj;
+    syncHwRamAvail();
+  }
+
+  /** Carte Matériel : RAM disponible alignée sur la jauge (même relevé). */
+  function syncHwRamAvail() {
+    var el = byId("hw-ram-avail");
+    var r = homeLastRam;
+    if (!el || !r) { return; }
+    var totGb = Number(r.total_gb), usedGb = Number(r.used_gb);
+    if (totGb > 0 && usedGb >= 0) {
+      /* Différence des valeurs affichées (au dixième) : « 1,1 / 15,7 Go » et
+         « 14,6 Go disponibles » concordent à la lecture. */
+      var r10 = function (x) { return Math.round(x * 10) / 10; };
+      el.textContent = tf("hw_avail", { g: fmtGb1(Math.max(0, r10(r10(totGb) - r10(usedGb)))) });
+    }
+  }
+
+  /** Charge et affiche les conseils (détections intelligentes). */
+  async function loadInsights(seq) {
+    var area = byId("insights-area");
+    if (!area) { return; }
+    var items = [];
+    try {
+      var res = await api("/api/insights");
+      items = (res && res.insights) || [];
+    } catch (e) {
+      items = [];
+    }
+    if (!alive(seq)) { return; }
+    area = byId("insights-area");
+    if (!area) { return; }
+    if (!items.length) {
+      area.innerHTML = '<div class="card"><p class="muted small" style="margin:0">' +
+        esc(t("insights_none")) + "</p></div>";
+      return;
+    }
+    area.innerHTML = '<div class="card">' + items.map(function (it) {
+      var badge = it.severity === "important" ?
+        '<span class="badge badge-red">' + esc(t("insights_badge_important")) + "</span>" :
+        '<span class="badge badge-yellow">' + esc(t("insights_badge_conseil")) + "</span>";
+      return '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' + badge + " " + esc(tr(it, "title")) + "</div>" +
+        '<div class="set-status">' + esc(tr(it, "detail")) + "</div></div>" +
+        (it.action_url ?
+          '<div class="set-controls"><a class="btn btn-sm" href="' + esc(it.action_url) +
+          '" target="_blank" rel="noopener">' + icon("external") + " " + esc(t("insights_action")) + "</a></div>" : "") +
+        "</div>";
+    }).join("") + "</div>";
+  }
+
+  /* Un seul benchmark à la fois : deux mesures simultanées se gênent et
+     faussent l'historique avant/après (le serveur refuse aussi). */
+  var benchRunning = false;
+
+  /** Modale du mini-benchmark avant/après. */
+  function openBenchModal() {
+    if (benchRunning) { showBanner(t("bench_busy"), "error"); return; }
+    var prev = null;
+    api("/api/bench/history").then(function (h) {
+      prev = (h && h.history && h.history[0]) || null;
+    }).catch(function () { /* silencieux */ });
+
+    var ctl = openModal({
+      title: t("bench_title"),
+      bodyHtml: '<p>' + esc(t("bench_intro")) + '</p><div id="bench-out"></div>',
+      confirmLabel: t("bench_run"),
+      keepOpen: true,
+      onConfirm: async function () {
+        if (benchRunning) { return; }
+        var out = byId("bench-out");
+        var btn = byId("modal-confirm");
+        if (out) { out.innerHTML = '<div class="loading-line">' + esc(t("bench_running")) + "</div>"; }
+        if (btn) { btn.disabled = true; }
+        benchRunning = true;
+        if (ctl) { ctl.setBusy(true); }   /* ni X, ni Annuler, ni fond, ni Échap pendant la mesure */
+        try {
+          var r = await api("/api/bench", { method: "POST" });
+          if (!r || r.ok === false || typeof r.total !== "number") {
+            throw new Error(srvMsg(r) || "bench");
+          }
+          var s = r.scores || {};
+          var mbps = " " + t("unit_mbps");
+          function row(lbl, val, unit) {
+            return '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(lbl) +
+              '</div></div><div class="set-controls"><span class="mono mono-inline">' + val + (unit || "") + "</span></div></div>";
+          }
+          var html =
+            '<div class="card" style="margin-top:12px">' +
+            row(t("bench_score"), '<strong>' + Math.round(r.total) + "</strong>") +
+            row(t("bench_cpu_single"), Math.round(s.cpu_single)) +
+            row(t("bench_cpu_multi"), Math.round(s.cpu_multi)) +
+            row(t("bench_ram"), Math.round(s.ram_mbps), mbps) +
+            row(t("bench_disk_w"), Math.round(s.disk_write_mbps), mbps) +
+            row(t("bench_disk_r"), Math.round(s.disk_read_mbps), mbps) +
+            "</div>";
+          if (prev && prev.total) {
+            var delta = ((r.total - prev.total) / prev.total) * 100;
+            var sign = delta >= 0 ? "+" : "";
+            html += '<p class="muted small">' +
+              esc(tf("bench_prev", { s: Math.round(prev.total), d: sign + delta.toFixed(1) + " %" })) + "</p>";
+          }
+          if (out && out.isConnected) { out.innerHTML = html; }
+          prev = r;
+          /* Mesure enregistrée : l'accueil (indice de performance) se met à
+             jour sur place, sans attendre un nouveau rendu de la page. */
+          try { window.dispatchEvent(new CustomEvent("overdrive:bench-done", { detail: { total: r.total } })); } catch (e2) { /* sans effet */ }
+        } catch (e) {
+          var why = e && e.message && e.message !== "bench" ? e.message : "";
+          if (out && out.isConnected) {
+            out.innerHTML = '<p class="muted small">' + esc(why || t("bench_err")) + "</p>";
+          }
+        }
+        benchRunning = false;
+        if (ctl) { ctl.setBusy(false); }
+        if (btn) { btn.disabled = false; }
+      }
+    });
   }
 
   function statCard(id, label, value, note) {
@@ -1201,11 +2968,15 @@
   function updateProfileStat() {
     var card = byId("stat-profile");
     if (!card) { return; }
+    var valueEl = card.querySelector(".stat-value");
     if (state.profile) {
-      card.querySelector(".stat-value").textContent = tr(state.profile, "label") || state.profile.id;
+      var label = tr(state.profile, "label") || state.profile.id;
+      valueEl.textContent = label;
+      valueEl.title = label;   /* cas extrême : libellé complet au survol */
       card.querySelector(".stat-note").textContent = t("stat_profile_note");
     } else {
-      card.querySelector(".stat-value").textContent = t("stat_none");
+      valueEl.textContent = t("stat_none");
+      valueEl.removeAttribute("title");
       card.querySelector(".stat-note").innerHTML =
         '<button class="link-btn" id="link-open-quiz" type="button">' + esc(t("stat_quiz_link")) + "</button>";
       var link = byId("link-open-quiz");
@@ -1226,6 +2997,7 @@
     }
     if (!alive(seq) || !byId("hw-area")) { return; }
     byId("hw-area").innerHTML = hardwareHtml(state.hardware);
+    syncHwRamAvail();
   }
 
   function hwCard(label, lines) {
@@ -1243,7 +3015,7 @@
 
     var html = "";
     if (h.summary) {
-      html += '<div class="mono-block hw-summary"><pre>' + esc(h.summary) + "</pre></div>";
+      html += '<div class="mono-block hw-summary"><pre>' + esc(frDecUnits(srvMsg(h, "summary"))) + "</pre></div>";
     }
     html += '<div class="hw-grid">';
     html += hwCard(t("hw_system"), [
@@ -1252,13 +3024,14 @@
     html += hwCard(t("hw_cpu"), [
       esc(cpu.name || ""),
       (cpu.cores_physical ? esc(tf("hw_cores", { p: cpu.cores_physical, l: cpu.cores_logical || "?" })) : ""),
-      (cpu.freq_mhz_max ? esc(tf("hw_up_to", { m: Math.round(cpu.freq_mhz_max) })) : ""),
-      (cpu.usage_percent !== undefined && cpu.usage_percent !== null ? esc(tf("hw_load", { n: Math.round(cpu.usage_percent) })) : "")
+      (cpu.freq_mhz_max ? esc(tf("hw_up_to", { m: Math.round(cpu.freq_mhz_max) })) : "")
     ]);
+    /* Charge CPU et taux d'occupation RAM : pas d'instantané ici, les jauges
+       juste au-dessus donnent la valeur en direct (deux chiffres contradictoires
+       sinon). La RAM disponible suit le même relevé (homeLiveTick). */
     html += hwCard(t("hw_ram"), [
       ram.total_gb !== undefined ? esc(tf("hw_total", { g: fmtGb(ram.total_gb) })) : "",
-      ram.available_gb !== undefined ? esc(tf("hw_avail", { g: fmtGb(ram.available_gb) })) : "",
-      ram.used_percent !== undefined ? esc(tf("hw_used", { n: Math.round(ram.used_percent) })) : ""
+      ram.available_gb !== undefined ? '<span id="hw-ram-avail">' + esc(tf("hw_avail", { g: fmtGb(ram.available_gb) })) + "</span>" : ""
     ]);
     html += hwCard(t("hw_gpu"), gpus.length ? gpus.map(function (g) {
       return esc(g.name || "GPU") +
@@ -1304,7 +3077,9 @@
   async function loadPrograms(seq) {
     if (!state.programs) {
       try {
-        state.programs = await api("/api/programs");
+        /* Requête en cours partagée : l'accueil, construit deux fois au
+           démarrage, ne double pas l'appel. */
+        state.programs = await homeShared("programs", function () { return api("/api/programs"); });
       } catch (e) {
         if (alive(seq) && byId("programs-area")) {
           byId("programs-area").innerHTML = '<p class="muted small">' + esc(t("programs_unavailable")) + "</p>";
@@ -1354,7 +3129,7 @@
     try {
       var res = await api("/api/programs/install", { body: { id: id } });
       if (box) {
-        box.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>";
+        box.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(srvMsg(res)) + "</span>";
       }
     } catch (err) {
       if (box) { box.innerHTML = '<span class="err-text">' + esc(t("prog_install_failed")) + "</span>"; }
@@ -1373,6 +3148,7 @@
   }
 
   function openBoostModal() {
+    if (modalIsBusy()) { showBanner(t("modal_busy"), "error"); return; }
     var root = byId("modal-root");
     root.hidden = false;
     root.innerHTML =
@@ -1398,8 +3174,11 @@
       "</div></div></div>";
 
     var ran = false;
+    var running = false;   /* pendant l'appel : aucune fermeture (X, fond, Échap) */
+    var overlay = root.querySelector(".modal-overlay");
 
     function close() {
+      if (running || overlay.parentNode !== root) { return; }
       root.hidden = true;
       root.innerHTML = "";
       if (ran) {
@@ -1414,22 +3193,35 @@
 
     byId("boost-x").addEventListener("click", close);
     byId("boost-cancel").addEventListener("click", close);
-    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+    overlay.addEventListener("click", function (e) {
       if (e.target === e.currentTarget) { close(); }
     });
+    registerModalEscape(overlay, close);
+    /* Focus initial dans la fenêtre (comme openModal) : rouverte par la
+       palette ou ouverte au-dessus du QCM, il ne reste jamais derrière. */
+    var runFocus = byId("boost-run");
+    if (runFocus) { try { runFocus.focus({ preventScroll: true }); } catch (e0) { /* focus impossible */ } }
 
     byId("boost-run").addEventListener("click", async function () {
+      if (running) { return; }
       var runBtn = byId("boost-run");
       var restore = !!(byId("boost-restore") && byId("boost-restore").checked);
       setBusy(runBtn, t("boost_running"));
+      running = true;
+      setModalBusy(overlay, true);
       var cancelBtn = byId("boost-cancel");
+      var xBtn = byId("boost-x");
       if (cancelBtn) { cancelBtn.disabled = true; }
+      if (xBtn) { xBtn.disabled = true; }
       var res;
       try {
         res = await api("/api/boost", { body: { restore_point: restore } });
       } catch (e) {
+        running = false;
+        setModalBusy(overlay, false);
         clearBusy(runBtn);
         if (cancelBtn) { cancelBtn.disabled = false; }
+        if (xBtn) { xBtn.disabled = false; }
         var body = byId("boost-body");
         if (body) {
           body.insertAdjacentHTML("beforeend",
@@ -1437,12 +3229,15 @@
         }
         return;
       }
+      running = false;
+      setModalBusy(overlay, false);
       ran = true;
+      if (xBtn) { xBtn.disabled = false; }
       var steps = (res && res.steps) || [];
       var stepsHtml = steps.map(function (s) {
         var details = (s.details || []).map(function (d) {
           var name = d.name || d.id || "";
-          var msg = d.message || "";
+          var msg = srvMsg(d);
           var extra = d.freed_mb !== undefined && d.freed_mb !== null ? " · " + fmtMb(d.freed_mb) : "";
           return '<li class="' + (d.ok === false ? "err-text" : "") + '">' +
             esc(name) + (name && msg ? " — " : "") + esc(msg) + esc(extra) + "</li>";
@@ -1451,7 +3246,7 @@
           icon(s.ok ? "check" : "x") + "</span>" +
           '<span class="step-body">' +
           '<span class="step-name">' + esc(boostStepLabel(s.step, s.label)) + "</span>" +
-          '<span class="step-msg">' + esc(s.message || "") + "</span>" +
+          '<span class="step-msg">' + esc(srvMsg(s)) + "</span>" +
           (details ? '<ul class="boost-details">' + details + "</ul>" : "") +
           "</span></li>";
       }).join("");
@@ -1503,6 +3298,16 @@
     }
     if (!alive(seq)) { return; }
 
+    /* Tier matériel encore inconnu (warm-up en cours) : retente une fois,
+       la route /api/status est instantanée (lecture du cache uniquement). */
+    if (state.status && !state.status.tier) {
+      try {
+        var st2 = await api("/api/status");
+        if (st2) { state.status = st2; }
+      } catch (eTier) { /* bandeau déjà affiché, tier simplement inconnu */ }
+      if (!alive(seq)) { return; }
+    }
+
     var tweaks = state.tweaks.tweaks || [];
     var supportedIds = {};
     tweaks.forEach(function (x) { if (x.supported !== false) { supportedIds[x.id] = true; } });
@@ -1540,6 +3345,17 @@
         "<span>" + esc(t("notice_not_admin")) + "</span></div>";
     }
 
+    /* Bannière sobre « petite config » : uniquement quand le tier détecté
+       par /api/status vaut lowend. Le bouton coche les tweaks lowend sûrs
+       ou modérés (jamais les avancés). */
+    if (st && st.tier === "lowend") {
+      note = '<div class="notice notice-lowend">' + icon("zap") +
+        "<span>" + esc(t("lowend_banner")) + "</span>" +
+        '<span class="spacer"></span>' +
+        '<button class="btn btn-sm" id="btn-lowend-select" type="button">' +
+        esc(t("lowend_banner_btn")) + "</button></div>" + note;
+    }
+
     var toolbar =
       '<div class="tweaks-toolbar">' +
       '<button class="btn btn-sm" id="btn-sel-profile" type="button"' +
@@ -1548,21 +3364,32 @@
       '<button class="btn btn-sm btn-ghost" id="btn-sel-none" type="button">' + esc(t("sel_none")) + "</button>" +
       '<span class="tweaks-count" id="tweak-count"></span>' +
       '<span class="spacer"></span>' +
+      /* Les 3 actions restent groupées : si la barre passe sur 2 lignes, elles
+         descendent ensemble, alignées à droite, « Appliquer » en dernier. */
+      '<div class="toolbar-actions">' +
       '<button class="btn btn-sm" id="btn-restore" type="button">' + icon("shield") + " " + esc(t("restore_point")) + "</button>" +
       '<button class="btn btn-sm btn-danger" id="btn-revert" type="button">' + esc(t("revert_applied")) + "</button>" +
       '<button class="btn btn-sm btn-primary" id="btn-apply" type="button"></button>' +
-      "</div>";
+      "</div></div>";
 
     var chips = '<div class="chips">' +
       '<button class="chip' + (state.tweakFilter === "all" ? " active" : "") + '" data-filter="all" type="button">' + esc(t("chip_all")) + "</button>" +
       categories.map(function (c) {
         return '<button class="chip' + (state.tweakFilter === c.id ? " active" : "") + '" data-filter="' +
           esc(c.id) + '" type="button">' + esc(tr(c, "label")) + "</button>";
-      }).join("") + "</div>";
+      }).join("") +
+      '<span class="chip-sep" aria-hidden="true"></span>' +
+      '<button class="chip' + (state.tweakLowendOnly ? " active" : "") +
+      '" id="chip-lowend" type="button" aria-pressed="' + (state.tweakLowendOnly ? "true" : "false") + '">' +
+      esc(t("chip_lowend")) + "</button></div>";
 
     var groups = categories.map(function (c) {
       if (state.tweakFilter !== "all" && state.tweakFilter !== c.id) { return ""; }
-      var items = tweaks.filter(function (x) { return x.category === c.id; });
+      var items = tweaks.filter(function (x) {
+        if (x.category !== c.id) { return false; }
+        if (state.tweakLowendOnly && !x.lowend) { return false; }
+        return true;
+      });
       if (!items.length) { return ""; }
       var rows = items.map(tweakRowHtml).join("");
       return '<div class="tweak-group"><h2 class="tweak-group-head">' + esc(tr(c, "label")) +
@@ -1571,6 +3398,9 @@
 
     area.innerHTML = note + toolbar + chips + '<div id="tweaks-list">' + (groups ||
       '<p class="muted small">' + esc(t("tweaks_none_cat")) + "</p>") + "</div>";
+    syncTweakMore();
+    requestAnimationFrame(syncTweakMore);   /* polices / mise en page finales */
+    bindTweakMoreResize();
 
     /* Liaisons. */
     byId("btn-sel-profile").addEventListener("click", function () {
@@ -1596,11 +3426,46 @@
     byId("btn-revert").addEventListener("click", onRevertTweaks);
     byId("btn-restore").addEventListener("click", onRestorePoint);
 
-    $all(".chip", area).forEach(function (chip) {
+    $all(".chip[data-filter]", area).forEach(function (chip) {
       chip.addEventListener("click", function () {
         state.tweakFilter = chip.dataset.filter;
         buildTweaksArea();
       });
+    });
+
+    var lowendChip = byId("chip-lowend");
+    if (lowendChip) {
+      lowendChip.addEventListener("click", function () {
+        state.tweakLowendOnly = !state.tweakLowendOnly;
+        buildTweaksArea();
+      });
+    }
+
+    var lowendBtn = byId("btn-lowend-select");
+    if (lowendBtn) {
+      lowendBtn.addEventListener("click", function () {
+        var picked = tweaks.filter(function (x) {
+          return x.lowend && x.supported !== false &&
+            (x.risk === "sur" || x.risk === "modere");
+        }).map(function (x) { return x.id; });
+        state.tweakSelection = new Set(picked);
+        buildTweaksArea();
+        showBanner(tp(picked.length, "lowend_selected_one", "lowend_selected_many"), "ok");
+      });
+    }
+
+    byId("tweaks-list").addEventListener("click", function (e) {
+      var more = e.target.closest ? e.target.closest(".tweak-more") : null;
+      if (!more) { return; }
+      e.preventDefault();
+      var row = more.previousElementSibling;
+      if (!row || !row.classList.contains("tweak-row")) { return; }
+      var id = row.getAttribute("data-row-id");
+      var open = !row.classList.contains("is-open");
+      row.classList.toggle("is-open", open);
+      if (open) { state.tweakDescOpen.add(id); } else { state.tweakDescOpen.delete(id); }
+      setTweakMoreLabel(more, open);
+      if (!open) { syncTweakMore(); }
     });
 
     byId("tweaks-list").addEventListener("change", function (e) {
@@ -1612,6 +3477,50 @@
     });
 
     updateTweakCounts();
+  }
+
+  /** Libellé du bouton « Plus » / « Moins » d'une explication. */
+  function setTweakMoreLabel(btn, open) {
+    btn.textContent = t(open ? "tweak_less" : "tweak_more");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  /** Explications tronquées (3 lignes) : ajoute le bouton « Plus » juste après
+      la rangée, le retire quand le texte tient (fenêtre élargie). Jamais de
+      dépliage au survol : pas de saut de mise en page. */
+  function syncTweakMore() {
+    var list = byId("tweaks-list");
+    if (!list) { return; }
+    $all(".tweak-row", list).forEach(function (row) {
+      var desc = row.querySelector(".tweak-desc");
+      if (!desc) { return; }
+      var next = row.nextElementSibling;
+      var btn = next && next.classList.contains("tweak-more") ? next : null;
+      var open = row.classList.contains("is-open");
+      var cut = open || desc.scrollHeight > desc.clientHeight + 2;
+      if (cut && !btn) {
+        btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "link-btn tweak-more";
+        var name = row.querySelector(".tweak-name");
+        btn.setAttribute("aria-label", tf("tweak_more_aria", { name: name ? name.textContent : "" }));
+        row.insertAdjacentElement("afterend", btn);
+        setTweakMoreLabel(btn, open);
+      } else if (!cut && btn) {
+        btn.remove();
+      }
+    });
+  }
+
+  var tweakMoreResizeBound = false;
+  var tweakMoreResizeTimer = null;
+  function bindTweakMoreResize() {
+    if (tweakMoreResizeBound) { return; }
+    tweakMoreResizeBound = true;
+    window.addEventListener("resize", function () {
+      clearTimeout(tweakMoreResizeTimer);
+      tweakMoreResizeTimer = setTimeout(syncTweakMore, 150);
+    });
   }
 
   function tweakRowHtml(x) {
@@ -1627,22 +3536,33 @@
     var checked = state.tweakSelection.has(x.id) && !unsupported;
     var res = state.tweakResults[x.id];
     var resHtml = res ?
-      '<div class="tweak-result ' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</div>" : "";
+      '<div class="tweak-result ' + (res.ok ? "ok-text" : "err-text") + '">' + esc(srvMsg(res)) + "</div>" : "";
 
-    return '<label class="tweak-row' + (unsupported ? " unsupported" : "") + '">' +
+    /* Deux étages : nom, badges et statut sur la 1re ligne ; l'explication
+       (contenu principal) dessous, sur 3 lignes au plus, alignée sur le nom.
+       Explication tronquée : bouton « Plus » inséré après coup (syncTweakMore). */
+    var open = state.tweakDescOpen.has(x.id);
+    return '<label class="tweak-row' + (unsupported ? " unsupported" : "") + (open ? " is-open" : "") +
+      '" data-row-id="' + esc(x.id) + '">' +
       '<input type="checkbox" class="tweak-check" data-id="' + esc(x.id) + '"' +
       (checked ? " checked" : "") + (unsupported ? " disabled" : "") + ">" +
+      '<span class="tweak-body"><span class="tweak-head">' +
       '<span class="tweak-name">' + esc(tr(x, "name")) + "</span>" +
       '<span class="badge ' + im.cls + '">' + esc(t(im.key)) + "</span>" +
       '<span class="badge ' + rk.cls + '">' + esc(t(rk.key)) + "</span>" +
+      (x.lowend ? '<span class="badge badge-outline">' + esc(t("tweak_lowend_badge")) + "</span>" : "") +
+      status + "</span>" +
       '<span class="tweak-desc" title="' + esc(tr(x, "description")) + '">' + esc(tr(x, "description")) + "</span>" +
-      status + "</label>" + resHtml;
+      "</span></label>" + resHtml;
   }
 
   function updateTweakCounts() {
     var n = state.tweakSelection.size;
     var count = byId("tweak-count");
     if (count) { count.textContent = tp(n, "selected_one", "selected_many"); }
+    /* Rien à désélectionner : action inactive (distincte du compteur). */
+    var none = byId("btn-sel-none");
+    if (none) { none.disabled = n === 0; }
     var apply = byId("btn-apply");
     if (apply) {
       apply.textContent = tf("apply_n", { n: n });
@@ -1726,7 +3646,7 @@
     setBusy(btn, t("creating"));
     try {
       var res = await api("/api/restore-point", { method: "POST" });
-      showBanner(res.message || (res.ok ? t("restore_created") : t("restore_failed")), res.ok ? "ok" : "error");
+      showBanner(srvMsg(res) || (res.ok ? t("restore_created") : t("restore_failed")), res.ok ? "ok" : "error");
     } catch (e) { /* bandeau déjà affiché */ }
     clearBusy(btn);
   }
@@ -1742,6 +3662,14 @@
       '<p class="page-sub">' + esc(t("games_sub")) + "</p>" +
       '<div id="games-area"><div class="loading-line">' + esc(t("games_detecting")) + "</div></div>";
 
+    /* Fiche demandée par lien (#/games?game=<id>, ex. depuis l'Accueil) :
+       consommée une seule fois (le hash redevient #/games sans re-rendu). */
+    var wanted = gameFromHash();
+    if (wanted) {
+      try { history.replaceState(null, "", "#/games"); } catch (eH) { /* hash conservé : sans effet */ }
+    }
+    /* Capacités des visuels en parallèle (sans réseau côté serveur, jamais d'exception). */
+    var artP = loadArtInfo(true);
     try {
       var res = await api("/api/games");
       state.games = res.games || [];
@@ -1751,8 +3679,23 @@
       }
       return;
     }
+    await artP;
     if (!alive(seq)) { return; }
+    if (wanted && findGame(wanted)) { state.selectedGame = wanted; }
+    if (state.selectedGame && !findGame(state.selectedGame)) { state.selectedGame = null; }
     buildGamesArea(seq);
+    if (wanted && state.selectedGame === wanted) { revealGameDetail(); }
+  }
+
+  function findGame(id) {
+    var found = null;
+    (state.games || []).forEach(function (g) { if (g.id === id) { found = g; } });
+    return found;
+  }
+
+  function gameFromHash() {
+    var m = /[?&]game=([a-z0-9_]{1,40})/.exec(window.location.hash || "");
+    return m ? m[1] : null;
   }
 
   function buildGamesArea(seq) {
@@ -1762,41 +3705,439 @@
     var detected = games.filter(function (g) { return g.installed; }).length;
 
     var note = detected === 0 ?
-      '<p class="muted small">' + esc(t("games_none")) + "</p>" : "";
+      '<p class="muted small games-note">' + esc(t("games_none")) + "</p>" : "";
 
-    var cards = games.map(function (g) {
-      var badge = g.installed ?
-        '<span class="badge badge-green">' + esc(t("badge_detected")) + "</span>" :
-        '<span class="badge badge-gray">' + esc(t("badge_not_detected")) + "</span>";
-      var path = g.installed && g.install_path ?
-        '<div class="game-path mono" title="' + esc(g.install_path) + '">' + esc(g.install_path) + "</div>" : "";
-      return '<div class="card game-card' + (state.selectedGame === g.id ? " selected" : "") +
-        '" data-game="' + esc(g.id) + '" tabindex="0" role="button">' +
-        '<span class="card-title">' + esc(g.name) + "</span>" +
-        '<span class="game-store">' + esc(storeLabel(g.store)) + "</span>" +
-        "<div>" + badge + "</div>" + path + "</div>";
-    }).join("");
+    /* CS2 est mis en avant dans le grand bandeau : la bibliothèque montre les
+       autres jeux, les jeux détectés d'abord (ordre du catalogue conservé). */
+    var lib = games.filter(function (g) { return g.id !== "cs2"; })
+      .map(function (g, i) { return { g: g, i: i }; })
+      .sort(function (a, b) { return ((b.g.installed ? 1 : 0) - (a.g.installed ? 1 : 0)) || (a.i - b.i); })
+      .map(function (x) { return x.g; });
+    var libDetected = lib.filter(function (g) { return g.installed; }).length;
 
-    area.innerHTML = note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
+    area.innerHTML = cs2HeroHtml() +
+      '<div class="group-label games-lib-label">' + esc(t("games_lib")) +
+      ' <span class="badge badge-gray">' + lib.length + "</span>" +
+      (libDetected ? ' <span class="badge badge-green">' + esc(tf("games_lib_detected", { n: libDetected })) + "</span>" : "") +
+      "</div>" + note +
+      '<div class="games-lib" id="games-grid">' + lib.map(posterHtml).join("") + "</div>" +
+      '<p class="games-credit">' + esc(t("game_art_credit")) + "</p>" +
       '<div id="game-detail-area"></div>' +
       '<div class="group-label">' + esc(t("latency_group")) + "</div>" +
-      '<div class="card" id="latency-card"><div id="latency-inner"></div></div>';
+      '<div class="card" id="latency-card"><div id="latency-inner"></div></div>' +
+      '<div class="group-label">' + esc(t("sens_group")) + "</div>" +
+      '<div class="card" id="sens-card"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
+      '<div class="group-label">' + esc(t("xhair_group")) + "</div>" +
+      '<div id="xhair-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>" +
+      '<div class="group-label">' + esc(t("vault_group")) + "</div>" +
+      '<div class="card" id="vault-card"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
 
+    /* Sélection d'une jaquette : seule la fiche est (re)construite, la grille
+       et les encarts (latence, convertisseur, viseurs, coffre) restent en place. */
     $all("#games-grid .game-card").forEach(function (card) {
-      function select() {
-        state.selectedGame = card.dataset.game;
-        buildGamesArea(seq);
-        var det = byId("game-detail-area");
-        if (det) { det.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-      }
+      function select() { selectGame(card.dataset.game, seq, true); }
       card.addEventListener("click", select);
       card.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); }
       });
     });
+    var feat = $(".gfeat", area);
+    if (feat) {
+      /* Clic sur le visuel (hors boutons) : ouvre la fiche CS2 ; au clavier,
+         c'est le bouton « Voir la fiche ». */
+      feat.addEventListener("click", function (e) {
+        if (e.target.closest && e.target.closest("button, a, input, select, summary, details")) { return; }
+        selectGame(feat.dataset.game, seq, true);
+      });
+      bindFeatureParallax(feat);
+    }
+    $all("[data-open-game]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () { selectGame(btn.dataset.openGame, seq, true); });
+    });
+    mountArt(area);
 
+    bindCs2Hero(seq);
     updateLatencyCard(seq);
+    loadSensCard(seq);
+    loadCrosshairs(seq);
+    loadVault(seq);
     if (state.selectedGame) { buildGameDetail(seq); }
+  }
+
+  /** Sélectionne (ou désélectionne avec null) un jeu : état visuel + fiche. */
+  function selectGame(id, seq, reveal) {
+    state.selectedGame = id || null;
+    $all("#games-area [data-game]").forEach(function (el) {
+      var on = el.dataset.game === state.selectedGame;
+      el.classList.toggle("selected", on);
+      if (el.hasAttribute("aria-expanded")) { el.setAttribute("aria-expanded", on ? "true" : "false"); }
+    });
+    $all("#games-area [data-open-game]").forEach(function (b) {
+      b.setAttribute("aria-expanded", b.dataset.openGame === state.selectedGame ? "true" : "false");
+    });
+    buildGameDetail(seq);
+    if (state.selectedGame && reveal) { revealGameDetail(); }
+  }
+
+  function revealGameDetail() {
+    var det = byId("game-detail-area");
+    var box = det && det.firstElementChild;
+    if (!box) { return; }
+    var lvl = document.documentElement.getAttribute("data-motion");
+    box.scrollIntoView({ behavior: lvl === "max" ? "smooth" : "auto", block: "start" });
+  }
+
+  /* ---- Visuels des jeux (vague 7) : jaquettes, bandeaux, logos ----
+     Images servies par /api/art/<jeu>/<type> (téléchargées puis mises en
+     cache côté serveur). Chaque emplacement essaie une suite d'« étapes »,
+     de la plus riche à la plus sobre ; la dernière est toujours un visuel
+     de secours dessiné aux couleurs du thème (aucune requête). */
+
+  /** Capacités (/api/art), lecture silencieuse : pas de bandeau si indisponible. */
+  function loadArtInfo(force) {
+    if (state.artInfo && !force) { return Promise.resolve(state.artInfo); }
+    return fetch("/api/art", { cache: "no-store" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (d) {
+      state.artInfo = d && typeof d === "object" && !Array.isArray(d) ? d : (state.artInfo || {});
+      return state.artInfo;
+    }).catch(function () {
+      state.artInfo = state.artInfo || {};
+      return state.artInfo;
+    });
+  }
+
+  /** Infos connues d'un jeu (null si l'API n'a rien dit : on tente quand même). */
+  function artKnown(id) {
+    var info = state.artInfo && state.artInfo[id];
+    return info && typeof info === "object" && info.kinds ? info : null;
+  }
+
+  /** true / false si connu, null si inconnu. */
+  function artHas(id, kind) {
+    var info = artKnown(id);
+    return info ? !!info.kinds[kind] : null;
+  }
+
+  function artUrl(id, kind) {
+    var info = artKnown(id);
+    var rev = info && info.rev ? info.rev[kind] : 0;
+    return "/api/art/" + encodeURIComponent(id) + "/" + encodeURIComponent(kind) +
+      (rev ? "?v=" + encodeURIComponent(String(rev)) : "");
+  }
+
+  /** Cadrage des visuels non Steam (personnage ou sujet hors du centre). */
+  var ART_FOCUS = { league_of_legends: "50% 18%", valorant: "50% 45%", fortnite: "35% 40%" };
+
+  /** Étapes d'affichage selon l'usage : poster (2:3), wide (bandeau), logo. */
+  function artStages(id, use) {
+    var info = artKnown(id);
+    function has(k) { return info ? !!info.kinds[k] : null; }
+    var wideKind = has("hero") === false && has("header") ? "header" : "hero";
+    var out = [];
+    if (use === "poster") {
+      if (!info) { return ["cover", "crop:hero", "fallback"]; }
+      if (has("cover")) { out.push("cover"); }
+      if (has("portrait")) { out.push("compose" + (has("hero") || has("header") ? ":" + wideKind : "")); }
+      if (has("hero") || has("header")) { out.push("crop:" + wideKind); }
+    } else if (use === "logo") {
+      if (has("logo") !== false) { out.push("logo"); }
+    } else {
+      if (!info) { return ["hero", "header", "fallback"]; }
+      if (has("hero")) { out.push("hero"); }
+      if (has("header")) { out.push("header"); }
+      if (has("portrait")) { out.push("compose"); }
+    }
+    out.push("fallback");
+    return out;
+  }
+
+  /** Teinte stable par jeu pour varier les visuels de secours. */
+  function artTurn(id) {
+    var h = 0;
+    for (var i = 0; i < id.length; i++) { h = (h * 31 + id.charCodeAt(i)) % 360; }
+    return h;
+  }
+
+  /** Monogrammes consacrés (initiales peu parlantes sinon : « LL », « GO »,
+      « O2 », « RS », « PB »). */
+  var ART_MONO = {
+    "league of legends": "LoL",
+    "counter-strike 2": "CS2",
+    "call of duty: warzone": "WZ",
+    "gta online (gta v)": "GTA",
+    "overwatch 2": "OW2",
+    "tom clancy's rainbow six siege": "R6",
+    "pubg: battlegrounds": "PUBG",
+    "rocket league": "RL"
+  };
+
+  /** Décalage de teinte des visuels de secours (±35° autour de l'accent) :
+      chaque jeu a sa couleur, toujours en accord avec le thème. */
+  function artFbHue(id) {
+    return (artTurn(String(id || "")) % 71) - 35;
+  }
+
+  /** Monogramme (« Counter-Strike 2 » → « CS2 », « Dota 2 » → « D2 »). */
+  function artMonogram(name) {
+    var known = ART_MONO[String(name || "").trim().toLowerCase()];
+    if (known) { return known; }
+    var skip = { of: 1, the: 1, de: 1, la: 1, le: 1, tom: 1, "clancy's": 1 };
+    var words = String(name || "").split(/[\s:\-()]+/).filter(function (w) {
+      return w && !skip[w.toLowerCase()];
+    });
+    var s = words.slice(0, 2).map(function (w) { return w.charAt(0); }).join("");
+    return (s || "?").toUpperCase();
+  }
+
+  /** Emplacement d'image (rempli par mountArt). */
+  function artBoxHtml(id, use, name, lazy) {
+    var focus = ART_FOCUS[id] ? "--focus:" + ART_FOCUS[id] + ";" : "";
+    /* Bannière personnalisée : aucun recadrage propre au visuel d'origine. */
+    var info = artKnown(id);
+    var customHero = !!(info && (info.custom || []).indexOf("hero") >= 0);
+    return '<span class="gart gart-' + use + '"' + (customHero ? " data-custom-hero" : "") + ' data-art-game="' + esc(id) + '" data-name="' + esc(name) +
+      '" data-stages="' + esc(artStages(id, use).join(",")) + '"' + (lazy ? ' data-lazy="1"' : "") +
+      ' style="' + focus + "--turn:" + artTurn(id) + "deg;--fbh:" + artFbHue(id) + 'deg" aria-hidden="true"></span>';
+  }
+
+  function artImgHtml(cls, id, kind, primary, lazy) {
+    return '<img class="gart-img' + (cls ? " " + cls : "") + '" src="' + esc(artUrl(id, kind)) +
+      '" alt="" draggable="false" decoding="async"' + (lazy ? ' loading="lazy"' : "") +
+      (primary ? " data-primary" : "") + ">";
+  }
+
+  function artStageHtml(id, name, stage, lazy) {
+    var parts = stage.split(":");
+    var mode = parts[0], kind = parts[1];
+    if (mode === "fallback") {
+      var mono = artMonogram(name);
+      /* Monogramme de 4 lettres (« PUBG ») : corps réduit, jamais collé aux bords. */
+      return '<span class="gart-fb"><span class="gart-fb-mono' + (mono.length >= 4 ? " is-long" : "") + '">' + esc(mono) + "</span></span>";
+    }
+    if (mode === "compose") {
+      /* Personnage détouré (PNG) posé sur la carte du jeu, floutée et voilée. */
+      return (kind ? artImgHtml("gart-bg", id, kind, false, lazy) : '<span class="gart-fb"></span>') +
+        artImgHtml("gart-fg", id, "portrait", true, lazy);
+    }
+    if (mode === "crop") { return artImgHtml("gart-crop", id, kind || "hero", true, lazy); }
+    if (mode === "logo") {
+      /* Aperçu de logo (Réglages) : même rognage / passage en blanc que les bandeaux. */
+      return artImgHtml("gart-logo", id, "logo", true, lazy).replace("<img ", "<img data-logo ");
+    }
+    return artImgHtml("", id, mode, true, lazy);
+  }
+
+  /** Remplit les emplacements .gart d'une zone (une seule fois chacun). */
+  function mountArt(scope) {
+    $all(".gart[data-stages]", scope).forEach(function (box) {
+      if (box.__odArt) { return; }
+      box.__odArt = true;
+      showArtStage(box, 0);
+    });
+    bindLogos(scope);
+  }
+
+  function showArtStage(box, index) {
+    var stages = String(box.dataset.stages || "fallback").split(",");
+    var stage = stages[index] || "fallback";
+    var token = String(index);
+    var lazy = box.dataset.lazy === "1";
+    box.dataset.stage = token;
+    /* Mode affiché (cover, compose, crop, fallback…) : la grille cache le
+       titre HTML sur les vraies jaquettes, qui portent déjà leur logo. */
+    box.dataset.mode = stage.split(":")[0];
+    box.classList.remove("is-loaded", "is-instant");
+    box.classList.toggle("is-fallback", stage === "fallback");
+    box.classList.toggle("is-compose", stage.indexOf("compose") === 0);
+    box.innerHTML = artStageHtml(box.dataset.artGame || "", box.dataset.name || "", stage, lazy);
+    if (stage === "fallback") { return; }
+    var primary = box.querySelector("img[data-primary]");
+    $all("img", box).forEach(function (img) {
+      var isPrimary = img === primary;
+      function ok(instant) {
+        if (box.dataset.stage !== token) { return; }
+        if (!isPrimary) { img.classList.add("is-in"); return; }
+        /* Image déjà en cache mémoire : affichage direct, sans fondu. */
+        if (instant === true) { box.classList.add("is-instant"); }
+        box.classList.add("is-loaded");
+      }
+      function ko() {
+        if (box.dataset.stage !== token) { return; }
+        if (isPrimary) { showArtStage(box, index + 1); } else { img.remove(); }
+      }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(true); } else { ko(); }
+      } else {
+        img.addEventListener("load", function () { ok(false); }, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+  }
+
+  /* Logos : marges transparentes rognées (object-view-box) et logos sombres
+     passés en blanc pour rester lisibles sur le voile du bandeau. Analyse
+     faite une fois par URL sur une copie réduite (image même origine). */
+  var LOGO_TUNE = {};
+
+  function bindLogos(scope) {
+    /* Personnages détourés décoratifs : simple fondu, retirés en cas d'échec. */
+    $all("img[data-portrait]", scope).forEach(function (img) {
+      if (img.__odLogo) { return; }
+      img.__odLogo = true;
+      function ok() { img.classList.add("is-in"); }
+      function ko() { img.remove(); }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(); } else { ko(); }
+      } else {
+        img.addEventListener("load", ok, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+    $all("img[data-logo]", scope).forEach(function (img) {
+      if (img.__odLogo) { return; }
+      img.__odLogo = true;
+      var host = img.closest(".has-logo");
+      function ok() { tuneLogo(img); img.classList.add("is-in"); }
+      function ko() {
+        if (host) { host.classList.remove("has-logo"); }
+        img.remove();
+      }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(); } else { ko(); }
+      } else {
+        img.addEventListener("load", ok, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+  }
+
+  function tuneLogo(img) {
+    var key = img.getAttribute("src") || "";
+    var r = LOGO_TUNE[key];
+    if (!r) {
+      r = { box: null, dark: false };
+      try {
+        var w = Math.max(1, Math.min(160, img.naturalWidth));
+        var h = Math.max(1, Math.round(img.naturalHeight * w / Math.max(1, img.naturalWidth)));
+        var c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        var ctx = c.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, w, h);
+        var d = ctx.getImageData(0, 0, w, h).data;
+        var minX = w, minY = h, maxX = -1, maxY = -1, opaque = 0, dark = 0;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var k = (y * w + x) * 4;
+            if (d[k + 3] <= 24) { continue; }
+            opaque++;
+            if (0.2126 * d[k] + 0.7152 * d[k + 1] + 0.0722 * d[k + 2] < 60) { dark++; }
+            if (x < minX) { minX = x; }
+            if (x > maxX) { maxX = x; }
+            if (y < minY) { minY = y; }
+            if (y > maxY) { maxY = y; }
+          }
+        }
+        if (maxX >= 0) {
+          var pad = 0.01;
+          r.box = [
+            Math.max(0, minY / h - pad), Math.max(0, 1 - (maxX + 1) / w - pad),
+            Math.max(0, 1 - (maxY + 1) / h - pad), Math.max(0, minX / w - pad)
+          ];
+          r.dark = opaque > 0 && dark / opaque > 0.5;
+        }
+      } catch (e) { /* analyse impossible : logo affiché tel quel */ }
+      LOGO_TUNE[key] = r;
+    }
+    var canTrim = false;
+    try { canTrim = !!(window.CSS && CSS.supports && CSS.supports("object-view-box", "inset(0px)")); } catch (e2) { canTrim = false; }
+    if (r.box && canTrim) {
+      img.style.objectViewBox = "inset(" + r.box.map(function (v) { return (v * 100).toFixed(2) + "%"; }).join(" ") + ")";
+    }
+    img.classList.toggle("is-dark", !!r.dark);
+  }
+
+  function logoHtml(id, cls) {
+    if (artHas(id, "logo") === false) { return ""; }
+    return '<img class="glogo' + (cls ? " " + cls : "") + '" src="' + esc(artUrl(id, "logo")) +
+      '" alt="" draggable="false" decoding="async" data-logo>';
+  }
+
+  function storeChipHtml(g) {
+    var label = storeLabel(g.store);
+    return label ? '<span class="gchip">' + esc(label) + "</span>" : "";
+  }
+
+  function detectedChipHtml() {
+    return '<span class="gchip gchip-ok"><span class="gchip-dot" aria-hidden="true"></span>' + esc(t("badge_detected")) + "</span>";
+  }
+
+  /** Jaquette de la bibliothèque (inclinaison 3D + spot : motion.js via .game-card/.card). */
+  function posterHtml(g) {
+    var sel = state.selectedGame === g.id;
+    var label = tf("game_open_aria", { name: g.name }) + " · " + storeLabel(g.store) + " · " +
+      t(g.installed ? "badge_detected" : "badge_not_detected");
+    /* Jaquette Steam d'origine : logo du jeu imprimé dessus (le titre HTML
+       n'apparaît alors qu'au survol). Jaquettes Riot (art sans logo) ou
+       personnalisées : titre toujours affiché. */
+    var info = artKnown(g.id);
+    var printed = !!(info && info.source === "steam" && (info.custom || []).indexOf("cover") < 0);
+    return '<div class="card game-card gposter' + (sel ? " selected" : "") + (g.installed ? " is-installed" : "") +
+      (printed ? " gposter-logo" : "") +
+      '" data-game="' + esc(g.id) + '" tabindex="0" role="button" aria-expanded="' + (sel ? "true" : "false") +
+      '" aria-controls="game-detail-area" aria-label="' + esc(label) + '">' +
+      artBoxHtml(g.id, "poster", g.name, true) +
+      '<span class="gposter-shade" aria-hidden="true"></span>' +
+      '<span class="gglare" aria-hidden="true"></span>' +
+      (g.installed ? '<span class="gposter-top" aria-hidden="true">' + detectedChipHtml() + "</span>" : "") +
+      '<span class="gposter-info" aria-hidden="true"><span class="card-title gposter-title">' + esc(g.name) + "</span>" +
+      '<span class="gposter-meta">' + storeChipHtml(g).replace('class="gchip"', 'class="gchip gchip-sm"') +
+      '<span class="gposter-cta">' + esc(t("game_cta")) + icon("right") + "</span></span></span>" +
+      "</div>";
+  }
+
+  /** Parallaxe du bandeau CS2 : le visuel et le logo glissent sur deux plans. */
+  function bindFeatureParallax(el) {
+    var raf = 0, rect = null, gx = 0, gy = 0;
+    function fxOk() {
+      var r = document.documentElement;
+      return r.getAttribute("data-motion") === "max" && !r.hasAttribute("data-motion-paused");
+    }
+    /* Écriture directe des transforms (image, logo) et du reflet sur
+       eux-mêmes : une variable héritée posée sur le bandeau recalculait le
+       style de tout son contenu à chaque image. */
+    function frame() {
+      raf = 0;
+      var img = el.querySelector(".gart.is-loaded .gart-img[data-primary]");
+      var brand = el.querySelector(".gfeat-brand");
+      var glare = el.querySelector(".gglare");
+      if (img) { img.style.transform = "scale(1.06) translate3d(" + (gx * -1.1).toFixed(3) + "%, " + (gy * -1.4).toFixed(3) + "%, 0)"; }
+      if (brand) { brand.style.transform = "translate3d(" + (gx * 5).toFixed(2) + "px, " + (gy * 3).toFixed(2) + "px, 0)"; }
+      if (glare && rect) {
+        glare.style.setProperty("--mx", ((gx / 2 + 0.5) * rect.width).toFixed(1) + "px");
+        glare.style.setProperty("--my", ((gy / 2 + 0.5) * rect.height).toFixed(1) + "px");
+      }
+    }
+    function clear() {
+      Array.prototype.forEach.call(el.querySelectorAll(".gart-img[data-primary], .gfeat-brand"), function (n) { n.style.transform = ""; });
+    }
+    el.addEventListener("pointerenter", function () { rect = el.getBoundingClientRect(); });
+    el.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "touch" || !fxOk()) { return; }
+      if (!rect) { rect = el.getBoundingClientRect(); }
+      if (!rect.width || !rect.height) { return; }
+      gx = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2));
+      gy = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2));
+      el.classList.add("is-live");
+      if (!raf) { raf = requestAnimationFrame(frame); }
+    });
+    el.addEventListener("pointerleave", function () {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      rect = null;
+      el.classList.remove("is-live");
+      clear();
+    });
   }
 
   /* ---- Encart « Latence estimée » ---- */
@@ -1807,34 +4148,78 @@
     return '<span class="badge ' + cls + '">' + esc(dec(v)) + " ms</span>";
   }
 
+  /** Pastille colorée du verdict du test de stabilité. */
+  function netstabVerdictBadge(res) {
+    var cls = res.verdict === "stable" ? "badge-green" :
+      (res.verdict === "instable" ? "badge-red" : "badge-gray");
+    return '<span class="badge ' + cls + '">' + esc(tr(res, "verdict_label") || res.verdict || "") + "</span>";
+  }
+
+  /** Bloc résultat/état du test de stabilité (sous les résultats de latence). */
+  function netstabBlockHtml() {
+    if (state.netstabBusy) {
+      return '<div class="loading-line">' + esc(t("netstab_running")) + "</div>";
+    }
+    var res = state.netstab;
+    if (!res) { return ""; }
+    var html = '<div class="ns-result">' +
+      '<div class="ns-head">' + netstabVerdictBadge(res) +
+      (res.region && res.region.label ?
+        '<span class="muted small">' + esc(tf("netstab_region", { r: tr(res.region, "label") })) +
+        (res.region.host ? ' <span class="mono mono-inline">' + esc(res.region.host) + "</span>" : "") + "</span>" : "") +
+      "</div>";
+    if (res.ok) {
+      function nsStat(label, value) {
+        return '<div class="ns-stat"><div class="ns-label">' + esc(label) +
+          '</div><div class="ns-value mono">' + value + "</div></div>";
+      }
+      html += '<div class="ns-stats">' +
+        nsStat(t("netstab_loss"), esc(dec(res.loss_percent)) + " %") +
+        nsStat(t("netstab_jitter"), esc(dec(res.jitter_ms)) + " ms") +
+        nsStat(t("th_min"), msBadge(res.ms_min)) +
+        nsStat(t("th_avg"), msBadge(res.ms_avg)) +
+        nsStat(t("th_max"), msBadge(res.ms_max)) +
+        "</div>";
+    } else {
+      html += '<p class="muted small" style="margin:8px 0 0">' + esc(srvMsg(res)) + "</p>";
+    }
+    return html + "</div>";
+  }
+
   function latencyInnerHtml() {
-    var btn = state.latencyBusy ? "" :
-      '<button class="btn btn-sm' + (state.latency ? "" : " btn-primary") +
-      '" id="btn-latency" type="button">' + icon("activity") + " " + esc(t("latency_measure")) + "</button>";
+    var btns = "";
+    if (!state.latencyBusy && !state.netstabBusy) {
+      btns = '<div class="lat-actions">' +
+        '<button class="btn btn-sm' + (state.latency ? "" : " btn-primary") +
+        '" id="btn-latency" type="button">' + icon("activity") + " " + esc(t("latency_measure")) + "</button>" +
+        '<button class="btn btn-sm" id="btn-netstab" type="button">' + icon("activity") + " " +
+        esc(t("netstab_btn")) + "</button></div>";
+    }
     var html = '<div class="lat-head">' +
-      '<p class="muted small lat-note">' + esc(t("latency_desc")) + "</p>" + btn + "</div>";
+      '<p class="muted small lat-note">' + esc(t("latency_desc")) + "</p>" + btns + "</div>";
     if (state.latencyBusy) {
-      return html + '<div class="loading-line">' + esc(t("latency_measuring")) + "</div>";
+      return html + '<div class="loading-line">' + esc(t("latency_measuring")) + "</div>" + netstabBlockHtml();
     }
     if (state.latency && state.latency.length) {
       var rows = state.latency.map(function (r) {
-        var label = "<td>" + esc(tr(r, "label")) +
+        var label = "<td>" + esc(srvMsg(r, "label")) +
           ' <span class="muted small mono">' + esc(r.host || "") + "</span></td>";
         if (!r.ok) {
           return "<tr>" + label +
-            '<td colspan="3" class="muted small">' + esc(r.message || t("latency_failed")) + "</td></tr>";
+            '<td colspan="3" class="muted small">' + esc(srvMsg(r) || t("latency_failed")) + "</td></tr>";
         }
         return "<tr>" + label +
           '<td class="lat-ms">' + msBadge(r.ms_min) + "</td>" +
           '<td class="lat-ms">' + msBadge(r.ms_avg) + "</td>" +
           '<td class="lat-ms">' + msBadge(r.ms_max) + "</td></tr>";
       }).join("");
-      html += '<div class="lat-results"><table class="table"><thead><tr>' +
+      /* .table-scroll : défilement dans le bloc sur téléphone, jamais la page. */
+      html += '<div class="lat-results table-scroll"><table class="table"><thead><tr>' +
         "<th>" + esc(t("th_region")) + "</th><th>" + esc(t("th_min")) + "</th><th>" +
         esc(t("th_avg")) + "</th><th>" + esc(t("th_max")) + "</th>" +
         "</tr></thead><tbody>" + rows + "</tbody></table></div>";
     }
-    return html;
+    return html + netstabBlockHtml();
   }
 
   function updateLatencyCard(seq) {
@@ -1843,6 +4228,8 @@
     inner.innerHTML = latencyInnerHtml();
     var btn = byId("btn-latency");
     if (btn) { btn.addEventListener("click", function () { doMeasureLatency(seq); }); }
+    var nsBtn = byId("btn-netstab");
+    if (nsBtn) { nsBtn.addEventListener("click", function () { doNetStab(seq); }); }
   }
 
   async function doMeasureLatency(seq) {
@@ -1857,19 +4244,445 @@
     updateLatencyCard(seq);
   }
 
+  /** Test de stabilité (~20 s) : pas de select de région sur la page, région par défaut. */
+  async function doNetStab(seq) {
+    if (state.netstabBusy) { return; }
+    state.netstabBusy = true;
+    updateLatencyCard(seq);
+    try {
+      state.netstab = await api("/api/netstab", { body: {} });
+    } catch (e) { /* bandeau déjà affiché */ }
+    state.netstabBusy = false;
+    updateLatencyCard(seq);
+  }
+
+  /* ---- Encart « Convertisseur de sensibilité » ---- */
+
+  function sensGameById(id) {
+    var list = state.sensGames || [];
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { return list[i]; } }
+    return null;
+  }
+
+  async function loadSensCard(seq) {
+    if (!state.sensGames) {
+      try {
+        var res = await api("/api/sens/games");
+        state.sensGames = (res && res.games) || [];
+      } catch (e) {
+        var boxErr = byId("sens-card");
+        if (alive(seq) && boxErr) {
+          boxErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("sens_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq)) { return; }
+    buildSensCard(seq);
+  }
+
+  function sensResultHtml() {
+    var r = state.sensResult;
+    if (!r) { return ""; }
+    if (!r.ok) {
+      return '<p class="err-text small" style="margin:10px 0 0">' +
+        esc(srvMsg(r) || t("sens_failed")) + "</p>";
+    }
+    var cm = Math.round(r.cm360 * 100) / 100;
+    var stats = '<div class="sens-stats">' +
+      '<div class="sens-stat"><div class="sens-stat-label">' + esc(t("sens_cm360")) +
+      '</div><div class="sens-stat-value mono">' + esc(dec(cm)) + ' <span class="sens-unit">cm</span></div>' +
+      '<div class="sens-stat-note">' + esc(t("sens_cm360_note")) + "</div></div>";
+    if (r.edpi !== null && r.edpi !== undefined) {
+      stats += '<div class="sens-stat"><div class="sens-stat-label">' + esc(t("sens_edpi")) +
+        '</div><div class="sens-stat-value mono">' + esc(dec(r.edpi)) + "</div>" +
+        '<div class="sens-stat-note">' + esc(t("sens_edpi_note")) + "</div></div>";
+    }
+    stats += "</div>";
+    var rows = (r.conversions || []).map(function (c) {
+      var game = sensGameById(c.game_id);
+      var note = game ? tr(game, "unit_note") : "";
+      return "<tr><td><div>" + esc(c.name) + "</div>" +
+        (note ? '<div class="muted small">' + esc(note) + "</div>" : "") + "</td>" +
+        '<td class="mono sens-value">' + esc(dec(c.sens)) + "</td></tr>";
+    }).join("");
+    return stats + '<table class="table"><thead><tr><th>' + esc(t("th_game")) +
+      "</th><th>" + esc(t("th_sens_conv")) + "</th></tr></thead><tbody>" + rows + "</tbody></table>";
+  }
+
+  function buildSensCard(seq) {
+    var card = byId("sens-card");
+    if (!card) { return; }
+    var games = state.sensGames || [];
+    if (!games.length) {
+      card.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("sens_unavailable")) + "</p>";
+      return;
+    }
+    if (!state.sensForm.game || !sensGameById(state.sensForm.game)) {
+      state.sensForm.game = games[0].id;
+    }
+    var selected = sensGameById(state.sensForm.game);
+    var options = games.map(function (g) {
+      return '<option value="' + esc(g.id) + '"' +
+        (g.id === state.sensForm.game ? " selected" : "") + ">" + esc(g.name) + "</option>";
+    }).join("");
+
+    card.innerHTML =
+      '<p class="muted small" style="margin-top:0">' + esc(t("sens_desc")) + "</p>" +
+      '<div class="sens-form">' +
+      '<label class="sens-field"><span>' + esc(t("sens_game")) + "</span>" +
+      '<select class="input" id="sens-game">' + options + "</select></label>" +
+      '<label class="sens-field"><span>' + esc(t("sens_sens")) + "</span>" +
+      '<input class="input" id="sens-sens" type="text" inputmode="decimal" value="' +
+      esc(state.sensForm.sens) + '" placeholder="2.0"></label>' +
+      '<label class="sens-field"><span>' + esc(t("sens_dpi")) + "</span>" +
+      '<input class="input" id="sens-dpi" type="text" inputmode="numeric" value="' +
+      esc(state.sensForm.dpi) + '" placeholder="800"></label>' +
+      '<button class="btn btn-primary btn-sm" id="btn-sens-convert" type="button">' +
+      esc(t("sens_convert")) + "</button>" +
+      "</div>" +
+      '<p class="muted small sens-unit-note" id="sens-unit-note">' +
+      esc(selected ? tr(selected, "unit_note") : "") + "</p>" +
+      (state.sensError ? '<p class="err-text small" id="sens-error">' + esc(state.sensError) + "</p>" : "") +
+      '<div id="sens-result">' + sensResultHtml() + "</div>";
+
+    byId("sens-game").addEventListener("change", function (e) {
+      state.sensForm.game = e.target.value;
+      var g = sensGameById(state.sensForm.game);
+      var noteEl = byId("sens-unit-note");
+      if (noteEl) { noteEl.textContent = g ? tr(g, "unit_note") : ""; }
+    });
+    byId("sens-sens").addEventListener("input", function (e) { state.sensForm.sens = e.target.value; });
+    byId("sens-dpi").addEventListener("input", function (e) { state.sensForm.dpi = e.target.value; });
+    byId("btn-sens-convert").addEventListener("click", function () { doSensConvert(seq); });
+    byId("sens-sens").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doSensConvert(seq); }
+    });
+    byId("sens-dpi").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); doSensConvert(seq); }
+    });
+  }
+
+  var SENS_MAX = 1000;   /* au-delà, conversions sans sens physique */
+
+  async function doSensConvert(seq) {
+    /* Le rendu remplace toute la carte : le champ ou le bouton focalisé
+       (Entrée, clic) est retrouvé par son id, le focus clavier ne retombe
+       jamais sur <body>. */
+    var prevId = document.activeElement && document.activeElement.id ? document.activeElement.id : null;
+    function rebuild() {
+      buildSensCard(seq);
+      var el = prevId ? byId(prevId) : null;
+      if (el && !el.disabled) {
+        try { el.focus({ preventScroll: true }); } catch (e) { /* focus impossible */ }
+      }
+    }
+    /* Validation côté client : 0 < sens ≤ 1000 (même borne que le serveur),
+       DPI entier 100..26000. */
+    var sensRaw = String(state.sensForm.sens || "").trim().replace(",", ".");
+    var sens = Number(sensRaw);
+    if (!sensRaw || !isFinite(sens) || sens <= 0 || sens > SENS_MAX) {
+      state.sensError = t(sensRaw && isFinite(sens) && sens > SENS_MAX ? "sens_err_range" : "sens_err_sens");
+      state.sensResult = null;
+      rebuild();
+      return;
+    }
+    var dpiRaw = String(state.sensForm.dpi || "").trim();
+    var dpi = Number(dpiRaw);
+    if (!dpiRaw || !isFinite(dpi) || Math.floor(dpi) !== dpi || dpi < 100 || dpi > 26000) {
+      state.sensError = t("sens_err_dpi");
+      state.sensResult = null;
+      rebuild();
+      return;
+    }
+    state.sensError = null;
+    var btn = byId("btn-sens-convert");
+    setBusy(btn, t("sens_converting"));
+    try {
+      state.sensResult = await api("/api/sens/convert",
+        { body: { game: state.sensForm.game, sens: sens, dpi: dpi } });
+    } catch (e) {
+      state.sensResult = { ok: false, message: t("sens_failed") };
+    }
+    clearBusy(btn);
+    if (!alive(seq)) { return; }
+    rebuild();
+  }
+
+  /* ---- Encart « Viseurs CS2 » ---- */
+
+  /** Aperçu SVG d'un viseur dessiné depuis ses paramètres, sur damier neutre. */
+  function crosshairSvg(entryId, p) {
+    p = p || {};
+    var K_LEN = 5;      /* longueur : size × 5 px */
+    var K_TH = 3;       /* épaisseur : thickness × 3 px */
+    var cx = 32, cy = 32;
+    var len = Math.max(1, (Number(p.size) || 0) * K_LEN);
+    var th = Math.max(1.5, (Number(p.thickness) || 0.5) * K_TH);
+    /* CS2 : l'écart visuel vaut environ (4 + gap) ; jamais négatif à l'écran. */
+    var gap = Number(p.gap) || 0;
+    var off = Math.max(0, (4 + gap)) * 1.5;
+    var color = /^#[0-9a-fA-F]{6}$/.test(String(p.color || "")) ? p.color : "#00ff00";
+    var stroke = p.outline ? ' stroke="#000000" stroke-width="1"' : "";
+
+    function rect(x, y, w, h) {
+      return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) +
+        '" height="' + h.toFixed(1) + '" fill="' + color + '"' + stroke + "/>";
+    }
+    var parts =
+      rect(cx - off - len, cy - th / 2, len, th) +   /* gauche */
+      rect(cx + off, cy - th / 2, len, th) +         /* droite */
+      rect(cx - th / 2, cy - off - len, th, len) +   /* haut */
+      rect(cx - th / 2, cy + off, th, len);          /* bas */
+    if (p.dot) { parts += rect(cx - th / 2, cy - th / 2, th, th); }
+
+    var pid = "chk-" + String(entryId).replace(/[^a-z0-9_-]/gi, "");
+    return '<svg class="xhair-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+      '<defs><pattern id="' + pid + '" width="16" height="16" patternUnits="userSpaceOnUse">' +
+      '<rect width="16" height="16" fill="#75787c"/>' +
+      '<rect width="8" height="8" fill="#6a6d71"/><rect x="8" y="8" width="8" height="8" fill="#6a6d71"/>' +
+      "</pattern></defs>" +
+      '<rect width="64" height="64" rx="6" fill="url(#' + pid + ')"/>' + parts + "</svg>";
+  }
+
+  async function loadCrosshairs(seq) {
+    if (!state.crosshairs) {
+      try {
+        var res = await api("/api/crosshairs");
+        state.crosshairs = (res && res.crosshairs) || [];
+      } catch (e) {
+        var areaErr = byId("xhair-area");
+        if (alive(seq) && areaErr) {
+          areaErr.innerHTML = '<p class="muted small">' + esc(t("xhair_unavailable")) + "</p>";
+        }
+        return;
+      }
+    }
+    if (!alive(seq)) { return; }
+    buildCrosshairArea(seq);
+  }
+
+  function buildCrosshairArea(seq) {
+    var area = byId("xhair-area");
+    if (!area) { return; }
+    var list = state.crosshairs || [];
+    if (!list.length) {
+      area.innerHTML = '<p class="muted small">' + esc(t("xhair_unavailable")) + "</p>";
+      return;
+    }
+    var cards = list.map(function (c, i) {
+      var codeBlock = c.code ?
+        '<div class="mono-block xhair-code"><pre>' + esc(c.code) + "</pre></div>" : "";
+      return '<div class="card xhair-card">' +
+        '<div class="xhair-head">' +
+        '<div class="xhair-preview">' + crosshairSvg(c.id || i, c.params) + "</div>" +
+        '<div class="xhair-meta">' +
+        '<div class="card-title">' + esc(tf("xhair_inspired", { p: c.player || c.id })) + "</div>" +
+        '<div class="muted small">' + esc(tr(c, "style")) + "</div>" +
+        "</div></div>" +
+        codeBlock +
+        '<div class="xhair-actions">' +
+        (c.code ? '<button class="btn btn-sm" data-copy-code="' + i + '" type="button">' +
+          icon("copy") + " " + esc(t("xhair_copy_code")) + "</button>" : "") +
+        (c.console ? '<button class="btn btn-sm" data-copy-console="' + i + '" type="button">' +
+          esc(t("xhair_copy_console")) + "</button>" : "") +
+        "</div></div>";
+    }).join("");
+    area.innerHTML = '<div class="grid xhair-grid">' + cards + "</div>" +
+      '<p class="muted small" style="margin:10px 0 0">' + esc(t("xhair_howto")) + "</p>";
+
+    $all("[data-copy-code]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var entry = list[Number(btn.dataset.copyCode)];
+        copyText(entry && entry.code ? entry.code : "", btn);
+      });
+    });
+    $all("[data-copy-console]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var entry = list[Number(btn.dataset.copyConsole)];
+        copyText(entry && entry.console ? entry.console : "", btn);
+      });
+    });
+  }
+
+  /* ---- Encart « Coffre de configurations » ---- */
+
+  async function loadVault(seq, refresh) {
+    if (!state.vault || refresh) {
+      try {
+        state.vault = await api("/api/vault");
+      } catch (e) {
+        var cardErr = byId("vault-card");
+        if (alive(seq) && cardErr) {
+          cardErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("vault_unavailable")) + "</p>";
+        }
+        return;
+      }
+      /* Ne garde cochées que des cibles encore détectées. */
+      var found = {};
+      ((state.vault && state.vault.targets) || []).forEach(function (x) {
+        if (x.found) { found[x.game_id] = true; }
+      });
+      Array.from(state.vaultSelection).forEach(function (id) {
+        if (!found[id]) { state.vaultSelection.delete(id); }
+      });
+    }
+    if (!alive(seq)) { return; }
+    buildVaultCard(seq);
+  }
+
+  function buildVaultCard(seq) {
+    var card = byId("vault-card");
+    if (!card) { return; }
+    var data = state.vault || {};
+    var targets = data.targets || [];
+    var backups = data.backups || [];
+    var anyFound = targets.some(function (x) { return x.found; });
+
+    var targetRows = targets.map(function (x) {
+      var badge = x.found ?
+        '<span class="badge badge-green">' + esc(t("badge_detected")) + "</span>" :
+        '<span class="badge badge-gray">' + esc(t("badge_not_detected")) + "</span>";
+      return "<tr>" +
+        '<td><input type="checkbox" class="vault-check" data-id="' + esc(x.game_id) + '"' +
+        (state.vaultSelection.has(x.game_id) ? " checked" : "") + (x.found ? "" : " disabled") + "></td>" +
+        "<td>" + esc(x.name) + "</td>" +
+        "<td>" + badge + "</td>" +
+        '<td class="mono">' + (x.found ? esc(fmtMb(x.size_mb)) : "—") + "</td></tr>";
+    }).join("");
+
+    var html =
+      '<p class="muted small" style="margin-top:0">' + esc(t("vault_desc")) + "</p>" +
+      '<div class="table-scroll"><table class="table vault-targets"><thead><tr><th></th><th>' + esc(t("th_game")) + "</th><th>" +
+      esc(t("th_state")) + "</th><th>" + esc(t("th_size")) + "</th></tr></thead><tbody>" +
+      targetRows + "</tbody></table></div>" +
+      '<div class="vault-foot">' +
+      (anyFound ? "" : '<span class="muted small">' + esc(t("vault_none_found")) + "</span>") +
+      '<span class="spacer"></span>' +
+      '<button class="btn btn-primary btn-sm" id="btn-vault-backup" type="button"' +
+      (anyFound ? "" : " disabled") + ">" + esc(t("vault_backup_now")) + "</button></div>" +
+      '<div class="group-label vault-sub">' + esc(t("vault_backups_title")) + "</div>";
+
+    if (!backups.length) {
+      html += '<p class="muted small" style="margin:0">' + esc(t("vault_no_backups")) + "</p>";
+    } else {
+      var backupRows = backups.map(function (b, i) {
+        return "<tr>" +
+          '<td class="mono">' + esc(String(b.ts || "").replace("T", " ")) + "</td>" +
+          '<td class="mono">' + esc(fmtMb(b.size_mb)) + "</td>" +
+          "<td>" + (b.games || []).map(function (g) {
+            return '<span class="badge badge-gray">' + esc(g) + "</span>";
+          }).join(" ") + "</td>" +
+          '<td class="vault-actions">' +
+          '<button class="btn btn-sm" data-vault-restore="' + i + '" type="button">' +
+          esc(t("vault_restore")) + "</button>" +
+          '<button class="btn btn-sm btn-danger" data-vault-delete="' + i + '" type="button">' +
+          esc(t("del")) + "</button></td></tr>";
+      }).join("");
+      /* Conteneur défilant : à petite largeur (téléphone, mode --server), le
+         tableau défile dans la carte au lieu de faire déborder la page. */
+      html += '<div class="table-scroll"><table class="table vault-backups"><thead><tr><th>' + esc(t("th_date")) + "</th><th>" +
+        esc(t("th_size")) + "</th><th>" + esc(t("th_games")) + "</th><th></th></tr></thead><tbody>" +
+        backupRows + "</tbody></table></div>";
+    }
+    card.innerHTML = html;
+
+    $all(".vault-check", card).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        if (cb.checked) { state.vaultSelection.add(cb.dataset.id); }
+        else { state.vaultSelection.delete(cb.dataset.id); }
+      });
+    });
+
+    var backupBtn = byId("btn-vault-backup");
+    if (backupBtn) {
+      backupBtn.addEventListener("click", async function () {
+        var foundIds = targets.filter(function (x) { return x.found; })
+          .map(function (x) { return x.game_id; });
+        var checked = foundIds.filter(function (id) { return state.vaultSelection.has(id); });
+        /* Rien de coché : tout sauvegarder (ids absents). */
+        var body = checked.length ? { ids: checked } : {};
+        setBusy(backupBtn, t("vault_backing_up"));
+        try {
+          var res = await api("/api/vault/backup", { body: body });
+          showBanner(srvMsg(res), res.ok ? "ok" : "error");
+          if (res.ok) { loadVault(seq, true); return; }
+        } catch (e) { /* bandeau déjà affiché */ }
+        clearBusy(backupBtn);
+      });
+    }
+
+    $all("[data-vault-restore]", card).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var b = backups[Number(btn.dataset.vaultRestore)];
+        if (!b) { return; }
+        openModal({
+          title: t("vault_restore_title"),
+          bodyHtml: "<p>" + esc(tf("vault_restore_body", { id: b.id })) + "</p>",
+          confirmLabel: t("vault_restore"),
+          onConfirm: async function () {
+            setBusy(btn, t("vault_restoring"));
+            try {
+              var res = await api("/api/vault/restore", { body: { id: b.id } });
+              showBanner(srvMsg(res), res.ok ? "ok" : "error");
+              if (res.ok) { loadVault(seq, true); return; }
+            } catch (e) { /* bandeau déjà affiché */ }
+            clearBusy(btn);
+          }
+        });
+      });
+    });
+
+    $all("[data-vault-delete]", card).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var b = backups[Number(btn.dataset.vaultDelete)];
+        if (!b) { return; }
+        openModal({
+          title: t("vault_delete_title"),
+          bodyHtml: "<p>" + esc(tf("vault_delete_body", { id: b.id })) + "</p>",
+          confirmLabel: t("del"),
+          danger: true,
+          onConfirm: async function () {
+            setBusy(btn, t("vault_deleting"));
+            try {
+              var res = await api("/api/vault/delete", { body: { id: b.id } });
+              showBanner(srvMsg(res), res.ok ? "ok" : "error");
+              if (res.ok) { loadVault(seq, true); return; }
+            } catch (e) { /* bandeau déjà affiché */ }
+            clearBusy(btn);
+          }
+        });
+      });
+    });
+  }
+
   function buildGameDetail(seq) {
     var area = byId("game-detail-area");
     if (!area) { return; }
     var game = null;
     (state.games || []).forEach(function (g) { if (g.id === state.selectedGame) { game = g; } });
     if (!game) { area.innerHTML = ""; return; }
+    /* La fiche s'ouvre là où l'on a cliqué : sous la carte CS2 « à la une »,
+       sinon sous la bibliothèque. */
+    var anchor = game.id === "cs2" ? byId("cs2-hero") : $("#games-area .games-credit");
+    if (anchor && anchor.nextElementSibling !== area) { anchor.insertAdjacentElement("afterend", area); }
 
-    var html = '<div class="card game-detail">' +
-      '<div class="game-detail-head"><div><h2>' + esc(game.name) + "</h2>" +
-      '<span class="muted small">' + esc(storeLabel(game.store)) +
-      (game.installed && game.install_path ? ' · <span class="mono mono-inline">' + esc(game.install_path) + "</span>" : "") +
-      "</span></div>" +
-      '<button class="btn btn-ghost btn-sm" id="btn-game-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>";
+    /* Bandeau d'en-tête : visuel « hero » + logo (sinon le nom en grand). */
+    var hasLogo = artHas(game.id, "logo") !== false;
+    var html = '<div class="card game-detail has-banner" data-detail-game="' + esc(game.id) + '">' +
+      '<div class="gd-banner">' + artBoxHtml(game.id, "wide", game.name) +
+      '<span class="gd-veil" aria-hidden="true"></span>' +
+      /* Personnage détouré (ex. Valorant) posé à droite du bandeau. */
+      (artHas(game.id, "portrait") ? '<img class="gd-portrait" src="' + esc(artUrl(game.id, "portrait")) +
+        '" alt="" decoding="async" draggable="false" data-portrait>' : "") +
+      '<div class="gd-banner-body' + (hasLogo ? " has-logo" : "") + '">' + logoHtml(game.id, "gd-logo") +
+      "<h2 class=\"gd-name\">" + esc(game.name) + "</h2>" +
+      '<div class="gd-meta">' + storeChipHtml(game) +
+      (game.installed ? detectedChipHtml() : '<span class="gchip gchip-muted">' + esc(t("badge_not_detected")) + "</span>") +
+      "</div></div>" +
+      '<button class="btn btn-ghost btn-sm gd-close" id="btn-game-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      (game.installed && game.install_path ?
+        '<div class="gd-path muted small"><span class="mono mono-inline">' + esc(game.install_path) + "</span></div>" : "");
 
     if (game.launch_options) {
       html += '<div class="group-label">' + esc(t("launch_options")) + "</div>" +
@@ -1897,22 +4710,60 @@
     area.innerHTML = html;
 
     byId("btn-game-close").addEventListener("click", function () {
-      state.selectedGame = null;
-      buildGamesArea(seq);
+      var closedId = state.selectedGame;
+      selectGame(null, seq, false);
+      /* Focus rendu à la jaquette (ou au bouton « Voir la fiche » de CS2). */
+      var back = $('#games-grid .game-card[data-game="' + closedId + '"]') || $('[data-open-game="' + closedId + '"]');
+      if (back) { try { back.focus(); } catch (eF) { /* focus impossible : sans effet */ } }
     });
     bindCopyButtons(area);
+    mountArt(area);
 
     if (game.id === "cs2") { loadCs2Panel(seq); }
   }
 
-  async function loadCs2Panel(seq) {
-    if (!state.cs2) {
+  /* ---- Panneau CS2 : tiers matériels (« Pour ta machine ») ---- */
+
+  /** Tiers reconnus, alignés sur TIERS côté serveur (cs2.py). */
+  var CS2_TIERS = ["lowend", "midrange", "highend"];
+
+  function cs2TierLabel(tier) {
+    return CS2_TIERS.indexOf(tier) >= 0 ? t("tier_" + tier) : (tier || "");
+  }
+
+  /** Libellé du tier effectif d'un plan Boost CS2 : tier forcé → son libellé,
+      jamais celui de la détection (tier_info) qui peut différer. */
+  function cs2bTierLabel(plan, info) {
+    if (!plan) { return "—"; }
+    var lbl = tr(plan, "tier_label");
+    if (lbl) { return lbl; }
+    if (plan.tier_source === "forced") { return cs2TierLabel(plan.tier) || "—"; }
+    return tr(info || {}, "label") || cs2TierLabel(plan.tier) || "—";
+  }
+
+  /** Réglages vidéo applicables ET différents de la valeur actuelle du joueur. */
+  function cs2VideoDiffs(info) {
+    var recs = (info && info.video_recommendations) || [];
+    return recs.filter(function (r) {
+      return r.applicable && r.current !== null && r.current !== undefined &&
+        String(r.current) !== String(r.recommended);
+    });
+  }
+
+  async function loadCs2Panel(seq, refresh) {
+    if (!state.cs2 || refresh) {
+      var box0 = byId("cs2-panel");
+      if (box0) { box0.innerHTML = '<div class="loading-line">' + esc(t("cs2_loading")) + "</div>"; }
       try {
-        state.cs2 = await api("/api/games/cs2");
+        var q = state.cs2Tier ? "?tier=" + encodeURIComponent(state.cs2Tier) : "";
+        state.cs2 = await api("/api/games/cs2" + q);
       } catch (e) {
         var boxErr = byId("cs2-panel");
         if (boxErr) { boxErr.innerHTML = '<p class="muted small">' + esc(t("cs2_unavailable")) + "</p>"; }
         return;
+      }
+      if (!state.cs2Tier && state.cs2 && CS2_TIERS.indexOf(state.cs2.selected_tier) >= 0) {
+        state.cs2Tier = state.cs2.selected_tier;
       }
     }
     if (!alive(seq)) { return; }
@@ -1922,8 +4773,31 @@
     bindCs2Panel(seq);
   }
 
+  /** Résultat persistant du dernier POST /api/games/cs2/video. */
+  function cs2VideoResultHtml() {
+    var res = state.cs2VideoResult;
+    if (!res) { return ""; }
+    var html = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(srvMsg(res)) + "</span>";
+    var changed = res.changed || [];
+    if (changed.length) {
+      html += '<div class="muted small" style="margin-top:4px">' + esc(t("cs2_res_changed")) + " : " +
+        changed.map(function (c) {
+          return '<span class="mono mono-inline">' + esc(c.key) + " " +
+            esc(c.old === null || c.old === undefined ? "—" : c.old) + " → " + esc(c.new) + "</span>";
+        }).join(" ") + "</div>";
+    }
+    var skipped = res.skipped || [];
+    if (res.ok && skipped.length) {
+      html += '<div class="muted small" style="margin-top:2px">' + esc(t("cs2_res_skipped")) + " : " +
+        skipped.length + "</div>";
+    }
+    return html;
+  }
+
   function cs2PanelHtml(info) {
     var profiles = (info && info.userdata_profiles) || [];
+    var tierInfo = (info && info.tier) || {};
+    var selTier = (info && CS2_TIERS.indexOf(info.selected_tier) >= 0) ? info.selected_tier : "midrange";
     var html = '<div class="group-label">' + esc(t("cs2_config")) + "</div>";
 
     if (!profiles.length) {
@@ -1938,36 +4812,126 @@
           '<span class="muted small mono clean-path" title="' + esc(p.cfg_dir) + '">' + esc(p.cfg_dir) + "</span>" +
           "</div>";
       }).join("");
-
-      var select = "";
-      if (profiles.length > 1) {
-        select = '<select class="input" id="cs2-user">' + profiles.map(function (p) {
-          return '<option value="' + esc(p.user_id) + '">' + esc(t("cs2_profile")) + " " + esc(p.user_id) + "</option>";
-        }).join("") + "</select> ";
-      }
-      html += '<div class="quick-actions" style="margin-top:12px">' + select +
-        '<button class="btn btn-primary btn-sm" id="btn-cs2-write" type="button">' + esc(t("cs2_write")) + "</button></div>" +
-        '<div class="small" id="cs2-write-result" style="margin-top:8px"></div>';
     }
 
+    /* ---- « Pour ta machine » : tier détecté, sélecteur, conseils ---- */
+    var reasons = (LANG === "en" && Array.isArray(tierInfo.reasons_en) && tierInfo.reasons_en.length) ?
+      tierInfo.reasons_en : (tierInfo.reasons || []);
+    var tierSeg = '<div class="seg" id="cs2-tier-seg" role="group" aria-label="' + esc(t("cs2_tier_select")) + '">' +
+      CS2_TIERS.map(function (tierId) {
+        var on = tierId === selTier;
+        return '<button type="button" data-tier="' + tierId + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+          (on ? ' class="active"' : "") + ">" + esc(cs2TierLabel(tierId)) + "</button>";
+      }).join("") + "</div>";
+
+    html += '<div class="group-label">' + esc(t("cs2_machine_group")) + "</div>" +
+      '<div class="cs2-machine">' +
+      '<div class="cs2-tier-head">' +
+      '<div><div class="muted small">' + esc(t("cs2_tier_detected")) + "</div>" +
+      '<div class="cs2-tier-label">' + esc(tr(tierInfo, "label") || cs2TierLabel(tierInfo.tier)) + "</div></div>" +
+      '<div class="cs2-tier-select"><div class="muted small">' + esc(t("cs2_tier_select")) + "</div>" +
+      tierSeg + "</div></div>" +
+      (reasons.length ?
+        '<details class="fold cs2-reasons"><summary>' + esc(t("cs2_tier_reasons")) + "</summary>" +
+        '<div class="fold-body"><ul class="muted small">' + reasons.map(function (r) {
+          return "<li>" + esc(frDecUnits(r)) + "</li>";
+        }).join("") + "</ul></div></details>" : "");
+
+    var advice = (info && info.advice) || [];
+    if (advice.length) {
+      var kindMeta = {
+        reco: { key: "advice_kind_reco", cls: "badge-blue" },
+        opinion: { key: "advice_kind_opinion", cls: "badge-yellow" },
+        info: { key: "advice_kind_info", cls: "badge-gray" }
+      };
+      html += '<ul class="cs2-advice">' + advice.map(function (a) {
+        var meta = kindMeta[a.kind] || kindMeta.info;
+        return '<li><div class="advice-title"><span class="badge ' + meta.cls + '">' +
+          esc(t(meta.key)) + "</span> " + esc(tr(a, "title")) + "</div>" +
+          '<div class="advice-detail">' + esc(tr(a, "detail")) + "</div></li>";
+      }).join("") + "</ul>";
+    }
+    html += "</div>";
+
+    /* ---- Réglages vidéo : comparaison actuel → recommandé + application ---- */
+    var recs = (info && info.video_recommendations) || [];
+    var diffs = cs2VideoDiffs(info);
+    if (recs.length) {
+      html += '<div class="group-label">' + esc(t("cs2_video_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(selTier)) + "</span></div>" +
+        '<p class="muted small" style="margin-top:0">' +
+        esc(info.video_settings ? t("cs2_video_read") : t("cs2_video_not_read")) + "</p>" +
+        '<div class="table-scroll"><table class="table cs2-video-table"><thead><tr><th>' + esc(t("th_param")) + "</th><th>" +
+        esc(t("th_current")) + "</th><th>" + esc(t("th_recommended")) + "</th><th>" +
+        esc(t("th_note")) + "</th></tr></thead><tbody>" +
+        recs.map(function (r) {
+          var current = r.current === null || r.current === undefined ? "—" : String(r.current);
+          var reco = r.recommended === null || r.recommended === undefined ? "—" : String(r.recommended);
+          var differs = r.applicable && current !== "—" && reco !== "—" && current !== reco;
+          var same = r.applicable && current !== "—" && current === reco;
+          var recoCell;
+          if (differs) {
+            recoCell = '<span class="val-arrow">→</span><span class="mono val-diff">' + esc(reco) + "</span>";
+          } else if (same) {
+            recoCell = '<span class="mono">' + esc(reco) + '</span> <span class="badge badge-green">' +
+              esc(t("cs2_val_same")) + "</span>";
+          } else {
+            recoCell = '<span class="mono">' + esc(reco) + "</span>";
+          }
+          var noteBits = [];
+          var note = tr(r, "note");
+          if (note) { noteBits.push(esc(note)); }
+          /* skip_reason masqué sur les réglages protégés : la note le dit déjà. */
+          if (!r.applicable && r.skip_reason && !r.protected) {
+            /* Statut (raison de non-application) distinct de l'explication. */
+            noteBits.push('<span class="cs2-skip">' + esc(srvMsg(r, "skip_reason")) + "</span>");
+          }
+          var menu = tr(r, "menu_path");
+          return "<tr><td><div>" + esc(tr(r, "label")) + "</div>" +
+            (menu ? '<span class="cs2-menu-path">' + esc(menu) + "</span>" : "") + "</td>" +
+            '<td class="mono">' + esc(current) + "</td>" +
+            '<td class="cs2-reco-cell">' + recoCell + "</td>" +
+            '<td class="muted small">' + noteBits.join("") + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+
+      var applyDisabled = !info.video_settings || !profiles.length || !diffs.length;
+      html += '<div class="quick-actions" style="margin-top:12px">' +
+        '<button class="btn btn-primary btn-sm" id="btn-cs2-video-apply" type="button"' +
+        (applyDisabled ? " disabled" : "") + ">" + esc(t("cs2_apply_video")) + "</button>" +
+        (info.video_settings && profiles.length && !diffs.length ?
+          '<span class="muted small">' + esc(t("cs2_apply_none")) + "</span>" : "") +
+        "</div>" +
+        '<div class="small" id="cs2-video-result" style="margin-top:8px">' + cs2VideoResultHtml() + "</div>";
+    }
+
+    /* ---- Autoexec par tier : sélecteur de profil, écriture, aperçu ---- */
     if (info && info.autoexec_recommended) {
+      html += '<div class="group-label">' + esc(t("cs2_autoexec_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(selTier)) + "</span></div>";
+      if (profiles.length) {
+        var select = "";
+        if (profiles.length > 1) {
+          select = '<select class="input" id="cs2-user">' + profiles.map(function (p) {
+            return '<option value="' + esc(p.user_id) + '">' + esc(t("cs2_profile")) + " " + esc(p.user_id) + "</option>";
+          }).join("") + "</select> ";
+        }
+        html += '<div class="quick-actions">' + select +
+          '<button class="btn btn-primary btn-sm" id="btn-cs2-write" type="button">' + esc(t("cs2_write")) + "</button></div>" +
+          '<div class="small" id="cs2-write-result" style="margin-top:8px"></div>';
+      }
       html += '<details class="fold"><summary>' + esc(t("cs2_preview")) + "</summary>" +
         '<div class="fold-body"><div class="mono-block"><pre>' + esc(info.autoexec_recommended) + "</pre>" +
         '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div></div></details>";
     }
 
-    var recs = (info && info.video_recommendations) || [];
-    if (recs.length) {
-      html += '<div class="group-label">' + esc(t("cs2_video_group")) + "</div>";
-      if (!info.video_settings) {
-        html += '<p class="muted small">' + esc(t("cs2_video_not_read")) + "</p>";
-      }
-      html += '<table class="table"><thead><tr><th>' + esc(t("th_param")) + "</th><th>" + esc(t("th_current")) +
-        "</th><th>" + esc(t("th_recommended")) + "</th><th>" + esc(t("th_note")) + "</th></tr></thead><tbody>" +
-        recs.map(function (r) {
-          return '<tr><td class="mono">' + esc(r.key) + '</td><td class="mono">' + esc(r.current === null || r.current === undefined ? "—" : r.current) +
-            '</td><td class="mono">' + esc(r.recommended) + '</td><td class="muted small">' + esc(tr(r, "note")) + "</td></tr>";
-        }).join("") + "</tbody></table>";
+    /* ---- Options de lancement du tier sélectionné ---- */
+    var launch = (info && info.launch_options) || null;
+    if (launch && launch.options) {
+      html += '<div class="group-label">' + esc(t("cs2_launch_group")) +
+        ' <span class="badge badge-blue">' + esc(cs2TierLabel(launch.tier || selTier)) + "</span></div>" +
+        '<div class="mono-block"><pre>' + esc(launch.options) + "</pre>" +
+        '<button class="btn btn-sm copy-btn" type="button">' + icon("copy") + " " + esc(t("copy")) + "</button></div>" +
+        (tr(launch, "note") ? '<p class="muted small">' + esc(tr(launch, "note")) + "</p>" : "");
     }
     return html;
   }
@@ -1976,6 +4940,67 @@
     var panel = byId("cs2-panel");
     if (!panel) { return; }
     bindCopyButtons(panel);
+    var info = state.cs2 || {};
+    var selTier = CS2_TIERS.indexOf(info.selected_tier) >= 0 ? info.selected_tier : "midrange";
+
+    /* Sélecteur de tier : recharge le panneau résolu pour ce tier. */
+    $all("#cs2-tier-seg button", panel).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var tier = btn.dataset.tier;
+        if (!tier || tier === state.cs2Tier) { return; }
+        state.cs2Tier = tier;
+        state.cs2VideoResult = null;
+        loadCs2Panel(seq, true);
+      });
+    });
+
+    /* Application sécurisée du plan vidéo (modale de confirmation). */
+    var applyBtn = byId("btn-cs2-video-apply");
+    if (applyBtn) {
+      applyBtn.addEventListener("click", function () {
+        var diffs = cs2VideoDiffs(info);
+        if (!diffs.length) { return; }
+        var listHtml = "<ul>" + diffs.map(function (r) {
+          return "<li>" + esc(tr(r, "label")) + ' : <span class="mono mono-inline">' +
+            esc(r.current) + " → " + esc(r.recommended) + "</span></li>";
+        }).join("") + "</ul>";
+        openModal({
+          title: t("cs2_apply_video"),
+          bodyHtml: "<p>" +
+            esc(tf(diffs.length > 1 ? "cs2_apply_count_many" : "cs2_apply_count_one",
+              { n: diffs.length, t: cs2TierLabel(selTier) })) + "</p>" + listHtml +
+            "<p>" + esc(t("cs2_apply_video_body")) + "</p>",
+          confirmLabel: t("cs2_apply_video"),
+          onConfirm: async function () {
+            var sel = byId("cs2-user");
+            var userId = sel ? sel.value : null;
+            var btn2 = byId("btn-cs2-video-apply");
+            setBusy(btn2, t("applying"));
+            var res;
+            try {
+              res = await api("/api/games/cs2/video", { body: { user_id: userId, tier: selTier } });
+            } catch (e) {
+              clearBusy(btn2);
+              return;
+            }
+            state.cs2VideoResult = res;
+            /* Refus serveur (CS2 lancé, fichier absent…) : le message exact
+               du serveur est affiché, en bandeau et sous le bouton. */
+            showBanner(srvMsg(res), res.ok ? "ok" : "error");
+            if (!alive(seq)) { return; }
+            if (res.ok) {
+              loadCs2Panel(seq, true);   /* relit le fichier : comparaison à jour */
+              return;
+            }
+            clearBusy(btn2);
+            var out = byId("cs2-video-result");
+            if (out) { out.innerHTML = cs2VideoResultHtml(); }
+          }
+        });
+      });
+    }
+
+    /* Écriture de l'autoexec du tier sélectionné. */
     var writeBtn = byId("btn-cs2-write");
     if (writeBtn) {
       writeBtn.addEventListener("click", async function () {
@@ -1983,17 +5008,645 @@
         var userId = sel ? sel.value : null;
         setBusy(writeBtn, t("writing"));
         try {
-          var res = await api("/api/games/cs2/autoexec", { body: { user_id: userId } });
+          var res = await api("/api/games/cs2/autoexec", { body: { user_id: userId, tier: selTier } });
+          if (res.ok) {
+            showBanner(srvMsg(res), "ok");
+            loadCs2Panel(seq, true);
+            return;
+          }
           var out = byId("cs2-write-result");
           if (out) {
-            out.innerHTML = '<span class="' + (res.ok ? "ok-text" : "err-text") + '">' + esc(res.message || "") + "</span>" +
-              (res.ok && res.path ? ' <span class="mono mono-inline">' + esc(res.path) + "</span>" : "");
+            out.innerHTML = '<span class="err-text">' + esc(srvMsg(res)) + "</span>";
           }
-          if (res.ok) { state.cs2 = null; loadCs2Panel(seq); return; }
         } catch (e) { /* bandeau déjà affiché */ }
         clearBusy(writeBtn);
       });
     }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Boost CS2 (bandeau de la page Jeux + modale par étapes) et AMD      */
+  /* ------------------------------------------------------------------ */
+
+  /* Cases cochées des checklists (Adrenalin, Ryzen, étapes manuelles du
+     Boost CS2), mémorisées sur ce PC. Les ids suivent ceux de manual_steps
+     (« adrenalin_<id> », « ryzen_<id> »…) : une case cochée dans l'encart
+     AMD l'est aussi dans le compte rendu du Boost CS2, et inversement. */
+  var CHECKS_KEY = "overdrive-cs2-checklist";
+
+  function loadChecks() {
+    try {
+      var o = JSON.parse(localStorage.getItem(CHECKS_KEY) || "{}");
+      return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveCheck(id, on) {
+    var o = loadChecks();
+    if (on) { o[id] = 1; } else { delete o[id]; }
+    try { localStorage.setItem(CHECKS_KEY, JSON.stringify(o)); } catch (e) { /* stockage indisponible */ }
+  }
+
+  /** Barre de progression d'une checklist (« 3 / 9 faits »). */
+  function checkProgressHtml(done, total) {
+    var r = total ? done / total : 0;
+    return '<span class="check-progress' + (total && done >= total ? " is-complete" : "") + '">' +
+      '<span class="check-progress-bar"><span class="check-progress-fill" style="transform:scaleX(' + r.toFixed(3) + ')"></span></span>' +
+      '<span class="check-progress-txt">' + esc(tf("amd_progress", { d: done, n: total })) + "</span></span>";
+  }
+
+  /** Checklist cochable : {id, title, value, code, detail, where, optional, badge}. */
+  function checklistHtml(items, checks, animate) {
+    return '<ul class="check-list">' + items.map(function (it, i) {
+      var on = !!checks[it.id];
+      var value = "";
+      if (it.value) {
+        value = it.code ?
+          '<span class="check-row-code"><code>' + esc(it.value) + "</code>" +
+          '<button class="btn btn-ghost btn-sm" type="button" data-copy="' + esc(it.value) + '">' + icon("copy") + " " + esc(t("copy")) + "</button></span>" :
+          '<span class="check-row-value">' + esc(it.value) + "</span>";
+      }
+      return '<li class="check-row' + (on ? " is-done" : "") + (animate ? " cs2b-in" : "") + '"' +
+        (animate ? ' style="--i:' + Math.min(i, 16) + '"' : "") + ">" +
+        '<label class="check-row-label">' +
+        '<input type="checkbox" data-check-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" +
+        '<span class="check-row-body">' +
+        '<span class="check-row-title">' +
+        (it.badge ? '<span class="badge ' + it.badge.cls + '">' + esc(it.badge.label) + "</span>" : "") +
+        '<span class="check-row-name">' + esc(it.title) + "</span>" +
+        (it.optional ? '<span class="badge badge-outline">' + esc(t("cs2b_optional")) + "</span>" : "") + "</span>" +
+        value +
+        (it.detail ? '<span class="check-row-detail">' + esc(it.detail) + "</span>" : "") +
+        (it.where ? '<span class="check-row-where">' + icon("right") + "<span>" + esc(it.where) + "</span></span>" : "") +
+        "</span></label></li>";
+    }).join("") + "</ul>";
+  }
+
+  /** Recalcule les barres de progression de chaque groupe [data-check-group]. */
+  function refreshCheckProgress() {
+    $all("[data-check-group]").forEach(function (group) {
+      var boxes = $all("input[data-check-id]", group);
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      var prog = $(".check-progress", group);
+      if (!prog) { return; }
+      var r = boxes.length ? done / boxes.length : 0;
+      var fill = $(".check-progress-fill", prog);
+      if (fill) { fill.style.transform = "scaleX(" + r.toFixed(3) + ")"; }
+      var txt = $(".check-progress-txt", prog);
+      if (txt) { txt.textContent = tf("amd_progress", { d: done, n: boxes.length }); }
+      prog.classList.toggle("is-complete", boxes.length > 0 && done >= boxes.length);
+    });
+  }
+
+  /** Cases (mémorisées + synchronisées entre encart et modale) et boutons Copier. */
+  function bindChecklist(scope) {
+    $all("input[data-check-id]", scope).forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var id = cb.dataset.checkId;
+        saveCheck(id, cb.checked);
+        $all("input[data-check-id]").forEach(function (other) {
+          if (other.dataset.checkId !== id) { return; }
+          other.checked = cb.checked;
+          var row = other.closest(".check-row");
+          if (row) { row.classList.toggle("is-done", cb.checked); }
+        });
+        refreshCheckProgress();
+      });
+    });
+    $all("[data-copy]", scope).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        copyText(btn.getAttribute("data-copy") || "", btn);
+      });
+    });
+  }
+
+  /* ---- Encart « Réglages AMD Adrenalin » (GET /api/amd) ---- */
+
+  var AMD_ARCH_LABELS = {
+    rdna4: "RDNA 4", rdna3: "RDNA 3", rdna2: "RDNA 2", rdna1: "RDNA 1", vega: "Vega", polaris: "Polaris"
+  };
+
+  function amdGpuItems(d) {
+    var list = Array.isArray(d && d.checklist) ? d.checklist : [];
+    return list.filter(function (it) { return it && it.id; }).map(function (it) {
+      return {
+        id: "adrenalin_" + it.id, title: tr(it, "title"), value: tr(it, "value"),
+        detail: tr(it, "why"), where: tr(it, "where"), optional: !!it.optional
+      };
+    });
+  }
+
+  function amdCpuItems(d) {
+    var list = Array.isArray(d && d.ryzen_tips) ? d.ryzen_tips : [];
+    return list.filter(function (it) { return it && it.id; }).map(function (it) {
+      return { id: "ryzen_" + it.id, title: tr(it, "title"), detail: tr(it, "detail") };
+    });
+  }
+
+  /** Encart repliable ; vide si ni GPU Radeon ni Ryzen récent. */
+  function amdSectionHtml() {
+    var d = state.amd;
+    if (!d || typeof d !== "object") { return ""; }
+    var gpuItems = amdGpuItems(d);
+    var cpuItems = amdCpuItems(d);
+    if (!gpuItems.length && !cpuItems.length) { return ""; }
+    var checks = loadChecks();
+    var all = gpuItems.concat(cpuItems);
+    var done = all.filter(function (x) { return !!checks[x.id]; }).length;
+    var arch = d.arch ? (AMD_ARCH_LABELS[d.arch] || t("amd_arch_other")) : "";
+    return '<details class="fold amd-fold" id="amd-fold" data-check-group="amd"' + (state.amdOpen ? " open" : "") + ">" +
+      '<summary><span class="amd-sum-title">' + esc(gpuItems.length ? t("amd_title") : t("amd_ryzen_only_title")) + "</span>" +
+      (arch ? '<span class="badge badge-gray">' + esc(arch) + "</span>" : "") +
+      '<span class="spacer"></span>' + checkProgressHtml(done, all.length) + "</summary>" +
+      '<div class="fold-body">' +
+      (gpuItems.length ?
+        '<p class="muted small amd-intro">' + esc(t("amd_sub")) +
+        (d.gpu ? ' <span class="mono mono-inline">' + esc(d.gpu) + "</span>" : "") + "</p>" +
+        checklistHtml(gpuItems, checks) : "") +
+      (cpuItems.length ?
+        '<div class="amd-subhead">' + esc(t("amd_ryzen_title")) +
+        (d.cpu ? ' <span class="mono mono-inline">' + esc(d.cpu) + "</span>" : "") + "</div>" +
+        checklistHtml(cpuItems, checks) : "") +
+      '<div class="amd-foot"><button class="btn btn-ghost btn-sm" id="amd-reset" type="button">' +
+      esc(t("amd_reset")) + "</button></div>" +
+      "</div></details>";
+  }
+
+  function bindAmdSection() {
+    var area = byId("amd-area");
+    if (!area) { return; }
+    var fold = byId("amd-fold");
+    if (fold) { fold.addEventListener("toggle", function () { state.amdOpen = fold.open; }); }
+    bindChecklist(area);
+    var reset = byId("amd-reset");
+    if (reset) {
+      reset.addEventListener("click", function () {
+        $all("input[data-check-id]", area).forEach(function (cb) {
+          if (!cb.checked) { return; }
+          cb.checked = false;
+          cb.dispatchEvent(new Event("change"));
+        });
+      });
+    }
+  }
+
+  /** Lecture silencieuse (pas de bandeau) : l'encart n'apparaît que s'il y a du contenu. */
+  async function loadAmd(seq) {
+    if (state.amdLoading) { return; }
+    state.amdLoading = true;
+    var data = null;
+    try {
+      var res = await fetch("/api/amd", { cache: "no-store" });
+      if (res.ok) { data = await res.json(); }
+    } catch (e) { data = null; }
+    state.amdLoading = false;
+    if (data && typeof data === "object") { state.amd = data; }
+    if (!alive(seq) || !state.amd) { return; }
+    var area = byId("amd-area");
+    if (!area) { return; }
+    area.innerHTML = amdSectionHtml();
+    bindAmdSection();
+  }
+
+  /* ---- Bandeau « Boost CS2 » en tête de la page Jeux ---- */
+
+  /* Vague 7 : grande carte « à la une » (visuel hero + logo CS2, parallaxe)
+     qui garde le bouton Boost CS2 (#btn-cs2-boost) et l'encart AMD. */
+  function cs2HeroHtml() {
+    var g = findGame("cs2") || { id: "cs2", name: "Counter-Strike 2", store: "steam", installed: false };
+    var sel = state.selectedGame === "cs2";
+    var hasLogo = artHas("cs2", "logo") !== false;
+    return '<div class="card cs2-hero has-art" id="cs2-hero">' +
+      '<div class="gfeat' + (sel ? " selected" : "") + '" data-game="cs2">' +
+      artBoxHtml("cs2", "wide", g.name) +
+      '<span class="gfeat-veil" aria-hidden="true"></span>' +
+      '<span class="gglare" aria-hidden="true"></span>' +
+      '<div class="gfeat-chips">' + storeChipHtml(g) + (g.installed ? detectedChipHtml() : "") + "</div>" +
+      '<div class="gfeat-body">' +
+      '<div class="gfeat-brand' + (hasLogo ? " has-logo" : "") + '">' + logoHtml("cs2", "gfeat-logo") +
+      '<span class="gfeat-name">' + esc(g.name) + "</span></div>" +
+      /* Surtitre court : le jeu est déjà nommé par le logo (ou le nom). */
+      '<div class="cs2-hero-kicker">' + esc(t("games_featured")) + "</div>" +
+      '<h2 class="cs2-hero-title">' + esc(t("cs2b_hero_title")) + "</h2>" +
+      '<p class="cs2-hero-sub">' + esc(t("cs2b_hero_sub")) + "</p>" +
+      '<div class="gfeat-actions">' +
+      '<button class="btn btn-primary cs2-boost-btn" id="btn-cs2-boost" type="button">' +
+      icon("zap") + " " + esc(t("cs2b_btn")) + "</button>" +
+      '<button class="btn gfeat-open" type="button" data-open-game="cs2" aria-controls="game-detail-area" aria-expanded="' +
+      (sel ? "true" : "false") + '">' + esc(t("game_open")) + " " + icon("right") + "</button>" +
+      "</div></div></div>" +
+      '<div id="amd-area">' + amdSectionHtml() + "</div></div>";
+  }
+
+  function bindCs2Hero(seq) {
+    var btn = byId("btn-cs2-boost");
+    if (btn) { btn.addEventListener("click", openCs2BoostModal); }
+    if (state.amd) { bindAmdSection(); } else { loadAmd(seq); }
+  }
+
+  /* ---- Modale Boost CS2 : aperçu (GET plan) → exécution (POST) → compte rendu ---- */
+
+  var CS2B_KIND_BADGE = {
+    adrenalin: "badge-blue", launch_options: "badge-gray", insight: "badge-yellow",
+    cpu: "badge-gray", lowend: "badge-blue", option: "badge-gray"
+  };
+
+  /** Tier à transmettre : seulement s'il diffère du tier détecté (choix du panneau CS2). */
+  function cs2bForcedTier() {
+    var detected = state.cs2 && state.cs2.tier ? state.cs2.tier.tier : null;
+    return state.cs2Tier && detected && state.cs2Tier !== detected ? state.cs2Tier : null;
+  }
+
+  /** Délai entre deux étapes révélées (aucun sans animation ou en jeu). */
+  function cs2bRevealDelay() {
+    if (document.documentElement.hasAttribute("data-motion-paused")) { return 0; }
+    var lvl = currentMotion();
+    return lvl === "max" ? 320 : (lvl === "reduced" ? 120 : 0);
+  }
+
+  function cs2bStepIcon(st, index) {
+    if (st === "ok") { return icon("check"); }
+    if (st === "fail") { return icon("x"); }
+    if (st === "skipped") { return icon("minus"); }
+    if (st === "running") { return '<span class="cs2b-spin">' + icon("loader") + "</span>"; }
+    return '<span class="cs2b-num">' + (index + 1) + "</span>";
+  }
+
+  function cs2bPill(st) {
+    var map = {
+      planned: ["cs2b_planned", "is-planned"], idle: ["cs2b_not_planned", "is-idle"],
+      running: ["cs2b_step_running", "is-running"], ok: ["cs2b_step_ok", "is-ok"],
+      fail: ["cs2b_step_fail", "is-fail"], skipped: ["cs2b_step_skipped", "is-idle"]
+    };
+    var m = map[st] || map.idle;
+    return '<span class="cs2b-pill ' + m[1] + '">' + esc(t(m[0])) + "</span>";
+  }
+
+  function cs2bFoldHtml(listHtml, count) {
+    return '<details class="fold cs2b-fold"><summary>' + esc(tf("cs2b_details", { n: count })) + "</summary>" +
+      '<div class="fold-body"><ul class="cs2b-dl">' + listHtml + "</ul></div></details>";
+  }
+
+  /** Lignes de tweaks (aperçu et compte rendu). */
+  function cs2bTweakRows(rows) {
+    var cls = { pending: "is-planned", applied: "is-ok", already: "is-ok", failed: "is-fail" };
+    return rows.map(function (r) {
+      var st = String(r.status || "");
+      var label = t("cs2b_tw_" + st);
+      if (label === "cs2b_tw_" + st) { label = st; }
+      /* « appliqué » : l'étiquette suffit (pas de doublon « Appliqué. ») ;
+         message serveur traduit en anglais (srvMsg : variante _en ou table). */
+      var note = st === "already" || st === "unsupported" || st === "applied" ? "" :
+        (r.message ? srvMsg(r) : tr(r, "reason"));
+      return '<li><span class="cs2b-dl-name">' + esc(tr(r, "name") || r.id) + "</span>" +
+        '<span class="cs2b-tag ' + (cls[st] || "is-idle") + '">' + esc(label) + "</span>" +
+        (note ? '<span class="cs2b-dl-note">' + esc(note) + "</span>" : "") + "</li>";
+    }).join("");
+  }
+
+  function cs2bValue(v) {
+    return '<code>' + esc(v === null || v === undefined || v === "" ? "—" : v) + "</code>";
+  }
+
+  function cs2bStepHtml(o) {
+    return '<li class="cs2b-step cs2b-in" data-step="' + esc(o.step) + '" data-index="' + o.index + '" data-state="' + o.state +
+      '" style="--i:' + o.index + '">' +
+      '<span class="cs2b-step-ic">' + cs2bStepIcon(o.state, o.index) + "</span>" +
+      '<div class="cs2b-step-body"><div class="cs2b-step-head">' +
+      '<span class="cs2b-step-name">' + esc(o.label) + "</span>" + cs2bPill(o.state) + "</div>" +
+      '<div class="cs2b-step-msg">' + esc(o.msg || "") + "</div>" +
+      (o.detailsHtml ? cs2bFoldHtml(o.detailsHtml, o.count) : "") +
+      "</div></li>";
+  }
+
+  /** Étape de l'aperçu (GET /api/cs2/boost/plan). */
+  function cs2bPlanStep(s, i) {
+    var html = "", count = 0;
+    var details = Array.isArray(s.details) ? s.details : [];
+    if (s.step === "tweaks" && details.length) {
+      html = cs2bTweakRows(details);
+      count = details.length;
+    } else if (s.step === "video") {
+      var changes = details.filter(function (r) { return r && r.will_change; });
+      html = changes.map(function (r) {
+        return '<li><span class="cs2b-dl-name">' + esc(tr(r, "label") || r.id) + "</span>" +
+          '<span class="cs2b-dl-val">' + cs2bValue(r.current) + " → " + cs2bValue(r.recommended) + "</span></li>";
+      }).join("");
+      count = changes.length;
+    }
+    return cs2bStepHtml({
+      step: s.step, index: i, state: s.will_run ? "planned" : "idle",
+      label: tr(s, "label"), msg: tr(s, "description"), detailsHtml: html, count: count
+    });
+  }
+
+  /** Détail d'une étape exécutée (POST /api/cs2/boost). */
+  function cs2bResultDetails(s) {
+    var d = Array.isArray(s.details) ? s.details : [];
+    if (!d.length) { return { html: "", n: 0 }; }
+    if (s.step === "tweaks") { return { html: cs2bTweakRows(d), n: d.length }; }
+    if (s.step === "video") {
+      return {
+        html: d.map(function (c) {
+          return '<li><span class="cs2b-dl-name"><code>' + esc(c.key) + "</code></span>" +
+            '<span class="cs2b-dl-val">' + cs2bValue(c.old) + " → " + cs2bValue(c["new"]) + "</span></li>";
+        }).join(""),
+        n: d.length
+      };
+    }
+    var paths = d.filter(function (x) { return x && x.path; });
+    return {
+      html: paths.map(function (x) { return '<li><span class="mono mono-inline">' + esc(x.path) + "</span></li>"; }).join(""),
+      n: paths.length
+    };
+  }
+
+  function cs2bResultState(s) {
+    if (s.skipped) { return "skipped"; }
+    return s.ok ? "ok" : "fail";
+  }
+
+  /** Met à jour une étape (icône qui rebondit, pastille, message, détail). */
+  function cs2bSetStep(li, st, msg, detailsHtml, count) {
+    var idx = Number(li.getAttribute("data-index")) || 0;
+    li.setAttribute("data-state", st);
+    var ic = li.querySelector(".cs2b-step-ic");
+    if (ic) {
+      ic.innerHTML = cs2bStepIcon(st, idx);
+      ic.classList.remove("cs2b-pop");
+      void ic.offsetWidth;
+      ic.classList.add("cs2b-pop");
+    }
+    var pill = li.querySelector(".cs2b-pill");
+    if (pill) { pill.outerHTML = cs2bPill(st); }
+    if (msg !== undefined) {
+      var m = li.querySelector(".cs2b-step-msg");
+      if (m) { m.textContent = msg; }
+    }
+    if (detailsHtml !== undefined) {
+      var old = li.querySelector(".cs2b-fold");
+      if (old) { old.parentNode.removeChild(old); }
+      var body = li.querySelector(".cs2b-step-body");
+      if (detailsHtml && body) { body.insertAdjacentHTML("beforeend", cs2bFoldHtml(detailsHtml, count)); }
+    }
+  }
+
+  /** Étapes manuelles (manual_steps) → éléments de checklist. */
+  function cs2bManualItems(list) {
+    return (Array.isArray(list) ? list : []).map(function (m) {
+      var kind = String((m && m.kind) || "");
+      var label = t("cs2b_kind_" + kind);
+      if (label === "cs2b_kind_" + kind) { label = ""; }
+      var cls = CS2B_KIND_BADGE[kind] || "badge-gray";
+      if (kind === "insight" && m.severity === "important") { cls = "badge-red"; }
+      return {
+        id: String((m && m.id) || ""), title: tr(m, "title"), value: tr(m, "value"),
+        code: kind === "launch_options", detail: tr(m, "detail"), where: tr(m, "where"),
+        optional: !!(m && m.optional), badge: label ? { cls: cls, label: label } : null
+      };
+    }).filter(function (it) { return it.id && it.title; });
+  }
+
+  function cs2bOptHtml(id, label) {
+    return '<label class="cs2b-opt"><input type="checkbox" id="' + id + '" checked><span>' + esc(label) + "</span></label>";
+  }
+
+  function openCs2BoostModal() {
+    var root = byId("modal-root");
+    if (!root) { return; }
+    if (modalIsBusy()) { showBanner(t("modal_busy"), "error"); return; }
+    var forced = cs2bForcedTier();
+    var plan = null;
+    var phase = "loading";    /* loading → preview → running → done (ou error) */
+    var ran = false;
+    var closed = false;
+
+    root.hidden = false;
+    root.innerHTML =
+      '<div class="modal-overlay">' +
+      '<div class="modal modal-wide cs2b-modal" role="dialog" aria-modal="true" aria-labelledby="cs2b-title">' +
+      '<div class="modal-head"><h3 class="modal-title" id="cs2b-title">' +
+      '<span class="cs2b-title-ic" aria-hidden="true">' + icon("zap") + "</span>" + esc(t("cs2b_title")) + "</h3>" +
+      '<button class="btn btn-ghost btn-sm" id="cs2b-x" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      '<div class="modal-body" id="cs2b-body"><div class="loading-line">' + esc(t("cs2b_loading")) + "</div></div>" +
+      '<div class="modal-foot" id="cs2b-foot">' +
+      '<button class="btn" id="cs2b-cancel" type="button">' + esc(t("cancel")) + "</button>" +
+      '<button class="btn btn-primary" id="cs2b-run" type="button" disabled>' + icon("zap") + " " + esc(t("cs2b_run")) + "</button>" +
+      "</div></div></div>";
+
+    /* La modale a-t-elle été remplacée (autre modale ouverte entre-temps) ? */
+    function mine() { return !closed && !!byId("cs2b-body"); }
+
+    function close() {
+      if (closed || phase === "running") { return; }
+      closed = true;
+      document.removeEventListener("keydown", onKey, true);
+      if (byId("cs2b-body")) {
+        root.hidden = true;
+        root.innerHTML = "";
+      }
+      if (ran) {
+        /* Tweaks, cs2_video.txt et autoexec ont pu changer : caches invalidés. */
+        state.tweaks = null;
+        state.cs2 = null;
+        state.cs2VideoResult = null;
+        render();
+      }
+    }
+
+    function onKey(e) {
+      if (!mine()) { document.removeEventListener("keydown", onKey, true); return; }
+      if (e.key === "Escape" && !e.defaultPrevented && phase !== "running") {
+        e.preventDefault();
+        close();
+      }
+    }
+    document.addEventListener("keydown", onKey, true);
+
+    byId("cs2b-x").addEventListener("click", close);
+    byId("cs2b-cancel").addEventListener("click", close);
+    root.querySelector(".modal-overlay").addEventListener("click", function (e) {
+      if (e.target === e.currentTarget) { close(); }
+    });
+    byId("cs2b-run").addEventListener("click", runBoost);
+    /* Phase de chargement : focus sur la croix (« Lancer » encore inactif). */
+    var xFocus = byId("cs2b-x");
+    if (xFocus) { try { xFocus.focus({ preventScroll: true }); } catch (e0) { /* focus impossible */ } }
+
+    function showPreview() {
+      var body = byId("cs2b-body");
+      if (!body) { return; }
+      var steps = Array.isArray(plan.steps) ? plan.steps : [];
+      var info = plan.tier_info || {};
+      var gpu = plan.gpu || {};
+      var notes = Array.isArray(plan.notes) ? plan.notes : [];
+      var manual = Array.isArray(plan.manual_steps) ? plan.manual_steps : [];
+      var warn = plan.ok === false || !plan.supported || !!plan.cs2_running;
+      var message = tr(plan, "message");
+      body.innerHTML =
+        '<div class="cs2b-head">' +
+        '<div class="cs2b-tier"><span class="cs2b-tier-kicker">' +
+        esc(plan.tier_source === "forced" ? t("cs2b_tier_forced") : t("cs2b_tier_detected")) + "</span>" +
+        /* Tier forcé : libellé du tier choisi (tier_info reste la détection). */
+        '<span class="cs2b-tier-label">' + esc(cs2bTierLabel(plan, info)) + "</span></div>" +
+        (gpu.name ? '<span class="badge badge-gray cs2b-gpu" title="' + esc(gpu.name) + '">' + esc(gpu.name) + "</span>" : "") +
+        "</div>" +
+        (message ? (warn ?
+          '<div class="notice cs2b-notice cs2b-pre">' + icon("alert") + "<span>" + esc(message) + "</span></div>" :
+          '<p class="cs2b-msg cs2b-pre">' + esc(message) + "</p>") : "") +
+        (notes.length && tr(notes[0], "text") ? '<p class="cs2b-note">' + esc(tr(notes[0], "text")) + "</p>" : "") +
+        (steps.length ?
+          '<div class="cs2b-section-title">' + esc(t("cs2b_steps_title")) + "</div>" +
+          '<ol class="cs2b-steps" id="cs2b-steps">' + steps.map(cs2bPlanStep).join("") + "</ol>" +
+          '<div class="cs2b-section-title cs2b-pre">' + esc(t("cs2b_opt_title")) + "</div>" +
+          '<div class="cs2b-options cs2b-pre">' +
+          cs2bOptHtml("cs2b-opt-restore", t("cs2b_opt_restore")) +
+          cs2bOptHtml("cs2b-opt-video", t("cs2b_opt_video")) +
+          cs2bOptHtml("cs2b-opt-autoexec", t("cs2b_opt_autoexec")) +
+          "</div>" : "") +
+        (manual.length ?
+          '<p class="cs2b-manual-hint cs2b-pre">' + icon("list") + "<span>" +
+          esc(tf("cs2b_manual_preview", { n: manual.length })) + "</span></p>" : "");
+
+      /* Décocher une option grise l'étape correspondante. */
+      var planState = {};
+      steps.forEach(function (s) { planState[s.step] = s.will_run ? "planned" : "idle"; });
+      [["cs2b-opt-restore", "restore"], ["cs2b-opt-video", "video"], ["cs2b-opt-autoexec", "autoexec"]].forEach(function (pair) {
+        var cb = byId(pair[0]);
+        if (!cb) { return; }
+        cb.addEventListener("change", function () {
+          var li = $('#cs2b-steps .cs2b-step[data-step="' + pair[1] + '"]');
+          if (li) { cs2bSetStep(li, cb.checked ? (planState[pair[1]] || "idle") : "skipped"); }
+        });
+      });
+
+      var runBtn = byId("cs2b-run");
+      if (runBtn) {
+        /* Aperçu seul hors Windows : rien ne peut s'appliquer, pas de « Lancer ». */
+        runBtn.disabled = plan.ok === false || plan.supported === false || !steps.length;
+        if (!runBtn.disabled) { runBtn.focus(); }
+      }
+    }
+
+    function checked(id) {
+      var cb = byId(id);
+      return cb ? !!cb.checked : true;
+    }
+
+    async function runBoost() {
+      if (phase !== "preview" || !mine()) { return; }
+      phase = "running";
+      var cs2Overlay = root.querySelector(".modal-overlay");
+      setModalBusy(cs2Overlay, true);
+      var opts = {
+        restore_point: checked("cs2b-opt-restore"),
+        apply_video: checked("cs2b-opt-video"),
+        write_autoexec: checked("cs2b-opt-autoexec")
+      };
+      if (forced) { opts.tier = forced; }
+      var runBtn = byId("cs2b-run");
+      setBusy(runBtn, t("cs2b_running"));
+      ["cs2b-cancel", "cs2b-x"].forEach(function (id) { var b = byId(id); if (b) { b.disabled = true; } });
+      $all(".cs2b-options input").forEach(function (cb) { cb.disabled = true; });
+      var wanted = { restore: opts.restore_point, video: opts.apply_video, autoexec: opts.write_autoexec };
+      $all("#cs2b-steps .cs2b-step").forEach(function (li) {
+        cs2bSetStep(li, wanted[li.dataset.step] === false ? "skipped" : "running");
+      });
+
+      var res;
+      try {
+        res = await api("/api/cs2/boost", { body: opts });
+      } catch (e) {
+        setModalBusy(cs2Overlay, false);
+        phase = "preview";
+        if (!mine()) { return; }
+        ["cs2b-cancel", "cs2b-x"].forEach(function (id) { var b = byId(id); if (b) { b.disabled = false; } });
+        clearBusy(byId("cs2b-run"));
+        showPreview();
+        var body0 = byId("cs2b-body");
+        if (body0) {
+          body0.insertAdjacentHTML("afterbegin", '<p class="err-text small cs2b-error">' + esc(t("cs2b_failed")) + "</p>");
+        }
+        return;
+      }
+      setModalBusy(cs2Overlay, false);
+      ran = true;
+      if (!mine()) { phase = "done"; return; }
+      revealResults(res || {});
+    }
+
+    /** Révèle les étapes une à une, puis le résumé et les étapes manuelles. */
+    function revealResults(res) {
+      var steps = Array.isArray(res.steps) ? res.steps : [];
+      var byStep = {};
+      steps.forEach(function (s) { if (s && s.step) { byStep[s.step] = s; } });
+      var lis = $all("#cs2b-steps .cs2b-step");
+      var delay = cs2bRevealDelay();
+      var i = 0;
+      function next() {
+        if (!mine()) { phase = "done"; return; }
+        if (i >= lis.length) { finish(res); return; }
+        var li = lis[i++];
+        var s = byStep[li.dataset.step];
+        if (s) {
+          var det = cs2bResultDetails(s);
+          cs2bSetStep(li, cs2bResultState(s), tr(s, "message"), det.html, det.n);
+        } else {
+          cs2bSetStep(li, "skipped");
+        }
+        if (delay) { setTimeout(next, delay); } else { next(); }
+      }
+      next();
+    }
+
+    function finish(res) {
+      phase = "done";
+      var body = byId("cs2b-body");
+      if (!body) { return; }
+      $all(".cs2b-pre", body).forEach(function (el) { el.parentNode.removeChild(el); });
+      var head =
+        '<div class="cs2b-result cs2b-in ' + (res.ok ? "is-ok" : "is-fail") + '">' +
+        icon(res.ok ? "check" : "alert") + "<span>" + esc(tr(res, "message") || (res.ok ? "" : t("cs2b_failed"))) + "</span></div>" +
+        (res.reboot_required ? '<div class="notice cs2b-notice">' + icon("alert") + "<span>" + esc(t("cs2b_reboot")) + "</span></div>" : "");
+      body.insertAdjacentHTML("afterbegin", head);
+      var items = cs2bManualItems(res.manual_steps);
+      if (items.length) {
+        var checks = loadChecks();
+        var done = items.filter(function (x) { return !!checks[x.id]; }).length;
+        body.insertAdjacentHTML("beforeend",
+          '<div class="cs2b-manual" id="cs2b-manual" data-check-group="manual">' +
+          '<div class="cs2b-manual-head"><span class="cs2b-manual-title">' + icon("list") +
+          "<span>" + esc(t("cs2b_manual_title")) + "</span></span>" +
+          '<span class="spacer"></span>' + checkProgressHtml(done, items.length) + "</div>" +
+          '<p class="muted small cs2b-manual-sub">' + esc(t("cs2b_manual_sub")) + "</p>" +
+          checklistHtml(items, checks, true) + "</div>");
+        bindChecklist(byId("cs2b-manual"));
+      }
+      body.scrollTop = 0;
+      var foot = byId("cs2b-foot");
+      if (foot) {
+        foot.innerHTML = '<button class="btn btn-primary" id="cs2b-close" type="button">' + esc(t("close")) + "</button>";
+        byId("cs2b-close").addEventListener("click", close);
+        byId("cs2b-close").focus();
+      }
+      var x = byId("cs2b-x");
+      if (x) { x.disabled = false; }
+    }
+
+    var q = forced ? "?tier=" + encodeURIComponent(forced) : "";
+    api("/api/cs2/boost/plan" + q).then(function (p) {
+      if (!mine()) { return; }
+      plan = p && typeof p === "object" ? p : {};
+      phase = "preview";
+      showPreview();
+    }, function () {
+      if (!mine()) { return; }
+      phase = "error";
+      var body = byId("cs2b-body");
+      if (body) { body.innerHTML = '<p class="err-text">' + esc(t("cs2b_plan_failed")) + "</p>"; }
+    });
   }
 
   /* ------------------------------------------------------------------ */
@@ -2005,12 +5658,103 @@
     page.innerHTML =
       '<h1 class="page-title">' + esc(t("clean_title")) + "</h1>" +
       '<p class="page-sub">' + esc(t("clean_sub")) + "</p>" +
-      '<div id="clean-area"></div>';
+      (cleanUnsupported() ?
+        '<div class="notice">' + icon("alert") + "<span>" + esc(t("clean_not_windows")) + "</span></div>" : "") +
+      '<div id="clean-area"></div>' +
+      '<div class="group-label">' + esc(t("debloat_group")) + "</div>" +
+      '<div id="debloat-area"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
     buildCleanArea(seq);
+    loadDebloat(seq);
     if (state.autoScan) {
       state.autoScan = false;
       doCleanScan(seq);
     }
+  }
+
+  /** Charge puis affiche les applications préinstallées supprimables. */
+  async function loadDebloat(seq) {
+    try {
+      var res = await api("/api/debloat");
+      state.debloat = (res && res.apps) || [];
+    } catch (e) {
+      state.debloat = [];
+    }
+    if (!alive(seq)) { return; }
+    buildDebloatArea(seq);
+  }
+
+  function buildDebloatArea(seq) {
+    var area = byId("debloat-area");
+    if (!area) { return; }
+    var apps = state.debloat || [];
+    if (!apps.length) {
+      area.innerHTML = "";
+      return;
+    }
+    var unsupported = cleanUnsupported();
+    var rows = apps.map(function (a) {
+      var badge = a.installed === true ?
+        '<span class="badge badge-green">' + esc(t("debloat_installed")) + "</span>" :
+        a.installed === false ?
+          '<span class="badge">' + esc(t("debloat_absent")) + "</span>" :
+          '<span class="badge badge-yellow">' + esc(t("debloat_unknown")) + "</span>";
+      /* Hors Windows (nettoyage désactivé) ou appli absente : case inactive. */
+      var disabled = (unsupported || a.installed === false) ? " disabled" : "";
+      return '<div class="settings-row' + (unsupported ? " sub-disabled" : "") + '">' +
+        '<div class="set-info"><div class="set-name">' +
+        '<label class="check-item"><input type="checkbox" data-debloat="' + esc(a.id) + '"' + disabled + "> " +
+        esc(srvMsg(a, "name")) + "</label> " + badge + "</div>" +
+        '<div class="set-status">' + esc(tr(a, "description")) + "</div></div>" +
+        "</div>";
+    }).join("");
+    area.innerHTML = '<div class="card">' +
+      '<p class="muted small" style="margin-top:0">' + esc(t("debloat_note")) + "</p>" + rows +
+      '<div style="margin-top:12px"><button class="btn btn-danger" id="btn-debloat" type="button" disabled>' +
+      esc(tf("debloat_remove", { n: 0 })) + "</button></div></div>";
+
+    function selected() {
+      return $all("[data-debloat]:checked", area).map(function (c) { return c.dataset.debloat; });
+    }
+    function refreshBtn() {
+      var btn = byId("btn-debloat");
+      var n = selected().length;
+      btn.disabled = n === 0;
+      btn.textContent = tf("debloat_remove", { n: n });
+    }
+    $all("[data-debloat]", area).forEach(function (c) { c.addEventListener("change", refreshBtn); });
+    async function removeApps(ids) {
+      var btn = byId("btn-debloat");
+      setBusy(btn, t("debloat_removing"));
+      try {
+        var res = await api("/api/debloat/remove", { body: { ids: ids } });
+        var results = (res && res.results) || [];
+        var okCount = results.filter(function (r) { return r.ok; }).length;
+        var firstErr = results.find(function (r) { return !r.ok; });
+        if (okCount) { showBanner(tf("debloat_done", { n: okCount }), "ok"); }
+        if (firstErr) { showBanner(srvMsg(firstErr), "error"); }
+        loadDebloat(seq);
+        return;
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    }
+    /* Suppression (Remove-AppxPackage) : confirmation « danger », comme le
+       nettoyage, avec la liste des applications cochées. */
+    byId("btn-debloat").addEventListener("click", function () {
+      var ids = selected();
+      if (!ids.length || cleanUnsupported()) { return; }
+      var names = ids.map(function (id) {
+        for (var i = 0; i < apps.length; i++) { if (apps[i].id === id) { return srvMsg(apps[i], "name"); } }
+        return id;
+      });
+      openModal({
+        title: t("debloat_group"),
+        bodyHtml: "<p>" + esc(t("debloat_modal_body")) + "</p><ul>" +
+          names.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>",
+        confirmLabel: tf("debloat_remove", { n: ids.length }),
+        danger: true,
+        onConfirm: function () { removeApps(ids); }
+      });
+    });
   }
 
   function buildCleanArea(seq) {
@@ -2046,23 +5790,23 @@
       var res = state.cleanResults[x.id];
       var resHtml = res ?
         '<span class="' + (res.ok ? "ok-text" : "err-text") + ' small">' +
-        esc(res.ok ? tf("freed", { x: fmtMb(res.freed_mb) }) : (res.message || t("failed"))) + "</span>" : "";
+        esc(res.ok ? tf("freed", { x: fmtMb(res.freed_mb) }) : (srvMsg(res) || t("failed"))) + "</span>" : "";
       return "<tr>" +
         '<td><input type="checkbox" class="clean-check" data-id="' + esc(x.id) + '"' +
         (state.cleanSelection.has(x.id) ? " checked" : "") + "></td>" +
-        "<td>" + esc(x.name) + "</td>" +
+        "<td>" + esc(srvMsg(x, "name")) + "</td>" +
         '<td><span class="mono mono-inline clean-path" title="' + esc(x.path) + '">' + esc(x.path) + "</span></td>" +
-        '<td class="mono">' + esc(x.files) + "</td>" +
-        '<td class="mono">' + esc(fmtMb(x.size_mb)) + "</td>" +
+        '<td class="mono num">' + esc(x.files) + "</td>" +
+        '<td class="mono num">' + esc(fmtMb(x.size_mb)) + "</td>" +
         "<td>" + resHtml + "</td></tr>";
     }).join("");
 
     area.innerHTML =
-      '<table class="table"><thead><tr>' +
+      '<div class="table-scroll"><table class="table"><thead><tr>' +
       '<th><input type="checkbox" id="clean-all"' + (allChecked ? " checked" : "") + "></th>" +
-      "<th>" + esc(t("th_target")) + "</th><th>" + esc(t("th_path")) + "</th><th>" + esc(t("th_files")) +
-      "</th><th>" + esc(t("th_size")) + "</th><th>" + esc(t("th_result")) + "</th>" +
-      "</tr></thead><tbody>" + rows + "</tbody></table>" +
+      "<th>" + esc(t("th_target")) + "</th><th>" + esc(t("th_path")) + '</th><th class="num">' + esc(t("th_files")) +
+      '</th><th class="num">' + esc(t("th_size")) + "</th><th>" + esc(t("th_result")) + "</th>" +
+      "</tr></thead><tbody>" + rows + "</tbody></table></div>" +
       '<div class="clean-foot">' +
       '<span class="muted" id="clean-total"></span>' +
       '<span class="spacer"></span>' +
@@ -2089,6 +5833,11 @@
     updateCleanTotals();
   }
 
+  /** Nettoyage refusé hors Windows (le serveur refuse aussi) : analyse seule. */
+  function cleanUnsupported() {
+    return !!(state.status && state.status.is_windows === false);
+  }
+
   function updateCleanTotals() {
     var targets = state.cleanTargets || [];
     var total = 0;
@@ -2101,7 +5850,13 @@
     var btn = byId("btn-clean");
     if (btn) {
       btn.textContent = tf("clean_n", { n: n });
-      btn.disabled = n === 0;
+      btn.disabled = n === 0 || cleanUnsupported();
+    }
+    /* Case « tout sélectionner » : reflète la sélection réelle. */
+    var all = byId("clean-all");
+    if (all) {
+      all.checked = n > 0 && n === targets.length;
+      all.indeterminate = n > 0 && n < targets.length;
     }
   }
 
@@ -2117,7 +5872,10 @@
       state.cleanTargets = state.cleanTargets || null;
     }
     state.cleanScanning = false;
-    if (alive(seq) && currentRoute() === "/clean") { buildCleanArea(seq); }
+    /* Toujours reconstruire si la page Nettoyage est affichée, même si elle a
+       été re-rendue entre-temps (navigation aller-retour) : sinon elle reste
+       bloquée sur « Analyse en cours… ». Le rendu courant est renderSeq. */
+    if (currentRoute() === "/clean") { buildCleanArea(renderSeq); }
   }
 
   function onClean() {
@@ -2139,7 +5897,13 @@
             state.cleanResults[r.id] = r;
             freed += r.freed_mb || 0;
           });
-          showBanner(tf("clean_done", { x: fmtMb(freed) }), "ok");
+          /* Rien n'a abouti (ex. refus hors Windows) : bandeau d'erreur explicite. */
+          var anyOk = results.some(function (r) { return r.ok; });
+          if (results.length && !anyOk) {
+            showBanner(srvMsg(results[0]) || t("failed"), "error");
+          } else {
+            showBanner(tf("clean_done", { x: fmtMb(freed) }), "ok");
+          }
         } catch (e) { /* bandeau déjà affiché */ }
         if (currentRoute() === "/clean") { buildCleanArea(renderSeq); }
       }
@@ -2159,6 +5923,7 @@
   }
 
   var MON_POINTS = 60;         /* 60 derniers points par sparkline */
+  var MON_GAP_MS = 7000;       /* au-delà, l'historique n'est plus continu */
 
   function pushHist(arr, v) {
     arr.push(v);
@@ -2169,16 +5934,20 @@
   function sparklineSvg(values, maxValue) {
     var W = 180, H = 40, PAD = 3;
     var open = '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" aria-hidden="true">';
-    if (!values || values.length < 2) { return open + "</svg>"; }
+    /* Moins de 2 points : rien à tracer. */
+    var n = values ? values.length : 0;
+    if (n < 2) { return open + "</svg>"; }
     var max = maxValue;
     if (max === undefined || max === null) {
       max = Math.max.apply(null, values);
     }
     if (!(max > 0)) { max = 1; }
-    var step = W / (MON_POINTS - 1);
+    /* Tant que l'historique n'est pas plein, la courbe s'étire sur toute la
+       largeur (sinon quelques pixels collés au bord droit pendant 2 minutes). */
+    var step = W / (Math.max(Math.min(n, MON_POINTS), 2) - 1);
     var pts = values.map(function (v, i) {
       var clamped = Math.max(0, Math.min(v, max));
-      var x = i * step;                        /* la courbe grandit depuis la gauche */
+      var x = i * step;
       var y = H - PAD - (clamped / max) * (H - PAD * 2);
       return (Math.round(x * 10) / 10) + "," + (Math.round(y * 10) / 10);
     }).join(" ");
@@ -2187,12 +5956,21 @@
       'stroke-linecap="round" stroke-linejoin="round" points="' + pts + '"/></svg>';
   }
 
+  /** Échelle des sparklines de débit : au moins 1 Mo/s, pour qu'une activité
+      quasi nulle (quelques Ko/s) ne trace pas un pic sur toute la hauteur. */
+  function rateScale(values) {
+    var peak = values && values.length ? Math.max.apply(null, values) : 0;
+    return Math.max(1, peak || 0);
+  }
+
   function monTileHtml(id, label) {
-    return '<div class="card mon-card">' +
+    /* Jauge anneau sur les tuiles en pourcentage (CPU, RAM). */
+    var ring = (id === "cpu" || id === "ram") ? RING_SVG : "";
+    return '<div class="card mon-card" id="mon-' + id + '-card">' +
       '<div class="mon-label">' + esc(label) + "</div>" +
       '<div class="mon-value" id="mon-' + id + '-val">—</div>' +
       '<div class="mon-sub" id="mon-' + id + '-sub">' + esc(t("mon_waiting")) + "</div>" +
-      '<div class="spark-box" id="mon-' + id + '-spark">' + sparklineSvg([]) + "</div></div>";
+      '<div class="spark-box" id="mon-' + id + '-spark">' + sparklineSvg([]) + "</div>" + ring + "</div>";
   }
 
   function renderMonitor(seq) {
@@ -2206,19 +5984,40 @@
       monTileHtml("disk", t("mon_disk")) +
       monTileHtml("net", t("mon_net")) +
       "</div>" +
+      '<div class="group-label">' + esc(t("netusage_group")) + "</div>" +
+      '<div class="card" id="netusage-card"><div class="loading-line">' + esc(t("mon_waiting")) + "</div></div>" +
       '<div class="group-label">' + esc(t("mon_top")) + "</div>" +
       '<div id="mon-procs"><div class="loading-line">' + esc(t("mon_waiting")) + "</div></div>";
 
+    netUsageFailed = false;
+
+    var inFlight = false;   /* propre à CE rendu : un relevé périmé ne bloque ni ne coupe le suivant */
+    var myTimer = null;
+    var lastTickAt = 0;
+    var netFilled = false;
+
     async function tick() {
-      if (monitorInFlight) { return; }
+      if (inFlight || !alive(seq)) { return; }
+      /* Fenêtre masquée (zone de notification, réduite) : aucun relevé, comme
+         les jauges de l'accueil — sauf le tout premier, pour remplir l'écran. */
+      if (document.hidden && state.monitorHistAt) { return; }
+      /* Jeu en cours (animations en pause) : un relevé toutes les 6 s au lieu
+         de 2 s, l'écran reste à jour sans coût notable pendant la partie. */
+      if (gameRunning && lastTickAt && Date.now() - lastTickAt < 5900) { return; }
+      lastTickAt = Date.now();
+      inFlight = true;
       monitorInFlight = true;
       var sample;
       try {
         sample = await api("/api/monitor");
       } catch (e) {
+        inFlight = false;
+        /* Relevé périmé (page quittée puis rouverte) : ne touche ni à
+           l'intervalle ni à l'écran du nouveau rendu. */
+        if (!alive(seq)) { return; }
         monitorInFlight = false;
-        stopMonitor();
-        if (alive(seq) && byId("page")) {
+        if (monitorTimer === myTimer) { stopMonitor(); }
+        if (byId("page")) {
           byId("page").innerHTML =
             '<h1 class="page-title">' + esc(t("monitor_title")) + "</h1>" +
             '<p class="page-sub">' + esc(t("monitor_sub")) + "</p>" +
@@ -2231,16 +6030,87 @@
         }
         return;
       }
-      monitorInFlight = false;
+      inFlight = false;
       if (!alive(seq) || !byId("mon-cpu-val")) { return; }
+      monitorInFlight = false;
       updateMonitorDom(sample);
+      /* Même cadence que le moniteur, sans le bloquer ; en jeu, plus aucune
+         énumération des connexions (psutil.net_connections, coûteux) une fois
+         l'encart rempli. */
+      if (!gameRunning || !netFilled) { netFilled = true; updateNetUsage(seq); }
     }
 
     tick();
-    monitorTimer = setInterval(tick, 2000);
+    myTimer = setInterval(tick, 2000);
+    monitorTimer = myTimer;
+  }
+
+  var netUsageInFlight = false;
+  var netUsageFailed = false;   /* une erreur suffit : on cesse d'interroger la route */
+
+  /** Rafraîchit l'encart « Activité réseau » (fetch silencieux, jamais de bandeau). */
+  async function updateNetUsage(seq) {
+    if (netUsageInFlight || netUsageFailed || !byId("netusage-card")) { return; }
+    netUsageInFlight = true;
+    var data = null;
+    try {
+      var res = await fetch("/api/netusage");
+      if (!res.ok) { throw new Error("HTTP " + res.status); }
+      data = await res.json();
+    } catch (e) {
+      netUsageFailed = true;
+      var boxErr = byId("netusage-card");
+      if (alive(seq) && boxErr) {
+        boxErr.innerHTML = '<p class="muted small" style="margin:0">' + esc(t("netusage_unavailable")) + "</p>";
+      }
+      netUsageInFlight = false;
+      return;
+    }
+    netUsageInFlight = false;
+    if (!alive(seq)) { return; }
+    var box = byId("netusage-card");
+    if (!box || !data) { return; }
+    box.innerHTML = netUsageHtml(data);
+  }
+
+  function netUsageHtml(data) {
+    var apps = (data && data.apps) || [];
+    var suspects = (data && data.suspects) || [];
+    var html = '<p class="muted small" style="margin-top:0">' + esc(t("netusage_desc")) + "</p>";
+
+    if (!apps.length) {
+      html += '<p class="muted small" style="margin:0">' + esc(t("netusage_empty")) + "</p>";
+    } else {
+      html += '<table class="table"><thead><tr><th>' + esc(t("th_app")) + '</th><th class="num">' +
+        esc(t("th_connections")) + "</th></tr></thead><tbody>" +
+        apps.map(function (a) {
+          return '<tr><td class="mono proc-name" title="' + esc(a.name) + '">' + esc(a.name) + "</td>" +
+            '<td class="mono num">' + esc(a.connections) + "</td></tr>";
+        }).join("") + "</tbody></table>";
+    }
+
+    if (suspects.length) {
+      html += '<div class="netusage-suspects"><div class="netusage-suspects-title">' +
+        esc(t("netusage_suspects")) + "</div>" +
+        suspects.map(function (s) {
+          return '<div class="settings-row">' +
+            '<div class="set-info"><div class="set-name">' +
+            '<span class="badge badge-yellow">' + esc(tr(s, "name")) + "</span></div>" +
+            '<div class="set-status">' + esc(tr(s, "detail")) + "</div></div></div>";
+        }).join("") + "</div>";
+    }
+    return html;
   }
 
   function updateMonitorDom(s) {
+    /* Historique interrompu (page quittée, fenêtre masquée) : on repart d'une
+       courbe vide plutôt que de relier des mesures espacées de plusieurs
+       dizaines de secondes. */
+    var now = Date.now();
+    if (state.monitorHistAt && now - state.monitorHistAt > MON_GAP_MS) {
+      state.monitorHist = { cpu: [], ram: [], disk: [], net: [] };
+    }
+    state.monitorHistAt = now;
     var hist = state.monitorHist;
     var cpu = s.cpu_percent || 0;
     var ram = (s.ram && s.ram.percent) || 0;
@@ -2251,27 +6121,32 @@
     pushHist(hist.disk, diskTotal);
     pushHist(hist.net, netTotal);
 
-    byId("mon-cpu-val").textContent = dec(Math.round(cpu * 10) / 10) + " %";
+    setCount(byId("mon-cpu-val"), cpu, fmtPct1);
+    setRing(byId("mon-cpu-card"), cpu);
     byId("mon-cpu-sub").textContent = (s.per_core || []).length ?
       (s.per_core || []).length + " threads" : "";
     byId("mon-cpu-spark").innerHTML = sparklineSvg(hist.cpu, 100);
 
     var ramObj = s.ram || {};
-    byId("mon-ram-val").textContent = dec(Math.round(ram * 10) / 10) + " %";
-    byId("mon-ram-sub").textContent = fmtGb(ramObj.used_gb) + " / " + fmtGb(ramObj.total_gb);
+    setCount(byId("mon-ram-val"), ram, fmtPct1);
+    setRing(byId("mon-ram-card"), ram);
+    byId("mon-ram-sub").textContent = fmtGb1(ramObj.used_gb) + " / " + fmtGb1(ramObj.total_gb);
     byId("mon-ram-spark").innerHTML = sparklineSvg(hist.ram, 100);
 
     var dio = s.disk_io || {};
-    byId("mon-disk-val").textContent = fmtRate(diskTotal);
+    setCount(byId("mon-disk-val"), diskTotal, fmtRate);
+    /* Deux lignes nettes à toutes les largeurs (« \n » + white-space: pre-line),
+       jamais de séparateur orphelin en fin de ligne ; libellé, valeur et unité
+       restent ensemble (insécables). */
     byId("mon-disk-sub").textContent =
-      t("mon_read") + " " + fmtRate(dio.read_mbps || 0) + " · " + t("mon_write") + " " + fmtRate(dio.write_mbps || 0);
-    byId("mon-disk-spark").innerHTML = sparklineSvg(hist.disk);
+      t("mon_read") + "\u00a0" + fmtRate(dio.read_mbps || 0) + "\n" + t("mon_write") + "\u00a0" + fmtRate(dio.write_mbps || 0);
+    byId("mon-disk-spark").innerHTML = sparklineSvg(hist.disk, rateScale(hist.disk));
 
     var nio = s.net_io || {};
-    byId("mon-net-val").textContent = fmtRate(netTotal);
+    setCount(byId("mon-net-val"), netTotal, fmtRate);
     byId("mon-net-sub").textContent =
-      t("mon_down") + " " + fmtRate(nio.down_mbps || 0) + " · " + t("mon_up") + " " + fmtRate(nio.up_mbps || 0);
-    byId("mon-net-spark").innerHTML = sparklineSvg(hist.net);
+      t("mon_down") + "\u00a0" + fmtRate(nio.down_mbps || 0) + "\n" + t("mon_up") + "\u00a0" + fmtRate(nio.up_mbps || 0);
+    byId("mon-net-spark").innerHTML = sparklineSvg(hist.net, rateScale(hist.net));
 
     var procs = s.processes_top || [];
     var box = byId("mon-procs");
@@ -2281,12 +6156,12 @@
       return;
     }
     box.innerHTML =
-      '<table class="table"><thead><tr><th>' + esc(t("th_process")) + "</th><th>" +
-      esc(t("th_cpu")) + "</th><th>" + esc(t("th_ram")) + "</th></tr></thead><tbody>" +
+      '<table class="table"><thead><tr><th>' + esc(t("th_process")) + '</th><th class="num">' +
+      esc(t("th_cpu")) + '</th><th class="num">' + esc(t("th_ram")) + "</th></tr></thead><tbody>" +
       procs.map(function (p) {
         return '<tr><td class="mono proc-name" title="' + esc(p.name) + '">' + esc(p.name) + "</td>" +
-          '<td class="mono">' + esc(dec(p.cpu_percent)) + ' %</td>' +
-          '<td class="mono">' + esc(fmtMb(p.ram_mb)) + "</td></tr>";
+          '<td class="mono num">' + esc(dec(Number(p.cpu_percent || 0).toFixed(1))) + " %</td>" +
+          '<td class="mono num">' + esc(fmtMb(p.ram_mb)) + "</td></tr>";
       }).join("") + "</tbody></table>";
   }
 
@@ -2387,9 +6262,9 @@
       ok = !!(res && res.ok);
       if (ok) {
         item.enabled = enabled;
-        if (res.message) { showBanner(res.message, "ok"); }
+        if (res.message) { showBanner(srvMsg(res), "ok"); }
       } else {
-        showBanner((res && res.message) || t("startup_toggle_failed"), "error");
+        showBanner(srvMsg(res) || t("startup_toggle_failed"), "error");
       }
     } catch (e) { /* bandeau déjà affiché */ }
     if (!ok) { cb.checked = item.enabled !== false; }
@@ -2432,7 +6307,9 @@
     var area = byId("assistant-area");
 
     if (!configured.length) {
-      area.innerHTML = '<div class="card empty-state">' + icon("alert") +
+      /* État vide = invitation à configurer (bulle de discussion, comme la
+         navigation), pas un avertissement. */
+      area.innerHTML = '<div class="card empty-state">' + icon("chat") +
         '<p class="empty-title">' + esc(t("no_key_title")) + "</p>" +
         "<p>" + esc(t("no_key_body")) + "</p>" +
         '<button class="btn btn-primary" id="btn-goto-settings" type="button">' + esc(t("open_settings")) + "</button></div>";
@@ -2496,16 +6373,72 @@
         '<span class="small">' + esc(t("chat_example")) + "</span></div>";
     } else {
       html = state.chat.map(function (m) {
+        var body = formatChatText(m.content);
+        if (m.role !== "user") {
+          // Marqueurs [[tweak:id]] émis par l'assistant → bouton Appliquer.
+          body = body.replace(/\[\[tweak:([a-z0-9_]+)\]\]/g, function (_, id) {
+            return ' <button class="btn btn-sm chat-apply" type="button" data-apply-tweak="' +
+              id + '">' + esc(t("chat_apply")) + ' <span class="mono mono-inline">' + id + "</span></button>";
+          });
+        }
         return '<div class="msg ' + (m.role === "user" ? "msg-user" : "msg-assistant") + '">' +
-          formatChatText(m.content) + "</div>";
+          body + "</div>";
       }).join("");
       if (state.chatBusy) { html += '<div class="msg-pending">' + esc(t("chat_pending")) + "</div>"; }
       if (state.chatError) { html += '<div class="msg-error">' + esc(state.chatError) + "</div>"; }
     }
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
+    $all("[data-apply-tweak]", box).forEach(function (btn) {
+      btn.addEventListener("click", function () { onChatApplyTweak(btn); });
+    });
     var send = byId("chat-send");
     if (send) { send.disabled = state.chatBusy; }
+  }
+
+  /** Bouton « Appliquer » inséré par l'assistant ([[tweak:id]]) : mêmes
+      garde-fous que la page Optimisations — id inconnu ou non pris en charge
+      refusé, modale d'avertissement pour un tweak « avancé » (une sortie de
+      modèle ne déclenche jamais seule un réglage système sensible). */
+  async function onChatApplyTweak(btn) {
+    var id = btn.dataset.applyTweak;
+    if (!state.tweaks) {
+      try { state.tweaks = await api("/api/tweaks"); } catch (e) { return; }
+    }
+    var x = findTweak(id);
+    if (!x) { showBanner(t("chat_tweak_unknown"), "error"); return; }
+    if (x.supported === false) { showBanner(t("chat_tweak_unsupported"), "error"); return; }
+
+    async function apply() {
+      setBusy(btn, t("chat_apply"));
+      try {
+        var res = await api("/api/tweaks/apply", { body: { ids: [id] } });
+        var r = res && res.results && res.results[0];
+        if (r) { state.tweakResults[id] = r; }
+        if (r && r.ok) {
+          state.tweakSelection.delete(id);
+          btn.textContent = t("chat_applied");
+          btn.disabled = true;
+          showBanner(srvMsg(r) || t("chat_applied"), "ok");
+          try { state.tweaks = await api("/api/tweaks"); } catch (e2) { /* état précédent conservé */ }
+          return;
+        }
+        showBanner(srvMsg(r) || t("chat_apply_fail"), "error");
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    }
+
+    if (x.risk === "avance") {
+      openModal({
+        title: t("adv_modal_title"),
+        bodyHtml: "<p>" + esc(t("adv_modal_body")) + "</p><ul><li>" + esc(tr(x, "name")) + "</li></ul>",
+        confirmLabel: t("adv_confirm"),
+        danger: true,
+        onConfirm: apply
+      });
+      return;
+    }
+    apply();
   }
 
   async function sendChat() {
@@ -2523,7 +6456,7 @@
       if (res.ok && res.reply) {
         state.chat.push({ role: "assistant", content: res.reply });
       } else {
-        state.chatError = res.message || t("chat_no_reply");
+        state.chatError = srvMsg(res) || t("chat_no_reply");
       }
     } catch (e) {
       state.chatError = t("chat_error_net");
@@ -2554,6 +6487,12 @@
     } catch (e) {
       state.widgetCfg = state.widgetCfg || null;
     }
+    try {
+      state.schedule = await api("/api/schedule");
+    } catch (e) {
+      state.schedule = null;
+    }
+    await loadArtInfo(true);   /* silencieux, ne lève jamais */
     if (!alive(seq)) { return; }
     buildSettingsArea(seq);
   }
@@ -2564,7 +6503,7 @@
       var res = await api("/api/widget", { body: partial });
       state.widgetCfg = res;
       if (res && res.autostart_result && res.autostart_result.ok === false) {
-        showBanner(res.autostart_result.message || t("widget_save_err"), "error");
+        showBanner(srvMsg(res.autostart_result) || t("widget_save_err"), "error");
       } else if (!silent) {
         showBanner(t("widget_saved"), "ok");
       }
@@ -2575,20 +6514,36 @@
   }
 
   /** HTML de la section Widget des Réglages. */
+  /** Interrupteur marche/arrêt (même balisage que le nettoyage planifié). */
+  function switchHtml(id, checked, disabled, label) {
+    return '<label class="switch"><input type="checkbox" id="' + esc(id) + '"' +
+      (checked ? " checked" : "") + (disabled ? " disabled" : "") +
+      (label ? ' aria-label="' + esc(label) + '"' : "") + '><span class="track"></span></label>';
+  }
+
   function widgetSectionHtml() {
     var cfg = state.widgetCfg && state.widgetCfg.widget;
     if (!cfg) { return ""; }
+    /* Démarrage automatique : l'état RÉEL (registre) prime sur le réglage
+       enregistré ; sélecteur désactivé là où il n'est pas pris en charge. */
+    var auto = (state.widgetCfg && state.widgetCfg.autostart) || {};
+    var autoUnsupported = auto.supported === false;
+    var autoMode = typeof auto.widget_mode === "string" ? auto.widget_mode : cfg.autostart;
     var els = cfg.elements || {};
-    var elNames = ["fps", "game", "cpu", "ram", "net", "clock"];
+    var opacityPct = Math.round((cfg.opacity || 0.92) * 100);
+    var elNames = ["fps", "game", "cpu", "ram", "net", "clock", "temp"];
     var checks = elNames.map(function (n) {
       return '<label class="check-item"><input type="checkbox" data-wel="' + n + '"' +
         (els[n] ? " checked" : "") + "> " + esc(t("widget_el_" + n)) + "</label>";
     }).join("");
+    /* Segments à choix unique : aria-pressed, comme le segment Animations. */
     function seg(name, values, labels, current) {
-      return '<div class="seg" data-wseg="' + name + '">' + values.map(function (v, i) {
-        return '<button type="button" data-val="' + v + '"' +
-          (v === current ? ' class="active"' : "") + ">" + esc(labels[i]) + "</button>";
-      }).join("") + "</div>";
+      return '<div class="seg" data-wseg="' + name + '" role="group" aria-label="' + esc(t("widget_" + name)) + '">' +
+        values.map(function (v, i) {
+          var on = v === current;
+          return '<button type="button" data-val="' + v + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+            (on ? ' class="active"' : "") + ">" + esc(labels[i]) + "</button>";
+        }).join("") + "</div>";
     }
     return '<div class="group-label">' + esc(t("widget_group")) + "</div>" +
       '<div class="card">' +
@@ -2605,19 +6560,31 @@
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_scale")) + "</div></div>" +
       '<div class="set-controls">' + seg("scale", ["s", "m", "l"], ["S", "M", "L"], cfg.scale) + "</div></div>" +
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_opacity")) + "</div></div>" +
-      '<div class="set-controls"><input type="range" id="widget-opacity" min="10" max="100" step="5" value="' +
-      Math.round((cfg.opacity || 0.92) * 100) + '"> <span class="mono mono-inline" id="widget-opacity-val">' +
-      Math.round((cfg.opacity || 0.92) * 100) + "%</span></div></div>" +
+      /* Pas de 1 : le curseur et le libellé concordent quelle que soit la
+         valeur enregistrée (0,92 par défaut). */
+      '<div class="set-controls"><input type="range" id="widget-opacity" min="10" max="100" step="1" value="' +
+      opacityPct + '" aria-label="' + esc(t("widget_opacity")) + '"> <span class="mono mono-inline" id="widget-opacity-val">' +
+      esc(fmtPctInt(opacityPct)) + "</span></div></div>" +
+      /* Réglages marche/arrêt : interrupteurs, comme le nettoyage planifié
+         (les cases restent réservées aux sélections multiples). */
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_click_through")) + "</div>" +
       '<div class="set-status">' + esc(t("widget_click_through_desc")) + "</div></div>" +
-      '<div class="set-controls"><label class="check-item"><input type="checkbox" id="widget-ct"' +
-      (cfg.click_through ? " checked" : "") + "></label></div></div>" +
+      '<div class="set-controls">' + switchHtml("widget-ct", cfg.click_through, false, t("widget_click_through")) + "</div></div>" +
+      '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("gamemode_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("gamemode_desc")) + "</div></div>" +
+      '<div class="set-controls">' + switchHtml("widget-gamemode", cfg.gamemode, false, t("gamemode_name")) + "</div></div>" +
+      '<div class="settings-row sub-setting' + (cfg.gamemode ? "" : " sub-disabled") + '" id="row-pause-updates">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("pause_updates_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("pause_updates_desc")) + "</div></div>" +
+      '<div class="set-controls">' + switchHtml("widget-pause-updates", cfg.pause_updates, !cfg.gamemode, t("pause_updates_name")) +
+      "</div></div>" +
       '<div class="settings-row"><div class="set-info"><div class="set-name">' + esc(t("widget_autostart")) + "</div>" +
       '<div class="set-status">' + esc(t("widget_autostart_desc")) + "</div></div>" +
-      '<div class="set-controls"><select class="input" id="widget-autostart">' +
+      '<div class="set-controls"><select class="input" id="widget-autostart"' +
+      (autoUnsupported ? ' disabled title="' + esc(srvMsg(auto) || t("widget_auto_unsupported")) + '"' : "") + ">" +
       [["never", t("widget_auto_never")], ["always", t("widget_auto_always")], ["game", t("widget_auto_game")]]
         .map(function (o) {
-          return '<option value="' + o[0] + '"' + (cfg.autostart === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
+          return '<option value="' + o[0] + '"' + (autoMode === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>";
         }).join("") + "</select>" +
       '<button class="btn btn-sm" id="widget-launch" type="button">' + esc(t("widget_launch")) + "</button>" +
       "</div></div></div>";
@@ -2637,7 +6604,10 @@
         b.addEventListener("click", async function () {
           var partial = {}; partial[segEl.dataset.wseg] = b.dataset.val;
           await saveWidget(partial, seq, true);
-          $all("button", segEl).forEach(function (x) { x.classList.toggle("active", x === b); });
+          $all("button", segEl).forEach(function (x) {
+            x.classList.toggle("active", x === b);
+            x.setAttribute("aria-pressed", x === b ? "true" : "false");
+          });
         });
       });
     });
@@ -2645,7 +6615,7 @@
     if (op) {
       op.addEventListener("input", function () {
         var lbl = byId("widget-opacity-val");
-        if (lbl) { lbl.textContent = op.value + "%"; }
+        if (lbl) { lbl.textContent = fmtPctInt(Number(op.value)); }
       });
       op.addEventListener("change", function () {
         saveWidget({ opacity: Number(op.value) / 100 }, seq, true);
@@ -2657,24 +6627,306 @@
         saveWidget({ click_through: ct.checked }, seq, true);
       });
     }
+    var gm = byId("widget-gamemode");
+    var pu = byId("widget-pause-updates");
+    if (gm) {
+      gm.addEventListener("change", function () {
+        saveWidget({ gamemode: gm.checked }, seq, true);
+        /* La sous-case dépend du mode jeu : grisée quand il est décoché. */
+        if (pu) { pu.disabled = !gm.checked; }
+        var row = byId("row-pause-updates");
+        if (row) { row.classList.toggle("sub-disabled", !gm.checked); }
+      });
+    }
+    if (pu) {
+      pu.addEventListener("change", function () {
+        saveWidget({ pause_updates: pu.checked }, seq, true);
+      });
+    }
     var autoSel = byId("widget-autostart");
     if (autoSel) {
-      autoSel.addEventListener("change", function () {
-        saveWidget({ autostart: autoSel.value }, seq);
+      autoSel.addEventListener("change", async function () {
+        var res = await saveWidget({ autostart: autoSel.value }, seq);
+        /* Le sélecteur reflète toujours l'état réel (échec = retour arrière). */
+        var real = res && res.autostart && res.autostart.widget_mode;
+        if (typeof real === "string" && autoSel.isConnected) { autoSel.value = real; }
       });
     }
     var launch = byId("widget-launch");
     if (launch) {
-      launch.addEventListener("click", async function () {
-        setBusy(launch, t("widget_launch"));
-        try {
-          var res = await api("/api/widget/launch", { method: "POST" });
-          showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
-            (res && res.ok) ? "ok" : "error");
-        } catch (e) { /* bandeau déjà affiché */ }
-        clearBusy(launch);
-      });
+      launch.addEventListener("click", function () { launchWidget(launch); });
     }
+  }
+
+  /** Lance le widget en jeu (Réglages, palette) ; résultat en bandeau. */
+  async function launchWidget(btn) {
+    if (btn) { setBusy(btn, t("widget_launch")); }
+    try {
+      var res = await api("/api/widget/launch", { method: "POST" });
+      showBanner((res && res.ok) ? t("widget_launched") : (srvMsg(res) || t("widget_save_err")),
+        (res && res.ok) ? "ok" : "error");
+    } catch (e) { /* bandeau déjà affiché */ }
+    if (btn) { clearBusy(btn); }
+  }
+
+  /** HTML du groupe « Maintenance » (nettoyage planifié hebdomadaire). */
+  function maintenanceSectionHtml() {
+    var sched = state.schedule;
+    var row;
+    if (!sched) {
+      row = '<p class="muted small" style="margin:0">' + esc(t("sched_unavailable")) + "</p>";
+    } else if (sched.supported === false) {
+      /* Non supporté (hors Windows) : ligne grisée, detail en sous-titre. */
+      row = '<div class="settings-row sub-disabled">' +
+        '<div class="set-info"><div class="set-name">' + esc(t("sched_name")) + "</div>" +
+        '<div class="set-status">' + esc(srvMsg(sched, "detail")) + "</div></div>" +
+        '<div class="set-controls">' + switchHtml("sched-toggle-na", false, true, t("sched_name")) + "</div></div>";
+    } else {
+      row = '<div class="settings-row">' +
+        '<div class="set-info"><div class="set-name">' + esc(t("sched_name")) + "</div>" +
+        '<div class="set-status" id="sched-status">' + esc(srvMsg(sched, "detail") || t("sched_desc")) + "</div></div>" +
+        '<div class="set-controls">' + switchHtml("sched-toggle", sched.enabled, false, t("sched_name")) + "</div></div>";
+    }
+    return '<div class="group-label">' + esc(t("maintenance_group")) + "</div>" +
+      '<div class="card">' + row + "</div>";
+  }
+
+  /** Liaison de l'interrupteur du nettoyage planifié. */
+  function bindMaintenanceSection() {
+    var toggle = byId("sched-toggle");
+    if (!toggle) { return; }
+    toggle.addEventListener("change", async function () {
+      var desired = toggle.checked;
+      toggle.disabled = true;
+      var ok = false;
+      try {
+        var res = await api("/api/schedule", { body: { enabled: desired } });
+        ok = !!(res && res.ok);
+        showBanner((res && res.message) || "", ok ? "ok" : "error");
+      } catch (e) { /* bandeau déjà affiché */ }
+      if (ok) {
+        if (state.schedule) { state.schedule.enabled = desired; }
+      } else {
+        toggle.checked = !desired;
+      }
+      toggle.disabled = false;
+    });
+  }
+
+  /* ---- Réglages : images des jeux (vague 7) ----
+     Aperçu par jeu + « Choisir une image… » (fichier → data URL → POST
+     /api/art/<jeu>/<type>/custom) et « Réinitialiser » (DELETE). */
+
+  var ART_EDIT_KINDS = ["cover", "hero", "logo"];
+  var ART_MIME = ["image/png", "image/jpeg", "image/webp"];
+  var ART_MAX_BYTES = 8 * 1024 * 1024;
+
+  function artEditKind() {
+    return ART_EDIT_KINDS.indexOf(state.artKind) >= 0 ? state.artKind : "cover";
+  }
+
+  /** Jeux à lister : catalogue des visuels (/api/art), sinon liste des jeux. */
+  function artGameList() {
+    var info = state.artInfo || {};
+    var ids = Object.keys(info).filter(function (id) { return artKnown(id); });
+    if (ids.length) { return ids.map(function (id) { return { id: id, name: info[id].name || id }; }); }
+    return (state.games || []).map(function (g) { return { id: g.id, name: g.name }; });
+  }
+
+  function artTilesHtml(kind) {
+    var list = artGameList();
+    if (!list.length) { return '<p class="muted small art-empty">' + esc(t("art_unavailable")) + "</p>"; }
+    var use = kind === "cover" ? "poster" : (kind === "logo" ? "logo" : "wide");
+    return list.map(function (g) {
+      var info = artKnown(g.id);
+      var custom = !!(info && (info.custom || []).indexOf(kind) >= 0);
+      var avail = info ? !!info.kinds[kind] : true;
+      var src = info ? (info.source ? t("art_src_" + info.source) : t("art_src_none")) : "";
+      /* Type absent : composé à partir des autres visuels, nom en texte (logo)
+         ou visuel de secours dessiné. */
+      var missing = kind === "logo" ? t("art_state_nologo") :
+        (artStages(g.id, use)[0] !== "fallback" ? t("art_state_composed") : t("art_state_missing"));
+      var status = custom ?
+        '<span class="badge badge-blue">' + esc(t("art_state_custom")) + "</span>" +
+        '<button class="btn btn-sm btn-ghost art-reset" type="button" data-art-reset="' + esc(g.id) + '" aria-label="' +
+        esc(tf("art_reset_aria", { name: g.name })) + '">' + icon("refresh") + " " + esc(t("art_reset")) + "</button>" :
+        '<span class="art-src">' + esc(avail ? src : missing) + "</span>";
+      return '<div class="art-tile' + (custom ? " is-custom" : "") + '" data-art-tile="' + esc(g.id) + '">' +
+        '<div class="art-thumb art-thumb-' + kind + '">' + artBoxHtml(g.id, use, g.name, true) + "</div>" +
+        '<div class="art-tile-info">' +
+        '<div class="art-tile-name" title="' + esc(g.name) + '">' + esc(g.name) + "</div>" +
+        '<div class="art-tile-state">' + status + "</div>" +
+        '<div class="art-tile-actions">' +
+        '<button class="btn btn-sm" type="button" data-art-pick="' + esc(g.id) + '" aria-label="' +
+        esc(tf("art_pick_aria", { name: g.name })) + '">' + icon("image") + " " + esc(t("art_pick")) + "</button>" +
+        "</div></div></div>";
+    }).join("");
+  }
+
+  function artSettingsHtml() {
+    var kind = artEditKind();
+    return '<div class="group-label">' + esc(t("art_group")) + "</div>" +
+      '<div class="card art-card" id="art-card">' +
+      '<div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("art_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("art_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="artkind" role="group" aria-label="' + esc(t("art_kind_aria")) + '">' +
+      ART_EDIT_KINDS.map(function (k) {
+        var on = k === kind;
+        return '<button type="button" data-art-kind="' + k + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+          (on ? ' class="active"' : "") + ">" + esc(t("art_kind_" + k)) + "</button>";
+      }).join("") +
+      "</div></div></div>" +
+      '<div class="art-grid art-grid-' + kind + '" id="art-grid">' + artTilesHtml(kind) + "</div>" +
+      '<p class="muted small art-hint">' + esc(t("art_drop_hint")) + "</p>" +
+      '<input type="file" id="art-file" accept="image/png,image/jpeg,image/webp" hidden>' +
+      "</div>";
+  }
+
+  function refreshArtGrid() {
+    var grid = byId("art-grid");
+    if (!grid) { return; }
+    var kind = artEditKind();
+    grid.className = "art-grid art-grid-" + kind;
+    grid.innerHTML = artTilesHtml(kind);
+    mountArt(grid);
+  }
+
+  /** Après re-rendu de la grille, le focus revient sur « Choisir une image… » du jeu. */
+  function artRefocus(id) {
+    var btn = $('#art-grid [data-art-pick="' + id + '"]');
+    if (btn) { try { btn.focus({ preventScroll: true }); } catch (e) { /* sans effet */ } }
+  }
+
+  /** POST / DELETE d'une image personnalisée ; message serveur FR/EN en cas d'échec. */
+  async function artCustomRequest(method, id, kind, body) {
+    var init = { method: method, headers: {} };
+    if (body) {
+      init.headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(body);
+    }
+    var res;
+    try {
+      res = await fetch("/api/art/" + encodeURIComponent(id) + "/" + encodeURIComponent(kind) + "/custom", init);
+    } catch (e) {
+      showBanner(t("err_conn"), "error");
+      return null;
+    }
+    var data = null;
+    try { data = await res.json(); } catch (e2) { data = null; }
+    if (!res.ok || (data && data.ok === false)) {
+      var msg = data ? (LANG === "en" ? (data.detail_en || data.message_en) : (data.detail || data.message)) : "";
+      showBanner(typeof msg === "string" && msg ? msg : t("art_save_err"), "error");
+      return null;
+    }
+    return data || {};
+  }
+
+  /** Prévient les autres modules (accueil) qu'un visuel a changé. */
+  function emitArtChanged(id, kind) {
+    try {
+      window.dispatchEvent(new CustomEvent("overdrive:art-changed", { detail: { game: id, kind: kind } }));
+    } catch (e) { /* navigateur ancien : l'accueil relit /api/art à chaque rendu */ }
+  }
+
+  /** Lit un fichier image (type et taille vérifiés) puis l'envoie au serveur. */
+  function artUpload(id, kind, file, btn) {
+    if (!file) { return; }
+    if (ART_MIME.indexOf(file.type) < 0) { showBanner(t("art_bad_type"), "error"); return; }
+    if (file.size > ART_MAX_BYTES) { showBanner(t("art_too_big"), "error"); return; }
+    var reader = new FileReader();
+    setBusy(btn, t("saving"));
+    reader.onerror = function () {
+      clearBusy(btn);
+      artRefocus(id);
+      showBanner(t("art_read_err"), "error");
+    };
+    reader.onload = async function () {
+      var res = await artCustomRequest("POST", id, kind, { data_url: String(reader.result || "") });
+      /* Refus (format, taille…) : le focus revient sur « Choisir une
+         image… » (le bouton, désactivé pendant l'envoi, l'avait perdu). */
+      if (!res) { clearBusy(btn); artRefocus(id); return; }
+      emitArtChanged(id, kind);
+      await loadArtInfo(true);
+      refreshArtGrid();
+      artRefocus(id);
+      showBanner(t("art_saved"), "ok");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function bindArtSettings() {
+    var card = byId("art-card");
+    var input = byId("art-file");
+    if (!card || !input) { return; }
+    var pending = null;
+
+    $all("[data-art-kind]", card).forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.artKind = b.dataset.artKind;
+        $all("[data-art-kind]", card).forEach(function (x) {
+          var on = x === b;
+          x.classList.toggle("active", on);
+          x.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        refreshArtGrid();
+      });
+    });
+
+    card.addEventListener("click", async function (e) {
+      if (!e.target.closest) { return; }
+      var pick = e.target.closest("[data-art-pick]");
+      var reset = e.target.closest("[data-art-reset]");
+      if (pick && !pick.disabled) {
+        pending = { id: pick.dataset.artPick, kind: artEditKind(), btn: pick };
+        input.value = "";
+        input.click();
+      } else if (reset && !reset.disabled) {
+        setBusy(reset, t("art_reset"));
+        var res = await artCustomRequest("DELETE", reset.dataset.artReset, artEditKind(), null);
+        if (!res) {
+          clearBusy(reset);
+          try { reset.focus({ preventScroll: true }); } catch (e2) { /* focus impossible */ }
+          return;
+        }
+        var resetId = reset.dataset.artReset;
+        emitArtChanged(resetId, artEditKind());
+        await loadArtInfo(true);
+        refreshArtGrid();
+        artRefocus(resetId);
+        showBanner(t("art_reset_done"), "ok");
+      }
+    });
+
+    input.addEventListener("change", function () {
+      var job = pending;
+      pending = null;
+      var file = input.files && input.files[0];
+      if (job && file) { artUpload(job.id, job.kind, file, job.btn); }
+    });
+
+    /* Glisser-déposer une image directement sur un jeu. */
+    card.addEventListener("dragover", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (!tile) { return; }
+      e.preventDefault();
+      $all(".art-tile.is-drop", card).forEach(function (x) { if (x !== tile) { x.classList.remove("is-drop"); } });
+      tile.classList.add("is-drop");
+    });
+    card.addEventListener("dragleave", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (tile && !tile.contains(e.relatedTarget)) { tile.classList.remove("is-drop"); }
+    });
+    card.addEventListener("drop", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (!tile) { return; }
+      e.preventDefault();
+      tile.classList.remove("is-drop");
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) { artUpload(tile.dataset.artTile, artEditKind(), file, $("[data-art-pick]", tile)); }
+    });
+
+    mountArt(card);
   }
 
   function buildSettingsArea(seq) {
@@ -2722,20 +6974,31 @@
       '<div class="set-controls">' + defSelect + "</div></div></div>" +
 
       '<div class="group-label">' + esc(t("appearance_group")) + "</div>" +
-      '<div class="card"><div class="settings-row">' +
+      '<div class="card appearance-card"><div class="settings-row settings-row-block">' +
       '<div class="set-info"><div class="set-name">' + esc(t("theme")) + "</div>" +
       '<div class="set-status">' + esc(t("theme_desc")) + "</div></div>" +
-      '<div class="set-controls"><div class="seg" data-seg="theme">' +
-      '<button type="button" data-theme="light">' + esc(t("light")) + "</button>" +
-      '<button type="button" data-theme="dark">' + esc(t("dark")) + "</button>" +
+      themeGridHtml() + "</div>" +
+      '<div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("motion_name")) + "</div>" +
+      '<div class="set-status" id="motion-desc">' + esc(t("motion_" + currentMotion() + "_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="motion" role="group" aria-label="' + esc(t("motion_name")) + '">' +
+      MOTION_LEVELS.map(function (l) {
+        var on = l === currentMotion();
+        return '<button type="button" data-level="' + l + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+          (on ? ' class="active"' : "") + ">" + esc(t("motion_" + l)) + "</button>";
+      }).join("") +
       "</div></div></div>" +
       '<div class="settings-row">' +
       '<div class="set-info"><div class="set-name">' + esc(t("language")) + "</div>" +
       '<div class="set-status">' + esc(t("language_desc")) + "</div></div>" +
-      '<div class="set-controls"><div class="seg" data-seg="lang">' +
-      '<button type="button" data-lang="fr"' + (LANG === "fr" ? ' class="active"' : "") + ">Français</button>" +
-      '<button type="button" data-lang="en"' + (LANG === "en" ? ' class="active"' : "") + ">English</button>" +
+      '<div class="set-controls"><div class="seg" data-seg="lang" role="group" aria-label="' + esc(t("language")) + '">' +
+      '<button type="button" data-lang="fr" lang="fr" aria-pressed="' + (LANG === "fr" ? "true" : "false") + '"' +
+      (LANG === "fr" ? ' class="active"' : "") + ">Français</button>" +
+      '<button type="button" data-lang="en" lang="en" aria-pressed="' + (LANG === "en" ? "true" : "false") + '"' +
+      (LANG === "en" ? ' class="active"' : "") + ">English</button>" +
       "</div></div></div></div>" +
+
+      artSettingsHtml() +
 
       '<div class="group-label">' + esc(t("report_group")) + "</div>" +
       '<div class="card"><div class="settings-row">' +
@@ -2744,7 +7007,27 @@
       '<div class="set-controls"><a class="btn btn-sm" href="/api/report" download>' +
       icon("download") + " " + esc(t("report_download")) + "</a></div></div></div>" +
 
+      '<div class="group-label">' + esc(t("update_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("update_name")) + "</div>" +
+      '<div class="set-status" id="update-status">Overdrive' + (st.version ? " v" + esc(st.version) : "") + "</div></div>" +
+      '<div class="set-controls" id="update-controls">' +
+      '<button class="btn btn-sm" id="btn-update-check" type="button">' + esc(t("update_check")) + "</button>" +
+      "</div></div></div>" +
+
+      '<div class="group-label">' + esc(t("backup_group")) + "</div>" +
+      '<div class="card"><div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("backup_export")) + " / " + esc(t("backup_import")) + "</div>" +
+      '<div class="set-status">' + esc(t("backup_export_desc")) + "</div></div>" +
+      '<div class="set-controls">' +
+      '<a class="btn btn-sm" href="/api/profile/export" download>' + icon("download") + " " + esc(t("backup_export")) + "</a>" +
+      '<button class="btn btn-sm" id="btn-import-profile" type="button">' + esc(t("backup_import")) + "</button>" +
+      '<input type="file" id="import-file" accept="application/json" hidden>' +
+      "</div></div></div>" +
+
       widgetSectionHtml() +
+
+      maintenanceSectionHtml() +
 
       '<div class="group-label">' + esc(t("quiz_group")) + "</div>" +
       '<div class="card"><div class="settings-row">' +
@@ -2825,34 +7108,136 @@
       });
     }
 
-    $all(".seg[data-seg='theme'] button", area).forEach(function (b) {
-      b.addEventListener("click", function () { setTheme(b.dataset.theme); });
+    $all(".theme-tile[data-theme-id]", area).forEach(function (b) {
+      b.addEventListener("click", function () { setTheme(b.dataset.themeId); });
+    });
+    $all(".seg[data-seg='motion'] button", area).forEach(function (b) {
+      b.addEventListener("click", function () { setMotion(b.dataset.level); });
     });
     $all(".seg[data-seg='lang'] button", area).forEach(function (b) {
       b.addEventListener("click", function () { setLang(b.dataset.lang); });
     });
     updateThemeLabel();
+    updateMotionUi();
 
     bindWidgetSection(area, seq);
+    bindMaintenanceSection();
+
+    byId("btn-update-check").addEventListener("click", async function () {
+      var btn = byId("btn-update-check");
+      var status = byId("update-status");
+      setBusy(btn, t("update_checking"));
+      try {
+        var u = await api("/api/update/check");
+        if (status) { status.textContent = srvMsg(u); }
+        var controls = byId("update-controls");
+        if (u.update_available && u.download_url && controls && !byId("btn-update-dl")) {
+          var a = document.createElement("a");
+          a.className = "btn btn-sm btn-primary";
+          a.id = "btn-update-dl";
+          a.href = u.download_url;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = t("update_download");
+          controls.appendChild(a);
+        }
+        if (u.update_available === false) { showBanner(t("update_none"), "ok"); }
+      } catch (e) { /* bandeau déjà affiché */ }
+      clearBusy(btn);
+    });
+
+    byId("btn-import-profile").addEventListener("click", function () {
+      var input = byId("import-file");
+      if (input) { input.click(); }
+    });
+    var importInput = byId("import-file");
+    if (importInput) {
+      importInput.addEventListener("change", function () {
+        var file = importInput.files && importInput.files[0];
+        if (!file) { return; }
+        /* Champ remis à zéro tout de suite : le même fichier, corrigé puis
+           resélectionné au même chemin, redéclenche « change ». */
+        importInput.value = "";
+        var reader = new FileReader();
+        reader.onload = async function () {
+          var data = null;
+          try { data = JSON.parse(String(reader.result)); } catch (e) { data = null; }
+          if (!data || typeof data !== "object") {
+            showBanner(t("backup_import_err"), "error");
+            return;
+          }
+          try {
+            var res = await api("/api/profile/import", { body: data });
+            if (res && res.ok) {
+              state.status = await api("/api/status");
+              state.profile = state.status.profile || null;
+              /* Langue, thème et animations du fichier appliqués tout de suite
+                 (applyTheme / applyMotion les écrivent aussi dans localStorage,
+                 prioritaire au lancement) ; seulement ceux que l'import
+                 contenait, pour ne pas imposer les valeurs par défaut. */
+              var imported = Array.isArray(res.imported) ? res.imported : ["lang", "theme", "motion"];
+              if (imported.indexOf("lang") >= 0 && state.status.lang) { applyLang(state.status.lang); }
+              var importedTheme = normTheme(state.status.theme);
+              if (imported.indexOf("theme") >= 0 && importedTheme) { applyTheme(importedTheme, true); }
+              if (imported.indexOf("motion") >= 0 && MOTION_LEVELS.indexOf(state.status.motion) >= 0) {
+                applyMotion(state.status.motion);
+              }
+              /* Bandeau après le changement de langue : dans la langue importée. */
+              showBanner(t("backup_imported"), "ok");
+              render();
+              return;
+            }
+            showBanner(srvMsg(res) || t("backup_import_err"), "error");
+          } catch (e) { /* bandeau déjà affiché */ }
+        };
+        reader.readAsText(file);
+      });
+    }
 
     byId("btn-redo-quiz").addEventListener("click", function () { openQuiz(false); });
+    bindArtSettings();
   }
 
   /* ------------------------------------------------------------------ */
   /* QCM premier lancement (overlay plein écran)                         */
   /* ------------------------------------------------------------------ */
 
-  async function openQuiz(firstRun) {
+  /** Réponses précédentes (réglages serveur), filtrées sur les questions et
+      options actuelles ; silencieux en cas d'échec (QCM vierge). */
+  async function previousQuizAnswers(questions) {
+    var out = {};
+    try {
+      var res = await fetch("/api/settings");
+      if (!res.ok) { return out; }
+      var saved = ((await res.json()) || {}).quiz_answers;
+      if (!saved || typeof saved !== "object") { return out; }
+      questions.forEach(function (q) {
+        var ids = (q.options || []).map(function (o) { return o.id; });
+        var a = saved[q.id];
+        if (q.multi && Array.isArray(a)) {
+          var kept = a.filter(function (x) { return ids.indexOf(x) !== -1; });
+          if (kept.length) { out[q.id] = kept; }
+        } else if (!q.multi && typeof a === "string" && ids.indexOf(a) !== -1) {
+          out[q.id] = a;
+        }
+      });
+    } catch (e) { /* QCM vierge */ }
+    return out;
+  }
+
+  async function openQuiz(firstRun, dataP) {
     var data;
     try {
-      data = await api("/api/quiz");
+      data = dataP ? await dataP : await api("/api/quiz");
     } catch (e) {
       return;
     }
+    var questions = (data && data.questions) || [];
+    var answers = firstRun ? {} : await previousQuizAnswers(questions);
     state.quiz = {
-      questions: (data && data.questions) || [],
+      questions: questions,
       index: 0,
-      answers: {},
+      answers: answers,
       firstRun: !!firstRun,
       result: null,
       submitting: false
@@ -2883,10 +7268,19 @@
     var quiz = state.quiz;
     if (!root || !quiz) { return; }
 
+    if (quiz.obStep) {
+      renderAutostartStep();
+      return;
+    }
     if (quiz.result) {
       renderQuizResult();
       return;
     }
+
+    /* Focus clavier conservé d'un rendu à l'autre (option ou bouton). */
+    var prevFocus = document.activeElement && root.contains(document.activeElement) ? document.activeElement : null;
+    var prevOpt = prevFocus && prevFocus.dataset ? prevFocus.dataset.opt : null;
+    var prevId = prevFocus ? prevFocus.id : null;
 
     var total = quiz.questions.length;
     var q = quiz.questions[quiz.index];
@@ -2905,7 +7299,7 @@
     }).join("");
 
     root.innerHTML =
-      '<div class="quiz-overlay"><div class="quiz-inner">' +
+      '<div class="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="quiz-q-title"><div class="quiz-inner">' +
       '<div class="quiz-head">' +
       '<span class="quiz-brand">' +
       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>' +
@@ -2915,7 +7309,7 @@
       esc(quiz.firstRun ? t("later") : t("cancel")) + "</button>" +
       "</div>" +
       '<div class="quiz-bar"><div style="width:' + pct + '%"></div></div>' +
-      '<h2 class="quiz-question">' + esc(tr(q, "question")) + "</h2>" +
+      '<h2 class="quiz-question" id="quiz-q-title">' + esc(quizQuestionText(q)) + "</h2>" +
       '<p class="quiz-hint">' + esc(q.multi ? t("quiz_multi") : t("quiz_single")) + "</p>" +
       '<div class="quiz-options">' + optionsHtml + "</div>" +
       '<div class="quiz-nav">' +
@@ -2948,6 +7342,17 @@
     byId("quiz-prev").addEventListener("click", function () {
       if (quiz.index > 0) { quiz.index--; renderQuiz(); }
     });
+
+    /* Focus : même élément qu'avant le rendu s'il existe, sinon 1re option
+       (ou l'option déjà choisie). */
+    var target = null;
+    if (prevOpt) { target = root.querySelector('.quiz-opt[data-opt="' + prevOpt + '"]'); }
+    if (!target && prevId) {
+      var byPrev = byId(prevId);
+      if (byPrev && !byPrev.disabled) { target = byPrev; }
+    }
+    if (!target) { target = dialogStartFocus(root, ".quiz-opt.selected, .quiz-opt"); }
+    if (target) { try { target.focus({ preventScroll: true }); } catch (e) { /* focus impossible */ } }
     byId("quiz-next").addEventListener("click", function () {
       if (!quizAnswered(q) || quiz.submitting) { return; }
       if (quiz.index < total - 1) {
@@ -2990,9 +7395,9 @@
     var notes = (LANG === "en" && Array.isArray(p.notes_en)) ? p.notes_en : (p.notes || []);
 
     root.innerHTML =
-      '<div class="quiz-overlay"><div class="quiz-inner"><div class="quiz-result">' +
+      '<div class="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="quiz-r-title"><div class="quiz-inner"><div class="quiz-result">' +
       '<div class="result-check">' + icon("check") + "</div>" +
-      "<h2>" + esc(tf("quiz_profile_prefix", { p: tr(p, "label") || p.id })) + "</h2>" +
+      '<h2 id="quiz-r-title">' + esc(tf("quiz_profile_prefix", { p: tr(p, "label") || p.id })) + "</h2>" +
       '<p class="result-desc">' + esc(tr(p, "description")) + "</p>" +
       (notes.length ?
         '<div class="quiz-notes"><div class="quiz-notes-title">' + esc(t("quiz_notes_title")) + "</div><ul>" +
@@ -3006,6 +7411,7 @@
 
     if (quiz.firstRun) {
       byId("quiz-continue").addEventListener("click", renderAutostartStep);
+      byId("quiz-continue").focus({ preventScroll: true });
       return;
     }
     byId("quiz-goto-tweaks").addEventListener("click", function () {
@@ -3017,36 +7423,59 @@
       closeQuiz();
       render();
     });
+    byId("quiz-goto-tweaks").focus({ preventScroll: true });
   }
 
   /** Étape d'onboarding : démarrage automatique du widget (premier lancement). */
   function renderAutostartStep() {
     var root = byId("overlay-root");
     if (!root) { return; }
-    var chosen = "never";
+    var quiz = state.quiz;
+    if (quiz) { quiz.obStep = true; }
+    var chosen = (quiz && quiz.obChosen) || "never";
     var options = [
       { id: "never", label: t("widget_auto_never"), desc: t("ob_never_desc") },
       { id: "always", label: t("widget_auto_always"), desc: t("ob_always_desc") },
       { id: "game", label: t("widget_auto_game"), desc: t("ob_game_desc") }
     ];
 
+    /* Démarrage auto non pris en charge (hors Windows) : seul « Jamais »
+       reste choisissable, comme le sélecteur désactivé des Réglages. */
+    var unsupported = !!(quiz && quiz.obUnsupported);
+    /* Libellé explicite (« Démarrage automatique disponible uniquement sous
+       Windows. ») plutôt que le message serveur, trop court hors contexte. */
+    function obUnsupportedText() { return t("widget_auto_unsupported"); }
+
     function optionsHtml() {
       return options.map(function (o) {
         var selected = o.id === chosen;
-        return '<button class="quiz-opt' + (selected ? " selected" : "") + '" data-ob="' + o.id + '" type="button">' +
+        var off = unsupported && o.id !== "never";
+        return '<button class="quiz-opt' + (selected ? " selected" : "") + '" data-ob="' + o.id + '" type="button"' +
+          (off ? " disabled" : "") + ">" +
           '<span class="opt-mark round"><span class="opt-dot-inner"></span></span>' +
           '<span class="opt-text">' + esc(o.label) +
           '<span class="opt-desc">' + esc(o.desc) + "</span></span></button>";
       }).join("");
     }
 
+    /* Même en-tête que les questions (marque, étape, barre à 100 %) : l'étape
+       fait partie du parcours ; actions placées comme Précédent / Suivant. */
     root.innerHTML =
-      '<div class="quiz-overlay"><div class="quiz-inner">' +
-      '<h2 class="quiz-question">' + esc(t("ob_title")) + "</h2>" +
+      '<div class="quiz-overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title"><div class="quiz-inner">' +
+      '<div class="quiz-head">' +
+      '<span class="quiz-brand">' +
+      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>' +
+      "Overdrive</span>" +
+      '<span class="quiz-progress">' + esc(t("ob_last_step")) + "</span>" +
+      "</div>" +
+      '<div class="quiz-bar"><div style="width:100%"></div></div>' +
+      '<h2 class="quiz-question" id="ob-title">' + esc(t("ob_title")) + "</h2>" +
       '<p class="quiz-hint">' + esc(t("ob_sub")) + "</p>" +
+      '<p class="quiz-hint ob-unsupported" id="ob-unsupported"' + (unsupported ? "" : " hidden") + ">" +
+      esc(obUnsupportedText()) + "</p>" +
       '<div class="quiz-options" id="ob-options">' + optionsHtml() + "</div>" +
       '<div class="quiz-result-actions">' +
-      '<button class="btn" id="ob-launch" type="button">' + esc(t("ob_launch_now")) + "</button>" +
+      '<button class="btn" id="ob-launch" type="button"' + (unsupported ? " disabled" : "") + ">" + esc(t("ob_launch_now")) + "</button>" +
       '<button class="btn btn-primary" id="ob-finish" type="button">' + esc(t("ob_finish")) + "</button>" +
       "</div></div></div>";
 
@@ -3054,19 +7483,51 @@
       $all("[data-ob]", root).forEach(function (b) {
         b.addEventListener("click", function () {
           chosen = b.dataset.ob;
+          if (state.quiz) { state.quiz.obChosen = chosen; }
           byId("ob-options").innerHTML = optionsHtml();
           bindOptions();
+          var again = root.querySelector('[data-ob="' + chosen + '"]');
+          if (again) { again.focus({ preventScroll: true }); }
         });
       });
     }
     bindOptions();
+    var firstOb = dialogStartFocus(root, ".quiz-opt.selected, [data-ob]");
+    if (firstOb) { firstOb.focus({ preventScroll: true }); }
+
+    /* Prise en charge lue en silence (aucun bandeau) à l'entrée de l'étape. */
+    if (quiz && quiz.obUnsupported === undefined) {
+      fetch("/api/widget", { cache: "no-store" }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).then(function (data) {
+        var auto = data && data.autostart;
+        if (!auto || state.quiz !== quiz || !quiz.obStep) { return; }
+        if (auto.supported !== false) { quiz.obUnsupported = false; return; }
+        quiz.obUnsupported = true;
+        unsupported = true;
+        chosen = "never";
+        quiz.obChosen = "never";
+        var hadFocus = document.activeElement && root.contains(document.activeElement) ?
+          document.activeElement.getAttribute("data-ob") : null;
+        var box = byId("ob-options");
+        if (box) { box.innerHTML = optionsHtml(); bindOptions(); }
+        var note = byId("ob-unsupported");
+        if (note) { note.textContent = obUnsupportedText(); note.hidden = false; }
+        var launch = byId("ob-launch");
+        if (launch) { launch.disabled = true; }
+        if (hadFocus) {
+          var again = root.querySelector('[data-ob="never"]');
+          if (again) { again.focus({ preventScroll: true }); }
+        }
+      }).catch(function () { /* prise en charge inconnue : étape inchangée */ });
+    }
 
     byId("ob-launch").addEventListener("click", async function () {
       var btn = byId("ob-launch");
       setBusy(btn, t("ob_launch_now"));
       try {
         var res = await api("/api/widget/launch", { method: "POST" });
-        showBanner((res && res.ok) ? t("widget_launched") : ((res && res.message) || t("widget_save_err")),
+        showBanner((res && res.ok) ? t("widget_launched") : (srvMsg(res) || t("widget_save_err")),
           (res && res.ok) ? "ok" : "error");
       } catch (e) { /* bandeau déjà affiché */ }
       clearBusy(btn);
@@ -3083,19 +7544,143 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Palette de commandes (palette.js) : actions, thèmes, animations, langue */
+  /* ------------------------------------------------------------------ */
+
+  /** Enregistre les commandes de l'app (mêmes ids que les défauts = remplacement). */
+  function registerPaletteCommands() {
+    var pal = window.OverdrivePalette;
+    if (!pal || typeof pal.register !== "function") { return false; }
+    var cmds = [
+      {
+        id: "action:boost", section: "actions", icon: icon("zap"),
+        title: function () { return t("pal_boost"); },
+        subtitle: function () { return t("pal_boost_sub"); },
+        keywords: "boost optimiser optimize optimisation fps un clic one click",
+        run: openBoostModal
+      },
+      {
+        id: "action:boost-cs2", section: "actions", icon: icon("crosshair"),
+        title: function () { return t("cs2b_btn"); },
+        subtitle: function () { return t("pal_boost_cs2_sub"); },
+        keywords: "cs2 counter strike counter-strike boost fps amd adrenalin autoexec",
+        run: openCs2BoostModal
+      },
+      {
+        id: "action:bench", section: "actions", icon: icon("activity"),
+        title: function () { return t("bench_btn"); },
+        subtitle: function () { return t("pal_bench_sub"); },
+        keywords: "benchmark bench score test performance",
+        run: openBenchModal
+      },
+      {
+        id: "action:clean", section: "actions", icon: icon("trash"),
+        title: function () { return t("quick_clean"); },
+        subtitle: function () { return t("pal_clean_sub"); },
+        keywords: "nettoyage nettoyer cleanup clean analyser analyze scan cache fichiers",
+        run: quickClean
+      },
+      {
+        id: "action:widget", section: "actions", icon: icon("widget"),
+        title: function () { return t("widget_launch"); },
+        subtitle: function () { return t("pal_widget_sub"); },
+        keywords: "widget overlay fps en jeu in game",
+        run: function () { launchWidget(null); }
+      }
+    ];
+    THEMES.forEach(function (th) {
+      cmds.push({
+        id: "theme:" + th.id, section: "theme",
+        title: function () { return themeName(th.id); },
+        subtitle: function () { return t("theme_sub_" + th.key); },
+        keywords: "theme thème couleur color apparence appearance " + th.id +
+          (th.id === "daylight" ? " clair light jour day" : " sombre dark nuit night midnight"),
+        swatch: { bg: th.bg, grad: "linear-gradient(135deg," + th.a1 + "," + th.a2 + ")" },
+        active: function () { return currentTheme() === th.id; },
+        run: function () { setTheme(th.id); }
+      });
+    });
+    MOTION_LEVELS.forEach(function (l) {
+      cmds.push({
+        id: "motion:" + l, section: "motion", icon: icon(MOTION_ICONS[l]),
+        title: function () { return t("pal_motion_" + l); },
+        subtitle: function () { return t("motion_" + l + "_desc"); },
+        keywords: "animation animations motion mouvement effets effects " + l +
+          (l === "off" ? " désactiver disable aucune none" : (l === "reduced" ? " réduire reduce" : " maximum")),
+        active: function () { return currentMotion() === l; },
+        run: function () { setMotion(l); }
+      });
+    });
+    ["fr", "en"].forEach(function (lg) {
+      cmds.push({
+        id: "lang:" + lg, section: "lang", icon: icon("globe"),
+        title: function () { return t("pal_lang_" + lg); },
+        subtitle: function () { return t("pal_lang_sub"); },
+        keywords: "langue language " + (lg === "fr" ? "français french francais" : "anglais english"),
+        active: function () { return LANG === lg; },
+        run: function () { setLang(lg); }
+      });
+    });
+    try { pal.register(cmds); } catch (e) { return false; }
+    return true;
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Initialisation                                                      */
   /* ------------------------------------------------------------------ */
 
+  /** Exécute fn dès que l'intro COMMENCE à sortir (tout de suite sans intro) :
+      le QCM du premier lancement se monte sous l'overlay qui se dissout
+      directement dans le questionnaire, sans montrer l'accueil entre-temps. */
+  function atIntroExit(fn) {
+    var intro = window.OverdriveIntro;
+    var waiting = false;
+    try {
+      waiting = !!(intro && typeof intro.isActive === "function" && intro.isActive() &&
+        !(typeof intro.isLeaving === "function" && intro.isLeaving()));
+    } catch (e) { waiting = false; }
+    if (!waiting) { fn(); return; }
+    var ran = false;
+    function once() {
+      if (ran) { return; }
+      ran = true;
+      window.removeEventListener("overdrive:intro-exit", once);
+      window.removeEventListener("overdrive:intro-done", once);
+      fn();
+    }
+    window.addEventListener("overdrive:intro-exit", once);
+    window.addEventListener("overdrive:intro-done", once);
+    setTimeout(once, 6000);   /* filet : l'intro dure ~2,5 s */
+  }
+
   async function init() {
     applyStaticI18n();
+    initDialogA11y();
 
     byId("theme-toggle").addEventListener("click", function () {
-      setTheme(currentTheme() === "dark" ? "light" : "dark");
+      setTheme(nextTheme(currentTheme()));
     });
     updateThemeLabel();
 
+    /* Palette : commandes de l'app (repli : nouvel essai une fois la page chargée). */
+    if (!registerPaletteCommands()) {
+      window.addEventListener("load", registerPaletteCommands, { once: true });
+    }
+    /* Commandes par défaut de palette.js (si elles servent) : réglage serveur + interface. */
+    window.addEventListener("overdrive:theme", function (e) {
+      var id = normTheme(e && e.detail ? e.detail.theme : null);
+      if (id) { setTheme(id); }
+    });
+    window.addEventListener("overdrive:motion", function (e) {
+      var lvl = e && e.detail ? e.detail.motion : null;
+      if (MOTION_LEVELS.indexOf(lvl) >= 0) { setMotion(lvl); }
+    });
+
     window.addEventListener("hashchange", render);
     render();
+
+    /* Pause des animations pendant le jeu : interrogation toutes les 5 s. */
+    startStatusPoll();
 
     try {
       var st = await api("/api/status");
@@ -3103,11 +7688,23 @@
       state.profile = st.profile || null;
       var ver = byId("app-version");
       if (ver && st.version) { ver.textContent = "v" + st.version; }
+      applyGameRunning(st.game_running);
 
-      /* Thème : la préférence locale prime, sinon le réglage serveur. */
+      /* Thème : la préférence locale prime, sinon le réglage serveur (normalisé). */
       var storedTheme = null;
       try { storedTheme = localStorage.getItem("overdrive-theme"); } catch (e) { /* stockage indisponible */ }
-      if (!storedTheme && (st.theme === "dark" || st.theme === "light")) { applyTheme(st.theme); }
+      if (!storedTheme) {
+        var serverTheme = normTheme(st.theme);
+        if (serverTheme && serverTheme !== currentTheme()) { applyTheme(serverTheme, false); }
+      }
+
+      /* Animations : idem ; « max » est aussi la valeur par défaut du serveur, qui ne
+         doit pas écraser la préférence système « réduire les animations ». */
+      var storedMotion = null;
+      try { storedMotion = localStorage.getItem("overdrive-motion"); } catch (e3) { /* stockage indisponible */ }
+      if (!storedMotion && st.motion !== "max" && MOTION_LEVELS.indexOf(st.motion) >= 0 && st.motion !== currentMotion()) {
+        applyMotion(st.motion);
+      }
 
       /* Langue : la préférence locale prime, sinon le réglage serveur. */
       var storedLang = null;
@@ -3117,7 +7714,12 @@
       }
 
       render();
-      if (st.first_run) { openQuiz(true); }
+      /* Premier lancement : le QCM s'ouvre APRÈS l'intro animée (intro.js),
+         monté sous l'overlay dès le début de sa sortie (questions préchargées). */
+      if (st.first_run) {
+        var quizP = api("/api/quiz").catch(function () { return null; });
+        atIntroExit(function () { openQuiz(true, quizP); });
+      }
     } catch (e) { /* bandeau déjà affiché, l'interface reste utilisable */ }
   }
 

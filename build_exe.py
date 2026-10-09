@@ -65,6 +65,10 @@ def build_command() -> list[str]:
         # Backends pywebview chargés dynamiquement sous Windows.
         for backend in ("webview.platforms.winforms", "webview.platforms.edgechromium"):
             command += ["--hidden-import", backend]
+    if sys.platform == "win32" and importlib.util.find_spec("pystray") is not None:
+        # Backend Windows de pystray, choisi dynamiquement à l'exécution
+        # (Pillow est détecté statiquement, aucun hidden-import nécessaire).
+        command += ["--hidden-import", "pystray._win32"]
     command.append("run.py")
     return command
 
