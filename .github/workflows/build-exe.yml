@@ -1,16 +1,27 @@
-name: Build Overdrive.exe
+name: Build
 
+# Une seule Release publique : chaque build de `main` publie la nouvelle
+# version puis supprime les précédentes (Release + tag). Les pull requests
+# sont construites et testées, l'exécutable reste disponible en artefact.
 on:
   push:
-    branches: ["claude/pc-game-optimizer-l5g56x", "main"]
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", ".github/ISSUE_TEMPLATE/**"]
+  pull_request:
+    paths-ignore: ["**.md", "docs/**", ".github/ISSUE_TEMPLATE/**"]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  # Ne jamais interrompre une publication en cours sur main.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  smoke:
-    name: Test de fumée (Linux)
+  test:
+    name: Tests (Linux)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,14 +29,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
 
       - name: Installation des dépendances
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
-      - name: Import du serveur
-        run: python -c "import overdrive.server"
+      - name: Syntaxe Python
+        run: python -m compileall -q overdrive tests
 
-      - name: Démarrage et vérification de l'API
+      - name: Syntaxe de l'interface (JavaScript)
+        run: for f in overdrive/web/*.js; do node --check "$f"; done
+
+      - name: Tests unitaires et API
+        run: python -m pytest -q
+
+      - name: Démarrage réel du serveur
         run: |
           python run.py --server --no-open --port 8787 &
           SERVER_PID=$!
@@ -36,13 +55,12 @@ jobs:
             sleep 1
           done
           curl -sf http://127.0.0.1:8787/api/status
-          curl -sf http://127.0.0.1:8787/api/tweaks > /dev/null
-          curl -sf http://127.0.0.1:8787/api/quiz > /dev/null
+          curl -sf http://127.0.0.1:8787/ > /dev/null
           kill "$SERVER_PID"
 
   windows:
-    name: Construction Windows + Release
-    needs: smoke
+    name: Overdrive.exe (Windows)
+    needs: test
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +68,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
 
       - name: Installation des dépendances
         run: pip install -r requirements.txt pyinstaller
@@ -102,25 +122,83 @@ jobs:
         with:
           name: Overdrive-exe
           path: dist/Overdrive.exe
+          retention-days: 14
+
+  release:
+    name: Release
+    needs: windows
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tag au format vX.Y.Z-build.N : le numéro de build est celui que
+      # l'updater intégré compare (voir overdrive/core/updater.py).
+      - name: Version
+        id: version
+        run: |
+          version=$(python3 -c "import overdrive; print(overdrive.VERSION)")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version-build.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Overdrive-exe
+          path: dist
 
       - name: Publication de la Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0-build.${{ github.run_number }}
-          name: Overdrive build ${{ github.run_number }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Overdrive ${{ steps.version.outputs.version }} (build ${{ github.run_number }})
+          make_latest: "true"
           files: dist/Overdrive.exe
           body: |
-            Exécutable Windows d'Overdrive, optimiseur PC gaming.
+            ## Installation
 
-            Installation : téléchargez `Overdrive.exe` ci-dessous et lancez-le.
+            1. Téléchargez **`Overdrive.exe`** ci-dessous et lancez-le.
+            2. Windows demande l'élévation administrateur (UAC) : c'est attendu,
+               les optimisations modifient des réglages système.
+            3. Si SmartScreen affiche « Windows a protégé votre ordinateur »,
+               cliquez sur **Informations complémentaires** puis
+               **Exécuter quand même** (exécutable non signé, construit par
+               GitHub Actions depuis le commit ${{ github.sha }}).
 
-            - Windows demande l'élévation administrateur (UAC) au lancement :
-              c'est attendu, les optimisations modifient des réglages système.
-            - Si SmartScreen affiche « Windows a protégé votre ordinateur »,
-              cliquez sur « Informations complémentaires » puis
-              « Exécuter quand même » (exécutable non signé).
-            - Mode serveur sans fenêtre : `Overdrive.exe --server`.
+            Mode serveur sans fenêtre : `Overdrive.exe --server`
+            (interface sur http://127.0.0.1:8787).
 
-            Les optimisations appliquées sont réversibles depuis l'application.
-            Pensez à créer un point de restauration avant d'appliquer des
-            optimisations avancées.
+            Toutes les optimisations sont réversibles depuis l'application.
+            Nouveautés : voir le [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md).
+
+            ---
+
+            *Windows 10/11 x64. Download `Overdrive.exe`, run it and accept the
+            UAC prompt. Every tweak can be reverted from the app.*
+
+      # Ne garde que la Release qui vient d'être publiée : les précédentes et
+      # leurs tags (format vX.Y.Z-build.N) sont supprimés.
+      - name: Suppression des anciennes Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEEP: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 500 \
+              --json tagName --jq '.[].tagName' |
+            while read -r tag; do
+              if [ -n "$tag" ] && [ "$tag" != "$KEEP" ]; then
+                echo "Suppression de la Release $tag"
+                gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
+              fi
+            done
+          # Tags de build orphelins (sans Release).
+          gh api --paginate "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v" --jq '.[].ref' |
+            while read -r ref; do
+              tag="${ref#refs/tags/}"
+              if [[ "$tag" == *-build.* ]] && [ "$tag" != "$KEEP" ]; then
+                echo "Suppression du tag $tag"
+                gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$tag"
+              fi
+            done

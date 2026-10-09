@@ -1,0 +1,27 @@
+name: Proposer une idée
+description: Une optimisation, un jeu ou une fonctionnalité à ajouter.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: L'idée
+      description: Ce que tu voudrais voir dans Overdrive.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Pourquoi ?
+      description: Le gain attendu (FPS, latence, confort) et, pour une optimisation, une source si tu en as une.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Domaine
+      options:
+        - Optimisations Windows
+        - Jeux / CS2
+        - Widget en jeu
+        - Interface
+        - Assistant IA
+        - Autre

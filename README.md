@@ -11,9 +11,14 @@ system tweaks, 12 games with their official artwork, one-click CS2 boost tuned t
 hardware, in-game FPS widget, real-time monitor and AI assistant — animated Raycast-style
 dark UI, fully local, no telemetry, French and English.*
 
-[![Build](../../actions/workflows/build-exe.yml/badge.svg)](../../actions/workflows/build-exe.yml)
-[![Dernière version](https://img.shields.io/badge/t%C3%A9l%C3%A9charger-Overdrive.exe-7c5cff)](../../releases/latest)
-[![Licence](https://img.shields.io/badge/licence-MIT-444)](LICENSE)
+[![Build](https://github.com/realycracked/game_boost/actions/workflows/build-exe.yml/badge.svg?branch=main)](https://github.com/realycracked/game_boost/actions/workflows/build-exe.yml)
+[![Version](https://img.shields.io/github/v/release/realycracked/game_boost?label=version&color=7c5cff)](https://github.com/realycracked/game_boost/releases/latest)
+[![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-2b2b2b)](https://github.com/realycracked/game_boost/releases/latest)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-444)](LICENSE)
+
+**[Télécharger](#téléchargement)** · [Fonctionnalités](#fonctionnalités) ·
+[Utilisation](#utilisation) · [Développement](#développement) ·
+[Changelog](CHANGELOG.md)
 
 ![Accueil d'Overdrive en mouvement : bannière cinématique, rotation des jeux, carrousel de jaquettes](docs/accueil.gif)
 
@@ -54,7 +59,8 @@ dark UI, fully local, no telemetry, French and English.*
 
 ## Téléchargement
 
-1. Récupère `Overdrive.exe` dans la [dernière Release](../../releases/latest).
+1. Récupère `Overdrive.exe` dans la [dernière Release](https://github.com/realycracked/game_boost/releases/latest)
+   (Windows 10/11 64 bits, un seul fichier, rien à installer).
 2. Lance-le. Windows demande l'élévation administrateur (UAC) : c'est attendu, les
    optimisations modifient des réglages système.
 3. Si SmartScreen affiche « Windows a protégé votre ordinateur », clique sur
@@ -130,8 +136,10 @@ d'origine relevé sur ta machine. Point de restauration intégré.
 ## Développement
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/realycracked/game_boost.git && cd game_boost
+pip install -r requirements-dev.txt
 python run.py --server        # http://127.0.0.1:8787
+python -m pytest              # tests : catalogues, modules, API
 ```
 
 Fonctionne aussi sous Linux/macOS pour le développement : l'interface et l'API
@@ -158,11 +166,18 @@ overdrive/
     ├── intro.js        # intro au lancement
     ├── motion.js       # moteur d'animations
     └── palette.js      # palette de commandes Ctrl+K
+tests/                  # pytest : catalogues, sécurité de l'API, modules métier
 ```
 
-L'exécutable est construit par GitHub Actions ([workflow](../../actions)) : test de
-fumée sous Linux, puis PyInstaller sous Windows et publication en Release.
-`python build_exe.py` reproduit le build localement.
+L'exécutable est construit par GitHub Actions ([workflow](https://github.com/realycracked/game_boost/actions/workflows/build-exe.yml)) :
+tests sous Linux (pytest, syntaxe de l'interface, démarrage réel du serveur), puis
+PyInstaller sous Windows. Chaque pull request produit un `Overdrive.exe` en artefact ;
+chaque fusion dans `main` publie la Release et supprime les précédentes, la page
+Releases ne garde donc que la dernière version. `python build_exe.py` reproduit le
+build localement.
+
+Envie de contribuer ? Lis [CONTRIBUTING.md](CONTRIBUTING.md). Une faille de
+sécurité se signale en privé (voir [SECURITY.md](SECURITY.md)).
 
 ## Sécurité et confidentialité
 
