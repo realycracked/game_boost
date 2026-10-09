@@ -39,6 +39,17 @@ tel quel, sans modification, dans `Overdrive.exe`. Si le téléchargement
 échoue, l'application est construite sans PresentMon : le widget affiche
 alors « — » pour les FPS.
 
+## Skill Claude « logo-design » (outil de développement)
+
+Le dossier `.claude/skills/logo-design/` contient une copie du skill
+[logo-design](https://github.com/kaankiziltug/logo-design-skill) de kaankiziltug
+(v1.4.4, licence MIT, texte dans `.claude/skills/logo-design/LICENSE`). Il sert
+uniquement aux sessions Claude Code sur ce dépôt et n'est pas embarqué dans
+`Overdrive.exe`. Sa bibliothèque de 1 432 logos de référence (marques déposées de
+leurs propriétaires) n'est pas redistribuée ici : elle est téléchargée à la
+demande par `scripts/fetch_library.py`. Détails dans
+`.claude/skills/logo-design/VENDORED.md`.
+
 ## Visuels des jeux (jaquettes, bannières, logos)
 
 Les images des jeux affichées par Overdrive (jaquettes, bannières, visuels

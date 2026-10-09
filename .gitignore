@@ -31,3 +31,7 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Skill logo-design : logos de marques téléchargés à la demande, jamais commités
+.claude/skills/logo-design/assets/library/svg/
+.claude/skills/logo-design/assets/library/svg-download-*/

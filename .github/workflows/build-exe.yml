@@ -6,9 +6,9 @@ name: Build
 on:
   push:
     branches: [main]
-    paths-ignore: ["**.md", "docs/**", ".github/ISSUE_TEMPLATE/**"]
+    paths-ignore: ["**.md", "docs/**", ".claude/**", ".github/ISSUE_TEMPLATE/**"]
   pull_request:
-    paths-ignore: ["**.md", "docs/**", ".github/ISSUE_TEMPLATE/**"]
+    paths-ignore: ["**.md", "docs/**", ".claude/**", ".github/ISSUE_TEMPLATE/**"]
   workflow_dispatch:
 
 permissions:
