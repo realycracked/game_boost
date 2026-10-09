@@ -74,6 +74,11 @@ from .store import get_settings, update_settings
 
 _SIMPLE_TYPES = (str, int, float, bool, type(None))
 
+#: Bornes du convertisseur de sensibilité (POST /api/sens/convert) : valeur
+#: de jeu maximale acceptée et cm/360 minimal plausible.
+_SENS_MAX = 1000.0
+_CM360_MIN = 0.1
+
 #: Thèmes acceptés par POST /api/settings et /api/profile/import ; les
 #: anciennes valeurs "dark"/"light" sont normalisées (voir _THEME_ALIASES).
 _THEMES = ("midnight", "midnight-ocean", "midnight-emerald", "midnight-rose",
@@ -819,12 +824,27 @@ def create_app() -> FastAPI:
         sens = data.get("sens")
         dpi = data.get("dpi")
         if not isinstance(game, str) or not isinstance(sens, (int, float)) \
-                or not isinstance(dpi, int):
+                or isinstance(sens, bool) or not isinstance(dpi, int):
             raise HTTPException(
                 status_code=400,
                 detail="Champs requis : 'game' (str), 'sens' (nombre), 'dpi' (entier).",
             )
-        return convert(game, float(sens), dpi)
+        # Borne haute : au-delà, les conversions n'ont plus de sens physique
+        # (ex. 99 999 999 → 0 cm/360 et eDPI à 12 chiffres). Les valeurs
+        # nulles, négatives ou non finies restent refusées par convert().
+        if not float(sens) > _SENS_MAX:
+            result = convert(game, float(sens), dpi)
+        else:
+            result = {"ok": False, "cm360": 0.0, "edpi": None, "conversions": [],
+                      "message": f"Sensibilité hors plage : entre 0 et {_SENS_MAX:g} attendu.",
+                      "message_en": f"Sensitivity out of range: between 0 and {_SENS_MAX:g} expected."}
+        if result.get("ok") and float(result.get("cm360") or 0.0) < _CM360_MIN:
+            result = {"ok": False, "cm360": 0.0, "edpi": None, "conversions": [],
+                      "message": "Combinaison sensibilité × DPI irréaliste : moins de "
+                                 "0,1 cm pour un tour complet.",
+                      "message_en": "Unrealistic sensitivity × DPI combination: less than "
+                                    "0.1 cm for a full turn."}
+        return result
 
     @application.get("/api/crosshairs")
     def api_crosshairs() -> dict:

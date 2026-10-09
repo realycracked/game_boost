@@ -35,6 +35,13 @@ from overdrive.paths import is_windows
 
 _TIERS: tuple[str, ...] = ("lowend", "midrange", "highend")
 
+#: Libellés de repli des tiers (FR, EN) si cs2.py est indisponible.
+_TIER_LABELS_FALLBACK: dict[str, tuple[str, str]] = {
+    "lowend": ("Petite config", "Low-end machine"),
+    "midrange": ("Milieu de gamme", "Mid-range machine"),
+    "highend": ("Haut de gamme", "High-end machine"),
+}
+
 _WINDOWS_ONLY = "Disponible uniquement sous Windows."
 _WINDOWS_ONLY_EN = "Windows only."
 
@@ -81,6 +88,22 @@ def _hardware() -> dict:
         return hw if isinstance(hw, dict) else {}
     except Exception:
         return {}
+
+
+def _tier_label(tier: str | None) -> tuple[str, str]:
+    """Libellé lisible (FR, EN) du tier effectif, jamais l'identifiant brut."""
+    labels: dict = _TIER_LABELS_FALLBACK
+    try:
+        from overdrive.core.games.cs2 import _TIER_LABELS  # noqa: PLC0415
+
+        if isinstance(_TIER_LABELS, dict):
+            labels = _TIER_LABELS
+    except Exception:
+        labels = _TIER_LABELS_FALLBACK
+    pair = labels.get(tier) or _TIER_LABELS_FALLBACK.get(tier or "")
+    if not pair:
+        return (str(tier or "—"), str(tier or "—"))
+    return (str(pair[0]), str(pair[1]))
 
 
 def _context(tier: str | None) -> dict:
@@ -650,7 +673,9 @@ def plan(tier: str | None = None) -> dict:
 
     ``tier`` : ``lowend`` / ``midrange`` / ``highend`` pour forcer, sinon
     tier CS2 détecté. Retour : ``{"ok", "supported", "message",
-    "message_en", "tier", "tier_source", "tier_info", "gpu", "cs2_running",
+    "message_en", "tier", "tier_source", "tier_label", "tier_label_en"
+    (libellé du tier effectif, forcé ou détecté), "tier_info" (détection,
+    même quand le tier est forcé), "gpu", "cs2_running",
     "steps", "tweaks", "missing_tweaks", "video", "autoexec",
     "manual_steps", "notes"}``.
     """
@@ -683,11 +708,11 @@ def plan(tier: str | None = None) -> dict:
              "details": rows},
             {"step": "video", "label": _LABELS["video"][0],
              "label_en": _LABELS["video"][1], "will_run": supported,
-             "description": (f"Plan vidéo « {ctx['tier']} » : {len(changes)} "
+             "description": (f"Plan vidéo « {_tier_label(ctx['tier'])[0]} » : {len(changes)} "
                              "réglage(s) à modifier dans votre cs2_video.txt "
                              "(sauvegarde du coffre avant écriture, refus si CS2 "
                              "tourne)."),
-             "description_en": (f"“{ctx['tier']}” video plan: {len(changes)} "
+             "description_en": (f"“{_tier_label(ctx['tier'])[1]}” video plan: {len(changes)} "
                                 "setting(s) to change in your cs2_video.txt "
                                 "(Vault backup before writing, refused while CS2 "
                                 "is running)."),
@@ -723,6 +748,8 @@ def plan(tier: str | None = None) -> dict:
             "message_en": message_en,
             "tier": ctx["tier"],
             "tier_source": ctx["tier_source"],
+            "tier_label": _tier_label(ctx["tier"])[0],
+            "tier_label_en": _tier_label(ctx["tier"])[1],
             "tier_info": ctx["tier_info"],
             "gpu": {"name": ctx["gpu_name"], "vendor": ctx["gpu_vendor"],
                     "arch": ctx["gpu_arch"]},

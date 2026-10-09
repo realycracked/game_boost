@@ -339,6 +339,7 @@
     });
     input.addEventListener("input", function () { active = 0; renderList(false); });
     input.addEventListener("keydown", onInputKey);
+    list.addEventListener("scroll", updateFade, { passive: true });
     list.addEventListener("pointermove", function (e) {
       var item = e.target && e.target.closest ? e.target.closest(".od-pal-item") : null;
       if (item) {
@@ -456,6 +457,15 @@
     list.hidden = results.length === 0;
     if (!results.length) { empty.textContent = t("empty").replace("{q}", q); }
     setActive(active, true);
+    updateFade();
+  }
+
+  /** Fondu en bas de liste tant qu'il reste des entrées à faire défiler (pas
+      de lamelle d'icône coupée net au-dessus du pied) ; retiré tout en bas. */
+  function updateFade() {
+    if (!list) { return; }
+    var more = !list.hidden && list.scrollTop + list.clientHeight < list.scrollHeight - 2;
+    list.classList.toggle("od-pal-more", more);
   }
 
   function setActive(idx, scroll) {
@@ -480,8 +490,11 @@
     if (scroll) {
       var top = item.offsetTop, bottom = top + item.offsetHeight;
       var head = 34;
+      /* Marge basse de 40px : l'entrée active ne finit jamais dans le fondu. */
+      var foot = 40;
       if (top - head < list.scrollTop) { list.scrollTop = Math.max(0, top - head); }
-      else if (bottom + 8 > list.scrollTop + list.clientHeight) { list.scrollTop = bottom + 8 - list.clientHeight; }
+      else if (bottom + foot > list.scrollTop + list.clientHeight) { list.scrollTop = bottom + foot - list.clientHeight; }
+      updateFade();
     }
   }
 
@@ -544,6 +557,26 @@
       try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* focus impossible */ }
     }
     lastFocus = null;
+    /* Rien à restaurer (aucun élément focalisé à l'ouverture) ou élément
+       remplacé par la commande exécutée (navigation, re-rendu) : repli. */
+    [0, 400, 1000].forEach(function (d) { setTimeout(focusFallback, d); });
+  }
+
+  /** Focus de repli quand il est retombé sur <body> : titre de la page
+      (tabindex=-1) ou entrée active de la navigation. Une fenêtre ouverte
+      (modale, QCM) gère son propre focus. */
+  function focusFallback() {
+    if (isOpenFlag) { return; }
+    var a = doc.activeElement;
+    if (a && a !== doc.body && a !== root && a.isConnected) { return; }
+    var mr = doc.getElementById("modal-root"), ov = doc.getElementById("overlay-root");
+    if ((mr && !mr.hidden && mr.firstElementChild) || (ov && !ov.hidden && ov.firstElementChild)) { return; }
+    var target = doc.querySelector("#page .page-title") || doc.querySelector(".nav-item.active");
+    if (!target) { return; }
+    if (target.classList.contains("page-title") && !target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+    try { target.focus({ preventScroll: true }); } catch (e) { /* focus impossible */ }
   }
 
   function toggle() { if (isOpenFlag) { close(); } else { open(); } }

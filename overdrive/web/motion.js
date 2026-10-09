@@ -459,11 +459,12 @@
     poly.setAttribute("class", "od-spark-area");
     poly.setAttribute("points", pts + " " + last[0] + "," + H + " " + first[0] + "," + H);
     svg.insertBefore(poly, line);
-    /* Tracé animé une seule fois par tuile, dès qu'il y a assez de points
-       (le drapeau n'est posé qu'au moment où l'animation joue vraiment). */
-    if (!box.__odDrawn && fxOn() && arr.length >= 8 && svg.animate) {
+    /* Tracé animé une seule fois par tuile, dès le premier segment (la courbe
+       s'étire sur toute la largeur tant que l'historique n'est pas plein ; le
+       drapeau n'est posé qu'au moment où l'animation joue vraiment). */
+    if (!box.__odDrawn && fxOn() && arr.length >= 2 && svg.animate) {
       box.__odDrawn = true;
-      /* La courbe entre par la droite : le dévoilement part de son 1er point. */
+      /* Le dévoilement part du 1er point de la courbe. */
       var W = vb[2] || 180;
       var x0 = clamp(Number(first[0]) / W, 0, 1);
       var startInset = ((1 - x0) * 100).toFixed(2) + "%";
@@ -859,6 +860,33 @@
   /* ------------------------------------------------------------------ */
 
   var vtActive = false;
+  var currentVT = null;
+
+  /** Clic pendant une View Transition : tant que la racine est capturée,
+      Chromium dirige le clic vers <html> et il serait perdu (clics rapprochés
+      sur les thèmes, navigation pendant une sortie de page). On termine la
+      transition sans attendre, puis on rejoue le clic sur l'élément réel
+      situé sous le pointeur. */
+  function onVtClick(e) {
+    if (!vtActive || !currentVT || e.target !== root || !e.isTrusted) { return; }
+    var x = e.clientX, y = e.clientY;
+    var vt = currentVT;
+    e.preventDefault();
+    e.stopPropagation();
+    try { vt.skipTransition(); } catch (err) { /* transition déjà terminée */ }
+    function replay() {
+      requestAnimationFrame(function () {
+        var el = doc.elementFromPoint(x, y);
+        /* Une icône (<svg>, <path>) n'a pas de méthode click() : on remonte
+           jusqu'au premier élément HTML cliquable (bouton, lien, libellé). */
+        while (el && el !== root && typeof el.click !== "function") { el = el.parentElement; }
+        if (el && el !== root && el !== doc.body) {
+          try { el.click(); } catch (err2) { /* clic rejoué impossible */ }
+        }
+      });
+    }
+    vt.finished.then(replay, replay);
+  }
 
   function canVT() {
     return typeof doc.startViewTransition === "function" && fadeOn() && !vtActive;
@@ -882,7 +910,12 @@
       vtActive = false;
       try { return Promise.resolve(fn()); } catch (e2) { return Promise.reject(e2); }
     }
-    function cleanup() { root.classList.remove(cls); vtActive = false; }
+    currentVT = vt;
+    function cleanup() {
+      root.classList.remove(cls);
+      vtActive = false;
+      if (currentVT === vt) { currentVT = null; }
+    }
     vt.ready.catch(noop);
     vt.finished.then(cleanup, cleanup);
     vt.updateCallbackDone.catch(noop);
@@ -1030,6 +1063,7 @@
     doc.addEventListener("pointerdown", onPointerDown, { passive: true, capture: true });
     doc.addEventListener("keydown", function () { lastInput = now(); }, true);
     doc.addEventListener("click", onNavClick);
+    window.addEventListener("click", onVtClick, true);
     doc.addEventListener("animationend", onAnimEnd, true);
     doc.addEventListener("animationcancel", onAnimEnd, true);
     root.addEventListener("mouseleave", releaseAll);

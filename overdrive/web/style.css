@@ -575,6 +575,10 @@ html:not([data-theme="light"]):not([data-theme="daylight"]) .icon-moon { display
 
 /* ---------- 6. Composants : typographie ---------- */
 
+/* Titre focalisé en repli (tabindex=-1, après navigation clavier ou palette) :
+   aucun anneau ni halo, il ne doit pas paraître « sélectionné ». */
+h1.page-title[tabindex="-1"]:focus,
+h1.page-title[tabindex="-1"]:focus-visible { outline: none; box-shadow: none; border-radius: 0; }
 h1.page-title {
   font-family: var(--font-display);
   font-size: 32px;
@@ -1264,6 +1268,10 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
 .table tbody tr:hover td:first-child { border-radius: 8px 0 0 8px; }
 .table tbody tr:hover td:last-child { border-radius: 0 8px 8px 0; }
 .table td.mono { color: var(--text); }
+/* Colonnes numériques : alignées à droite, chiffres à chasse fixe (les
+   « % », « Mo » et unités tombent en colonne). */
+.table th.num,
+.table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Tableau hors carte : il devient lui-même un panneau. */
 .table:not(.card .table):not(.modal .table) {
@@ -1271,7 +1279,8 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-1), var(--highlight);
-  padding: 4px 6px;
+  /* Cellules à 30px du bord (18 + 12), comme un tableau dans une .card. */
+  padding: 6px 18px;
 }
 
 /* ---------- 7. Pages : Accueil ---------- */
@@ -1317,7 +1326,10 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
   text-overflow: ellipsis;
   padding-bottom: 2px;
 }
-.stat-card .stat-note { font-size: 12.5px; color: var(--text-2); margin-top: 8px; }
+/* Colonne : la note se cale en bas de carte, alignée d'une carte à l'autre
+   quelle que soit la taille de la valeur (Profil en 22px, voisines en 30px). */
+.stat-card { display: flex; flex-direction: column; }
+.stat-card .stat-note { font-size: 12.5px; color: var(--text-2); margin-top: auto; padding-top: 8px; }
 /* Carte Profil : le nom du profil est l'information clé, jamais tronqué en
    une ligne (jusqu'à 2 lignes, puis libellé complet en info-bulle). */
 #stat-profile .stat-value {
@@ -1342,7 +1354,7 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: var(--accent-text);
+  color: var(--text-2);
   margin-bottom: 8px;
 }
 .hw-card .hw-line {
@@ -1373,46 +1385,58 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
-  --tb-top: 12px;
+  /* 8px 10px + 1px de bordure, dessinée par ::before. */
+  padding: 9px 11px;
+  /* Collée sans espace au bord haut de la zone qui défile : pas de bande
+     libre au-dessus d'elle, donc rien à masquer (le fond vivant reste
+     visible tel quel autour). */
+  --tb-top: 0px;
   position: sticky;
   top: var(--tb-top);
   z-index: 10;
   margin-bottom: 18px;
-  /* Fond quasi opaque : la lisibilité ne dépend pas du flou d'arrière-plan
-     (simple bonus). */
-  background: color-mix(in srgb, var(--surface) 95%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  backdrop-filter: blur(16px) saturate(1.3);
-  border: 1px solid var(--border-strong);
-  border-radius: 14px;
-  box-shadow: var(--shadow-2), var(--highlight);
   container-type: scroll-state;
 }
-/* Barre collée : une ombre pleine couleur fond, décalée vers le haut, masque
-   la bande libre au-dessus d'elle (et ses coins arrondis), où les rangées qui
-   défilent apparaissaient coupées en deux. Visible seulement une fois collée. */
+/* Fond, bordure et ombre de la barre, portés par ::before pour pouvoir suivre
+   l'état « collée » (une requête de conteneur ne stylise que les descendants
+   du conteneur, pseudo-éléments compris). Fond opaque : les rangées qui
+   défilent dessous ne transparaissent jamais. */
 .tweaks-toolbar::before {
   content: "";
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  box-shadow: 0 calc(var(--tb-top) * -1) 0 0 var(--bg);
+  inset: 0;
+  z-index: -1;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  box-shadow: var(--shadow-2), var(--highlight);
   pointer-events: none;
-  opacity: 0;
+  transition: border-radius var(--dur-2) ease, border-color var(--dur-2) ease;
 }
+/* Collée : coins du haut carrés et bordure haute fondue dans le bord. */
 @container scroll-state(stuck: top) {
-  .tweaks-toolbar::before { opacity: 1; }
-}
-@supports not (container-type: scroll-state) {
-  .tweaks-toolbar::before { opacity: 1; }
+  .tweaks-toolbar::before {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-color: transparent;
+  }
 }
 .tweaks-toolbar .spacer { flex: 1 1 0; }
 /* Groupe d'actions indivisible, poussé à droite (y compris sur la 2e ligne). */
 .toolbar-actions { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; margin-left: auto; }
 
 .spacer { flex: 1 1 auto; }
-.tweaks-count { color: var(--text-2); font-size: 12.5px; padding: 0 6px; }
+/* Compteur séparé de l'action « Tout désélectionner » par un filet : il ne
+   se lit plus comme la suite du bouton fantôme. */
+.tweaks-count {
+  color: var(--text-2);
+  font-size: 12.5px;
+  margin-left: 4px;
+  padding: 0 6px 0 12px;
+  border-left: 1px solid var(--border);
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
 
 .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 22px; align-items: center; }
 
@@ -1461,7 +1485,7 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
 
 .tweak-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   padding: 9px 12px;
   min-height: 44px;
@@ -1483,27 +1507,68 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
 .tweak-row.unsupported .badge { filter: saturate(.35); }
 .tweak-row.unsupported input { opacity: .45; }
 
+/* Case alignée sur la 1re ligne (hauteur d'un badge : 22px). */
+.tweak-row > .tweak-check { margin-top: 2.5px; }
+.tweak-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+/* 1re ligne : nom, badges, statut à droite. Si la place manque, les badges
+   passent à la ligne sous le nom (jamais de nom réduit à rien). */
+.tweak-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  min-height: 22px;
+}
+
 .tweak-name {
   font-weight: 560;
   flex: 0 1 auto;
-  max-width: 290px;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text);
 }
 
+/* Explication : contenu principal de la page, 3 lignes au plus sous le nom.
+   Texte tronqué : bouton « Plus » (clavier, tactile) en plus de l'info-bulle. */
 .tweak-desc {
-  flex: 1 1 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
   min-width: 0;
   color: var(--text-2);
   font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.45;
+  white-space: normal;
 }
 
-.tweak-status { flex: 0 0 auto; font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.tweak-row.is-open .tweak-desc {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+  overflow: visible;
+}
+/* « Plus » / « Moins » : sous la rangée, aligné sur l'explication. */
+.tweak-more {
+  display: block;
+  margin: -7px 0 6px 39px;
+  padding: 2px 0;
+  font-size: 12.5px;
+  font-weight: 560;
+}
+
+.tweak-status { flex: 0 0 auto; margin-left: auto; font-size: 12px; color: var(--text-2); white-space: nowrap; }
 
 .tweak-result {
   margin: -2px 0 6px 39px;
@@ -1546,17 +1611,23 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
 
 .game-card {
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 118px;
+  /* Sous-grille : en-tête (titre + boutique), badge et chemin partagent les
+     mêmes lignes sur toute la rangée (un titre sur 2 lignes ne décale plus
+     le badge de sa carte). */
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 8px;
+  align-content: start;
   background-image:
     radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--accent-2) 9%, transparent), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, .022), rgba(255, 255, 255, 0) 60%);
 }
 .game-card .card-title { font-size: 14.5px; }
 .game-card .game-store { color: var(--text-2); font-size: 12.5px; }
-.game-card .game-path { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: auto; }
+.game-card .game-head { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.game-card .game-badge { align-self: end; }
+.game-card .game-path { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .game-card.selected {
   border-color: var(--accent-line);
   background-color: color-mix(in srgb, var(--accent) 7%, var(--surface));
@@ -1690,6 +1761,20 @@ details.fold .fold-body { padding: 0 14px 14px; animation: od-fold-in var(--dur-
 .cs2-advice .advice-detail { color: var(--text-2); font-size: 13px; margin-top: 3px; }
 
 .cs2-video-table .cs2-menu-path { display: block; color: var(--text-3); font-size: 11.5px; margin-top: 2px; }
+/* Raison de non-application : statut distinct de la note (pastille). */
+.cs2-video-table .cs2-skip {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text-2);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+.cs2-video-table .cs2-skip:not(:first-child) { margin-top: 5px; }
 /* Colonne « Paramètre » assez large ; Actuel/Recommandé au plus juste. */
 .cs2-video-table th:first-child,
 .cs2-video-table td:first-child { width: 34%; min-width: 220px; }
@@ -1847,6 +1932,13 @@ details.fold .fold-body { padding: 0 14px 14px; animation: od-fold-in var(--dur-
 .settings-row .set-note { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
 .settings-row .set-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .settings-row .set-controls .input { width: 230px; }
+/* Bouton accolé à un champ (clés API, démarrage du widget) : même hauteur
+   que le champ (34px), bords alignés. */
+.settings-row .set-controls:has(> .input) > .btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
+/* Rangée en tête ou en fin de carte : le retrait de la rangée (14px) ne
+   s'ajoute plus entièrement à celui de la carte (18px). */
+.card > .settings-row:first-child { margin-top: -10px; }
+.card > .settings-row:last-child { margin-bottom: -10px; }
 
 /* Contrôle segmenté. */
 .seg {
@@ -1899,13 +1991,25 @@ html[data-theme="light"] .seg button.active { background: var(--surface); }
 .settings-row.sub-disabled .set-status { color: var(--text-3); }
 
 /* Section Widget (Réglages) et étape de démarrage automatique. */
-.check-grid { display: flex; flex-wrap: wrap; gap: 8px 16px; max-width: 380px; justify-content: flex-end; }
+/* Bloc équilibré 4 + 3 cases (plus de « Température » orpheline) ; la
+   spécificité l'emporte sur .settings-row .set-controls (flex). */
+.check-grid,
+.settings-row .set-controls.check-grid {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 8px 18px;
+  justify-content: end;
+  max-width: none;
+}
 .check-item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; white-space: nowrap; }
 
 /* ---------- QCM (overlay plein écran) ---------- */
 
 #overlay-root[hidden] { display: none; }
 
+/* Fenêtre focalisable (tabindex=-1) pour le focus initial : pas d'anneau. */
+.quiz-overlay:focus,
+.quiz-overlay:focus-visible { outline: none; box-shadow: none; }
 .quiz-overlay {
   position: fixed;
   inset: 0;
@@ -1990,6 +2094,7 @@ html[data-theme="light"] .seg button.active { background: var(--surface); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 15px 18px;
+  line-height: 1.45;
   cursor: pointer;
   box-shadow: var(--shadow-1), var(--highlight);
   transition: border-color var(--dur-2) ease, background-color var(--dur-2) ease, transform 300ms var(--ease-out), box-shadow var(--dur-2) ease;
@@ -2061,7 +2166,11 @@ html[data-theme="light"] .seg button.active { background: var(--surface); }
 .quiz-notes li { margin: 5px 0; }
 
 .quiz-result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
-#ob-options + .quiz-result-actions { margin-top: 30px; }
+/* Étape « Démarrage automatique » : actions placées comme Précédent / Suivant. */
+#ob-options + .quiz-result-actions { margin-top: 34px; justify-content: space-between; }
+.quiz-hint.ob-unsupported { color: var(--yellow); margin-top: -14px; }
+.quiz-opt:disabled { cursor: not-allowed; opacity: .55; }
+.quiz-opt:disabled:hover { transform: none; }
 
 @keyframes od-pop-in {
   0% { opacity: 0; transform: scale(.6) rotate(-8deg); }
@@ -2091,7 +2200,7 @@ html[data-theme="light"] .seg button.active { background: var(--surface); }
   margin-bottom: 10px;
 }
 .mon-card .mon-value { font-size: 28px; }
-.mon-card .mon-sub { font-size: 12.5px; color: var(--text-2); margin-top: 4px; min-height: 19px; font-variant-numeric: tabular-nums; text-wrap: balance; }
+.mon-card .mon-sub { font-size: 12.5px; color: var(--text-2); margin-top: 4px; min-height: 19px; font-variant-numeric: tabular-nums; white-space: pre-line; }
 .mon-card:has(.od-ring) .mon-label,
 .mon-card:has(.od-ring) .mon-value,
 .mon-card:has(.od-ring) .mon-sub { padding-right: 58px; }
@@ -2363,6 +2472,7 @@ svg.xhair-svg { width: 64px; height: 64px; display: block; border-radius: 8px; }
 .vault-targets td:first-child { width: 1%; padding-right: 4px; }
 .vault-sub { margin: 28px 0 10px; }
 .vault-actions { white-space: nowrap; }
+.table-scroll { max-width: 100%; }
 .vault-actions .btn + .btn { margin-left: 6px; }
 
 /* ---------- Squelettes de chargement ---------- */
@@ -2525,7 +2635,13 @@ html.od-vt-theme::view-transition-new(root) { animation: od-overlay-in 320ms var
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 6px 8px 8px;
-  scroll-padding: 32px 0 8px;
+  scroll-padding: 32px 0 40px;
+}
+/* Entrées restantes plus bas : fondu sur les 36 derniers pixels (palette.js
+   pose la classe tant que la liste n'est pas défilée jusqu'en bas). */
+.od-pal-list.od-pal-more {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
 }
 .od-pal-pill {
   position: absolute;
@@ -2722,7 +2838,7 @@ html[data-motion="off"]::view-transition-group(*) { animation: none !important; 
    Objectif : zéro coût CPU/GPU tant que le jeu tourne. */
 html[data-motion-paused] *,
 html[data-motion-paused] *::before,
-html[data-motion-paused] *::after { animation-play-state: paused !important; }
+html[data-motion-paused] *::after { animation-play-state: paused !important; transition: none !important; }
 html[data-motion-paused] .od-reveal,
 html[data-motion-paused] #page.od-page-enter,
 html[data-motion-paused] .modal-overlay,
@@ -2778,18 +2894,29 @@ html.od-hidden .od-blob { animation-play-state: paused; }
 
   #page { padding: 26px 16px 60px; }
   h1.page-title { font-size: 26px; }
-  .tweak-name { max-width: 160px; }
   .msg { max-width: 100%; }
   .settings-row .set-controls .input { width: 100%; }
-  .tweaks-toolbar { --tb-top: 60px; }
+  /* Collée juste sous la barre de navigation horizontale (même hauteur,
+     bordure basse comprise). */
+  .tweaks-toolbar { --tb-top: 51px; }
+  /* La barre du haut reste au-dessus de la barre d'actions collée. */
+  #sidebar { z-index: 20; }
   .od-pal-overlay { padding-top: 8vh; }
   .od-pal-foot > span:not(.od-pal-brand) { display: none; }
 }
 
 @media (max-width: 560px) {
-  .tweak-desc { display: none; }
+  /* Téléphone (mode --server) : le nom occupe toute sa ligne, badges et
+     statut passent dessous, l'explication reste visible. */
+  .tweak-name { flex: 1 1 100%; }
+  .tweak-status { white-space: normal; }
+  .toolbar-actions { flex-wrap: wrap; justify-content: flex-end; }
   .stats-row, .mon-grid { grid-template-columns: 1fr; }
   .hw-grid { grid-template-columns: 1fr; }
+  /* Tableaux larges (coffre) : défilement dans la carte, jamais la page. */
+  .table-scroll { overflow-x: auto; }
+  .check-grid,
+  .settings-row .set-controls.check-grid { grid-template-columns: repeat(2, max-content); justify-content: start; }
 }
 
 /* ---------- 12. Intégrations app.js (vague 6) ----------
@@ -2887,8 +3014,8 @@ html:not(.od-ready) .od-ring .od-ring-bar { stroke: var(--accent); }
   gap: 12px;
   margin-top: 4px;
 }
-/* Carte étroite : 3 + 2 vignettes plutôt que 4 + 1. */
-@container (max-width: 760px) { .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Carte étroite seulement (téléphone) : 3 + 2 vignettes plutôt que 4 + 1. */
+@container (max-width: 560px) { .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @container (max-width: 460px) { .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .theme-tile {
@@ -3020,7 +3147,18 @@ html:not(.od-ready) .od-ring .od-ring-bar { stroke: var(--accent); }
 }
 .theme-check svg.icon { width: 11px; height: 11px; stroke-width: 3; vertical-align: 0; }
 .theme-tile.is-active .theme-check { opacity: 1; transform: none; }
-.theme-sub { padding: 0 2px; font-size: 11.5px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Jusqu'à 2 lignes : vignettes étroites (5 colonnes en 1100px) sans texte coupé. */
+.theme-sub {
+  padding: 0 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text-2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 
 /* Page Jeux : bandeau « Boost CS2 » (+ encart AMD Adrenalin). */
 .card.cs2-hero {
@@ -3354,6 +3492,7 @@ html .card.cs2-hero {
 .cs2b-manual-title svg.icon { color: var(--accent-text); }
 .modal-body .cs2b-manual-sub { margin: 4px 0; }
 .modal-body ul.check-list { margin: 4px 0 0; padding-left: 0; }
+.modal-body ul.boost-steps { margin: 12px 0 4px; padding-left: 0; }
 .modal-body .check-row { margin: 0; color: var(--text); }
 
 /* Niveaux d'animation pour ces éléments. */
