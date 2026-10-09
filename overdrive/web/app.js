@@ -181,6 +181,41 @@
       badge_not_detected: "Non détecté",
       launch_options: "Options de lancement",
       recommended_settings: "Réglages recommandés",
+      /* Vague 7 : visuels des jeux (page Jeux + Réglages). */
+      games_lib: "Bibliothèque",
+      games_lib_detected: "{n} détecté(s)",
+      games_featured: "À la une",
+      game_open: "Voir la fiche",
+      game_cta: "Optimiser",
+      game_open_aria: "{name} : ouvrir la fiche",
+      game_art_credit: "Visuels © leurs éditeurs respectifs, téléchargés depuis Steam, Riot ou des API communautaires et mis en cache sur ce PC.",
+      art_group: "Images des jeux",
+      art_name: "Visuels des jeux (Accueil et Jeux)",
+      art_desc: "Jaquettes, bannières et logos de l'Accueil et de la page Jeux viennent des CDN officiels (Steam, Riot) ou d'API communautaires. Remplace-les par tes propres images : PNG, JPEG ou WebP, 8 Mo maximum.",
+      art_kind_aria: "Type d'image à personnaliser",
+      art_kind_cover: "Jaquette",
+      art_kind_hero: "Bannière",
+      art_kind_logo: "Logo",
+      art_pick: "Choisir une image…",
+      art_pick_aria: "Choisir une image pour {name}",
+      art_reset: "Réinitialiser",
+      art_reset_aria: "Réinitialiser l'image de {name}",
+      art_src_steam: "Steam",
+      art_src_riot: "Riot Data Dragon",
+      art_src_community: "API communautaire",
+      art_src_none: "Aucune source en ligne",
+      art_state_custom: "Personnalisée",
+      art_state_missing: "Visuel de secours",
+      art_state_composed: "Composée à partir des autres visuels",
+      art_state_nologo: "Pas de logo : nom affiché en texte",
+      art_drop_hint: "Astuce : tu peux aussi déposer une image sur un jeu.",
+      art_saved: "Image enregistrée.",
+      art_reset_done: "Visuel d'origine rétabli.",
+      art_bad_type: "Format non pris en charge : choisis une image PNG, JPEG ou WebP.",
+      art_too_big: "Image trop lourde (8 Mo maximum).",
+      art_read_err: "Lecture du fichier impossible.",
+      art_save_err: "Enregistrement de l'image impossible.",
+      art_unavailable: "Visuels indisponibles pour le moment.",
       cs2_loading: "Lecture de la configuration CS2…",
       cs2_unavailable: "Informations CS2 indisponibles.",
       cs2_config: "Configuration CS2",
@@ -567,7 +602,7 @@
       /* Vague 6 : Boost CS2 */
       cs2b_btn: "Boost CS2",
       cs2b_hero_title: "Boost CS2 en un clic",
-      cs2b_hero_sub: "Tweaks Windows ciblés, réglages vidéo et autoexec adaptés à votre machine. Aperçu détaillé avant toute modification, tout reste réversible.",
+      cs2b_hero_sub: "Tweaks Windows ciblés, réglages vidéo et autoexec adaptés à ta machine. Aperçu détaillé avant toute modification, tout reste réversible.",
       cs2b_title: "Boost CS2",
       cs2b_loading: "Préparation de l'aperçu…",
       cs2b_plan_failed: "Aperçu du Boost CS2 indisponible pour le moment.",
@@ -781,6 +816,41 @@
       badge_not_detected: "Not detected",
       launch_options: "Launch options",
       recommended_settings: "Recommended settings",
+      /* Wave 7: game artwork (Games page + Settings). */
+      games_lib: "Library",
+      games_lib_detected: "{n} detected",
+      games_featured: "Featured",
+      game_open: "View details",
+      game_cta: "Optimize",
+      game_open_aria: "{name}: open details",
+      game_art_credit: "Artwork © their respective publishers, downloaded from Steam, Riot or community APIs and cached on this PC.",
+      art_group: "Game artwork",
+      art_name: "Game visuals (Home & Games)",
+      art_desc: "Covers, banners and logos on Home and the Games page come from official CDNs (Steam, Riot) or community APIs. Replace them with your own images: PNG, JPEG or WebP, 8 MB maximum.",
+      art_kind_aria: "Image type to customize",
+      art_kind_cover: "Cover",
+      art_kind_hero: "Banner",
+      art_kind_logo: "Logo",
+      art_pick: "Choose an image…",
+      art_pick_aria: "Choose an image for {name}",
+      art_reset: "Reset",
+      art_reset_aria: "Reset the image of {name}",
+      art_src_steam: "Steam",
+      art_src_riot: "Riot Data Dragon",
+      art_src_community: "Community API",
+      art_src_none: "No online source",
+      art_state_custom: "Custom",
+      art_state_missing: "Fallback artwork",
+      art_state_composed: "Composed from the other artwork",
+      art_state_nologo: "No logo: name shown as text",
+      art_drop_hint: "Tip: you can also drop an image onto a game.",
+      art_saved: "Image saved.",
+      art_reset_done: "Original artwork restored.",
+      art_bad_type: "Unsupported format: choose a PNG, JPEG or WebP image.",
+      art_too_big: "Image too large (8 MB maximum).",
+      art_read_err: "Could not read the file.",
+      art_save_err: "Could not save the image.",
+      art_unavailable: "Artwork unavailable for now.",
       cs2_loading: "Reading CS2 configuration…",
       cs2_unavailable: "CS2 information unavailable.",
       cs2_config: "CS2 configuration",
@@ -1531,7 +1601,8 @@
     pause: '<circle cx="12" cy="12" r="10"/><line x1="10" x2="10" y1="15" y2="9"/><line x1="14" x2="14" y1="15" y2="9"/>',
     list: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
     loader: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
-    minus: '<path d="M5 12h14"/>'
+    minus: '<path d="M5 12h14"/>',
+    image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>'
   };
 
   function icon(name) {
@@ -2378,7 +2449,8 @@
 
   function currentRoute() {
     var h = window.location.hash || "#/";
-    var p = h.replace(/^#/, "");
+    /* Paramètres éventuels ignorés pour le routage (#/games?game=cs2). */
+    var p = h.replace(/^#/, "").split("?")[0];
     if (!routes[p]) { p = "/"; }
     return p;
   }
@@ -2397,7 +2469,12 @@
   function render() {
     if (renderQueued) { return; }
     var m = motionApi();
-    if (!m || typeof m.transition !== "function") { renderNow(); return; }
+    /* Intro de lancement affichée : rendu direct (l'instantané d'une
+       transition de page passerait au-dessus de l'overlay). */
+    var intro = window.OverdriveIntro;
+    var introOn = false;
+    try { introOn = !!(intro && typeof intro.isActive === "function" && intro.isActive()); } catch (e0) { introOn = false; }
+    if (!m || typeof m.transition !== "function" || introOn) { renderNow(); return; }
     renderQueued = true;
     var done = false;
     function run() {
@@ -2421,11 +2498,24 @@
     if (!done) { setTimeout(run, 1000); }
   }
 
+  /* Route du dernier rendu : un changement de page repart du haut. */
+  var lastRoute = null;
+
   function renderNow() {
     renderSeq++;
     stopMonitor();           /* l'intervalle du moniteur ne survit jamais à la page */
     stopHomeLive();          /* idem pour les jauges en direct de l'accueil */
     var route = currentRoute();
+    /* Nouvelle page : défilement remis en haut (instantané), sinon l'Accueil
+       s'ouvrirait au milieu et son héros animé resterait hors écran. Un
+       nouveau rendu de la MÊME page (langue, retour de modale) garde la
+       position ; openGameDetail défile ensuite vers la fiche. */
+    if (lastRoute !== null && route !== lastRoute) {
+      try { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); } catch (e) {
+        try { window.scrollTo(0, 0); } catch (e2) { /* défilement impossible */ }
+      }
+    }
+    lastRoute = route;
     setActiveNav(route);
     routes[route](renderSeq);
   }
@@ -2434,7 +2524,115 @@
   /* Page Accueil                                                        */
   /* ------------------------------------------------------------------ */
 
+  /** Accueil : rendu délégué au module home.js (écran « héros », vague 7) ;
+      repli sur l'accueil classique si le module manque ou échoue. */
   function renderHome(seq) {
+    var H = window.OverdriveHome;
+    if (H && typeof H.render === "function") {
+      try {
+        H.render(byId("page"), homeCtx(seq));
+        return;
+      } catch (e) {
+        if (window.console) { console.error(e); }
+        try { if (typeof H.stop === "function") { H.stop(); } } catch (e2) { /* déjà arrêté */ }
+      }
+    }
+    renderHomeClassic(seq);
+  }
+
+  /* Promesses en cours de l'accueil, par clé (retirées une fois réglées). */
+  var homeInflight = {};
+  function homeShared(key, make) {
+    if (homeInflight[key]) { return homeInflight[key]; }
+    var p = make();
+    homeInflight[key] = p;
+    function clear() { if (homeInflight[key] === p) { delete homeInflight[key]; } }
+    p.then(clear, clear);
+    return p;
+  }
+
+  /** Contexte fourni à home.js : aides et actions EXISTANTES de l'app (aucune
+      logique dupliquée : Boost, Boost CS2, benchmark, nettoyage, widget,
+      fiche d'un jeu, chargements partagés avec le cache state). */
+  function homeCtx(seq) {
+    return {
+      alive: function () { return alive(seq); },
+      lang: function () { return LANG; },
+      t: t,
+      tf: tf,
+      tr: tr,
+      srvMsg: srvMsg,
+      esc: esc,
+      icon: icon,
+      dec: dec,
+      fmtGb: fmtGb,
+      fmtMb: fmtMb,
+      storeLabel: storeLabel,
+      api: api,
+      status: function () { return state.status; },
+      profile: function () { return state.profile; },
+      gameRunning: function () { return gameRunning; },
+      motion: currentMotion,
+      cachedGames: function () { return state.games; },
+      cachedHardware: function () { return state.hardware; },
+      /* Requêtes en cours partagées (homeShared) : l'accueil construit deux
+         fois au démarrage (avant / après /api/status) ne double aucun appel. */
+      games: function () {
+        if (state.games) { return Promise.resolve(state.games); }
+        return homeShared("games", function () {
+          return api("/api/games").then(function (d) { state.games = (d && d.games) || []; return state.games; });
+        });
+      },
+      hardware: function (refresh) {
+        if (state.hardware && !refresh) { return Promise.resolve(state.hardware); }
+        if (refresh) {
+          return api("/api/hardware?refresh=1").then(function (h) { state.hardware = h; return h; });
+        }
+        return homeShared("hardware", function () {
+          return api("/api/hardware").then(function (h) { state.hardware = h; return h; });
+        });
+      },
+      tweaks: function () {
+        if (state.tweaks) { return Promise.resolve(state.tweaks); }
+        return homeShared("tweaks", function () {
+          return api("/api/tweaks").then(function (d) { state.tweaks = d; return d; });
+        });
+      },
+      artInfo: function () { return state.artInfo; },
+      artMonogram: artMonogram,
+      artTurn: artTurn,
+      artFocus: function (id) { return ART_FOCUS[id] || ""; },
+      loadPrograms: function () { loadPrograms(seq); },
+      openBoost: openBoostModal,
+      openCs2Boost: openCs2BoostModal,
+      openBench: openBenchModal,
+      quickClean: quickClean,
+      launchWidget: launchWidget,
+      openQuiz: function () { openQuiz(false); },
+      openGame: openGameDetail,
+      go: go
+    };
+  }
+
+  /** Fiche d'un jeu sur la page Jeux (sélection + défilement vers la fiche). */
+  function openGameDetail(id) {
+    if (!id) { return; }
+    state.selectedGame = id;
+    if (currentRoute() === "/games") { render(); } else { go("#/games"); }
+    var tries = 0;
+    (function seek() {
+      var det = byId("game-detail-area");
+      if (det && det.firstElementChild && currentRoute() === "/games") {
+        try { det.scrollIntoView({ behavior: currentMotion() === "max" ? "smooth" : "auto", block: "start" }); } catch (e) { /* défilement impossible */ }
+        return;
+      }
+      /* La navigation (transition de page) est asynchrone : on patiente un peu. */
+      if (++tries < 30 && state.selectedGame === id) { setTimeout(seek, 100); }
+    })();
+  }
+
+  /** Accueil classique (repli si home.js est indisponible). */
+  function renderHomeClassic(seq) {
     var page = byId("page");
     page.innerHTML =
       '<h1 class="page-title">' + esc(t("home_title")) + "</h1>" +
@@ -2503,6 +2701,11 @@
 
   function stopHomeLive() {
     if (homeLiveTimer) { clearTimeout(homeLiveTimer); homeLiveTimer = null; }
+    /* Accueil home.js : relevés /api/monitor, boucles et écouteurs arrêtés. */
+    var H = window.OverdriveHome;
+    if (H && typeof H.stop === "function") {
+      try { H.stop(); } catch (e) { /* déjà arrêté */ }
+    }
   }
 
   /** Premier relevé tout de suite (psutil renvoie 0 % au tout premier appel :
@@ -3377,6 +3580,14 @@
       '<p class="page-sub">' + esc(t("games_sub")) + "</p>" +
       '<div id="games-area"><div class="loading-line">' + esc(t("games_detecting")) + "</div></div>";
 
+    /* Fiche demandée par lien (#/games?game=<id>, ex. depuis l'Accueil) :
+       consommée une seule fois (le hash redevient #/games sans re-rendu). */
+    var wanted = gameFromHash();
+    if (wanted) {
+      try { history.replaceState(null, "", "#/games"); } catch (eH) { /* hash conservé : sans effet */ }
+    }
+    /* Capacités des visuels en parallèle (sans réseau côté serveur, jamais d'exception). */
+    var artP = loadArtInfo(true);
     try {
       var res = await api("/api/games");
       state.games = res.games || [];
@@ -3386,8 +3597,23 @@
       }
       return;
     }
+    await artP;
     if (!alive(seq)) { return; }
+    if (wanted && findGame(wanted)) { state.selectedGame = wanted; }
+    if (state.selectedGame && !findGame(state.selectedGame)) { state.selectedGame = null; }
     buildGamesArea(seq);
+    if (wanted && state.selectedGame === wanted) { revealGameDetail(); }
+  }
+
+  function findGame(id) {
+    var found = null;
+    (state.games || []).forEach(function (g) { if (g.id === id) { found = g; } });
+    return found;
+  }
+
+  function gameFromHash() {
+    var m = /[?&]game=([a-z0-9_]{1,40})/.exec(window.location.hash || "");
+    return m ? m[1] : null;
   }
 
   function buildGamesArea(seq) {
@@ -3397,22 +3623,23 @@
     var detected = games.filter(function (g) { return g.installed; }).length;
 
     var note = detected === 0 ?
-      '<p class="muted small">' + esc(t("games_none")) + "</p>" : "";
+      '<p class="muted small games-note">' + esc(t("games_none")) + "</p>" : "";
 
-    var cards = games.map(function (g) {
-      var badge = g.installed ?
-        '<span class="badge badge-green">' + esc(t("badge_detected")) + "</span>" :
-        '<span class="badge badge-gray">' + esc(t("badge_not_detected")) + "</span>";
-      var path = g.installed && g.install_path ?
-        '<div class="game-path mono" title="' + esc(g.install_path) + '">' + esc(g.install_path) + "</div>" : "";
-      return '<div class="card game-card' + (state.selectedGame === g.id ? " selected" : "") +
-        '" data-game="' + esc(g.id) + '" tabindex="0" role="button">' +
-        '<div class="game-head"><span class="card-title">' + esc(g.name) + "</span>" +
-        '<span class="game-store">' + esc(storeLabel(g.store)) + "</span></div>" +
-        '<div class="game-badge">' + badge + "</div>" + path + "</div>";
-    }).join("");
+    /* CS2 est mis en avant dans le grand bandeau : la bibliothèque montre les
+       autres jeux, les jeux détectés d'abord (ordre du catalogue conservé). */
+    var lib = games.filter(function (g) { return g.id !== "cs2"; })
+      .map(function (g, i) { return { g: g, i: i }; })
+      .sort(function (a, b) { return ((b.g.installed ? 1 : 0) - (a.g.installed ? 1 : 0)) || (a.i - b.i); })
+      .map(function (x) { return x.g; });
+    var libDetected = lib.filter(function (g) { return g.installed; }).length;
 
-    area.innerHTML = cs2HeroHtml() + note + '<div class="grid grid-4" id="games-grid">' + cards + "</div>" +
+    area.innerHTML = cs2HeroHtml() +
+      '<div class="group-label games-lib-label">' + esc(t("games_lib")) +
+      ' <span class="badge badge-gray">' + lib.length + "</span>" +
+      (libDetected ? ' <span class="badge badge-green">' + esc(tf("games_lib_detected", { n: libDetected })) + "</span>" : "") +
+      "</div>" + note +
+      '<div class="games-lib" id="games-grid">' + lib.map(posterHtml).join("") + "</div>" +
+      '<p class="games-credit">' + esc(t("game_art_credit")) + "</p>" +
       '<div id="game-detail-area"></div>' +
       '<div class="group-label">' + esc(t("latency_group")) + "</div>" +
       '<div class="card" id="latency-card"><div id="latency-inner"></div></div>' +
@@ -3423,18 +3650,29 @@
       '<div class="group-label">' + esc(t("vault_group")) + "</div>" +
       '<div class="card" id="vault-card"><div class="loading-line">' + esc(t("loading")) + "</div></div>";
 
+    /* Sélection d'une jaquette : seule la fiche est (re)construite, la grille
+       et les encarts (latence, convertisseur, viseurs, coffre) restent en place. */
     $all("#games-grid .game-card").forEach(function (card) {
-      function select() {
-        state.selectedGame = card.dataset.game;
-        buildGamesArea(seq);
-        var det = byId("game-detail-area");
-        if (det) { det.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-      }
+      function select() { selectGame(card.dataset.game, seq, true); }
       card.addEventListener("click", select);
       card.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); }
       });
     });
+    var feat = $(".gfeat", area);
+    if (feat) {
+      /* Clic sur le visuel (hors boutons) : ouvre la fiche CS2 ; au clavier,
+         c'est le bouton « Voir la fiche ». */
+      feat.addEventListener("click", function (e) {
+        if (e.target.closest && e.target.closest("button, a, input, select, summary, details")) { return; }
+        selectGame(feat.dataset.game, seq, true);
+      });
+      bindFeatureParallax(feat);
+    }
+    $all("[data-open-game]", area).forEach(function (btn) {
+      btn.addEventListener("click", function () { selectGame(btn.dataset.openGame, seq, true); });
+    });
+    mountArt(area);
 
     bindCs2Hero(seq);
     updateLatencyCard(seq);
@@ -3442,6 +3680,349 @@
     loadCrosshairs(seq);
     loadVault(seq);
     if (state.selectedGame) { buildGameDetail(seq); }
+  }
+
+  /** Sélectionne (ou désélectionne avec null) un jeu : état visuel + fiche. */
+  function selectGame(id, seq, reveal) {
+    state.selectedGame = id || null;
+    $all("#games-area [data-game]").forEach(function (el) {
+      var on = el.dataset.game === state.selectedGame;
+      el.classList.toggle("selected", on);
+      if (el.hasAttribute("aria-expanded")) { el.setAttribute("aria-expanded", on ? "true" : "false"); }
+    });
+    $all("#games-area [data-open-game]").forEach(function (b) {
+      b.setAttribute("aria-expanded", b.dataset.openGame === state.selectedGame ? "true" : "false");
+    });
+    buildGameDetail(seq);
+    if (state.selectedGame && reveal) { revealGameDetail(); }
+  }
+
+  function revealGameDetail() {
+    var det = byId("game-detail-area");
+    var box = det && det.firstElementChild;
+    if (!box) { return; }
+    var lvl = document.documentElement.getAttribute("data-motion");
+    box.scrollIntoView({ behavior: lvl === "max" ? "smooth" : "auto", block: "start" });
+  }
+
+  /* ---- Visuels des jeux (vague 7) : jaquettes, bandeaux, logos ----
+     Images servies par /api/art/<jeu>/<type> (téléchargées puis mises en
+     cache côté serveur). Chaque emplacement essaie une suite d'« étapes »,
+     de la plus riche à la plus sobre ; la dernière est toujours un visuel
+     de secours dessiné aux couleurs du thème (aucune requête). */
+
+  /** Capacités (/api/art), lecture silencieuse : pas de bandeau si indisponible. */
+  function loadArtInfo(force) {
+    if (state.artInfo && !force) { return Promise.resolve(state.artInfo); }
+    return fetch("/api/art", { cache: "no-store" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (d) {
+      state.artInfo = d && typeof d === "object" && !Array.isArray(d) ? d : (state.artInfo || {});
+      return state.artInfo;
+    }).catch(function () {
+      state.artInfo = state.artInfo || {};
+      return state.artInfo;
+    });
+  }
+
+  /** Infos connues d'un jeu (null si l'API n'a rien dit : on tente quand même). */
+  function artKnown(id) {
+    var info = state.artInfo && state.artInfo[id];
+    return info && typeof info === "object" && info.kinds ? info : null;
+  }
+
+  /** true / false si connu, null si inconnu. */
+  function artHas(id, kind) {
+    var info = artKnown(id);
+    return info ? !!info.kinds[kind] : null;
+  }
+
+  function artUrl(id, kind) {
+    var info = artKnown(id);
+    var rev = info && info.rev ? info.rev[kind] : 0;
+    return "/api/art/" + encodeURIComponent(id) + "/" + encodeURIComponent(kind) +
+      (rev ? "?v=" + encodeURIComponent(String(rev)) : "");
+  }
+
+  /** Cadrage des visuels non Steam (personnage ou sujet hors du centre). */
+  var ART_FOCUS = { league_of_legends: "50% 18%", valorant: "50% 45%", fortnite: "35% 40%" };
+
+  /** Étapes d'affichage selon l'usage : poster (2:3), wide (bandeau), logo. */
+  function artStages(id, use) {
+    var info = artKnown(id);
+    function has(k) { return info ? !!info.kinds[k] : null; }
+    var wideKind = has("hero") === false && has("header") ? "header" : "hero";
+    var out = [];
+    if (use === "poster") {
+      if (!info) { return ["cover", "crop:hero", "fallback"]; }
+      if (has("cover")) { out.push("cover"); }
+      if (has("portrait")) { out.push("compose" + (has("hero") || has("header") ? ":" + wideKind : "")); }
+      if (has("hero") || has("header")) { out.push("crop:" + wideKind); }
+    } else if (use === "logo") {
+      if (has("logo") !== false) { out.push("logo"); }
+    } else {
+      if (!info) { return ["hero", "header", "fallback"]; }
+      if (has("hero")) { out.push("hero"); }
+      if (has("header")) { out.push("header"); }
+      if (has("portrait")) { out.push("compose"); }
+    }
+    out.push("fallback");
+    return out;
+  }
+
+  /** Teinte stable par jeu pour varier les visuels de secours. */
+  function artTurn(id) {
+    var h = 0;
+    for (var i = 0; i < id.length; i++) { h = (h * 31 + id.charCodeAt(i)) % 360; }
+    return h;
+  }
+
+  /** Monogrammes consacrés (initiales peu parlantes sinon : « LL »). */
+  var ART_MONO = { "league of legends": "LoL", "counter-strike 2": "CS2", "call of duty: warzone": "WZ" };
+
+  /** Monogramme (« Counter-Strike 2 » → « CS2 », « Dota 2 » → « D2 »). */
+  function artMonogram(name) {
+    var known = ART_MONO[String(name || "").trim().toLowerCase()];
+    if (known) { return known; }
+    var skip = { of: 1, the: 1, de: 1, la: 1, le: 1, tom: 1, "clancy's": 1 };
+    var words = String(name || "").split(/[\s:\-()]+/).filter(function (w) {
+      return w && !skip[w.toLowerCase()];
+    });
+    var s = words.slice(0, 2).map(function (w) { return w.charAt(0); }).join("");
+    return (s || "?").toUpperCase();
+  }
+
+  /** Emplacement d'image (rempli par mountArt). */
+  function artBoxHtml(id, use, name, lazy) {
+    var focus = ART_FOCUS[id] ? "--focus:" + ART_FOCUS[id] + ";" : "";
+    return '<span class="gart gart-' + use + '" data-art-game="' + esc(id) + '" data-name="' + esc(name) +
+      '" data-stages="' + esc(artStages(id, use).join(",")) + '"' + (lazy ? ' data-lazy="1"' : "") +
+      ' style="' + focus + "--turn:" + artTurn(id) + 'deg" aria-hidden="true"></span>';
+  }
+
+  function artImgHtml(cls, id, kind, primary, lazy) {
+    return '<img class="gart-img' + (cls ? " " + cls : "") + '" src="' + esc(artUrl(id, kind)) +
+      '" alt="" draggable="false" decoding="async"' + (lazy ? ' loading="lazy"' : "") +
+      (primary ? " data-primary" : "") + ">";
+  }
+
+  function artStageHtml(id, name, stage, lazy) {
+    var parts = stage.split(":");
+    var mode = parts[0], kind = parts[1];
+    if (mode === "fallback") {
+      return '<span class="gart-fb"><span class="gart-fb-mono">' + esc(artMonogram(name)) + "</span></span>";
+    }
+    if (mode === "compose") {
+      /* Personnage détouré (PNG) posé sur la carte du jeu, floutée et voilée. */
+      return (kind ? artImgHtml("gart-bg", id, kind, false, lazy) : '<span class="gart-fb"></span>') +
+        artImgHtml("gart-fg", id, "portrait", true, lazy);
+    }
+    if (mode === "crop") { return artImgHtml("gart-crop", id, kind || "hero", true, lazy); }
+    if (mode === "logo") {
+      /* Aperçu de logo (Réglages) : même rognage / passage en blanc que les bandeaux. */
+      return artImgHtml("gart-logo", id, "logo", true, lazy).replace("<img ", "<img data-logo ");
+    }
+    return artImgHtml("", id, mode, true, lazy);
+  }
+
+  /** Remplit les emplacements .gart d'une zone (une seule fois chacun). */
+  function mountArt(scope) {
+    $all(".gart[data-stages]", scope).forEach(function (box) {
+      if (box.__odArt) { return; }
+      box.__odArt = true;
+      showArtStage(box, 0);
+    });
+    bindLogos(scope);
+  }
+
+  function showArtStage(box, index) {
+    var stages = String(box.dataset.stages || "fallback").split(",");
+    var stage = stages[index] || "fallback";
+    var token = String(index);
+    var lazy = box.dataset.lazy === "1";
+    box.dataset.stage = token;
+    /* Mode affiché (cover, compose, crop, fallback…) : la grille cache le
+       titre HTML sur les vraies jaquettes, qui portent déjà leur logo. */
+    box.dataset.mode = stage.split(":")[0];
+    box.classList.remove("is-loaded", "is-instant");
+    box.classList.toggle("is-fallback", stage === "fallback");
+    box.classList.toggle("is-compose", stage.indexOf("compose") === 0);
+    box.innerHTML = artStageHtml(box.dataset.artGame || "", box.dataset.name || "", stage, lazy);
+    if (stage === "fallback") { return; }
+    var primary = box.querySelector("img[data-primary]");
+    $all("img", box).forEach(function (img) {
+      var isPrimary = img === primary;
+      function ok(instant) {
+        if (box.dataset.stage !== token) { return; }
+        if (!isPrimary) { img.classList.add("is-in"); return; }
+        /* Image déjà en cache mémoire : affichage direct, sans fondu. */
+        if (instant === true) { box.classList.add("is-instant"); }
+        box.classList.add("is-loaded");
+      }
+      function ko() {
+        if (box.dataset.stage !== token) { return; }
+        if (isPrimary) { showArtStage(box, index + 1); } else { img.remove(); }
+      }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(true); } else { ko(); }
+      } else {
+        img.addEventListener("load", function () { ok(false); }, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+  }
+
+  /* Logos : marges transparentes rognées (object-view-box) et logos sombres
+     passés en blanc pour rester lisibles sur le voile du bandeau. Analyse
+     faite une fois par URL sur une copie réduite (image même origine). */
+  var LOGO_TUNE = {};
+
+  function bindLogos(scope) {
+    /* Personnages détourés décoratifs : simple fondu, retirés en cas d'échec. */
+    $all("img[data-portrait]", scope).forEach(function (img) {
+      if (img.__odLogo) { return; }
+      img.__odLogo = true;
+      function ok() { img.classList.add("is-in"); }
+      function ko() { img.remove(); }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(); } else { ko(); }
+      } else {
+        img.addEventListener("load", ok, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+    $all("img[data-logo]", scope).forEach(function (img) {
+      if (img.__odLogo) { return; }
+      img.__odLogo = true;
+      var host = img.closest(".has-logo");
+      function ok() { tuneLogo(img); img.classList.add("is-in"); }
+      function ko() {
+        if (host) { host.classList.remove("has-logo"); }
+        img.remove();
+      }
+      if (img.complete) {
+        if (img.naturalWidth > 0) { ok(); } else { ko(); }
+      } else {
+        img.addEventListener("load", ok, { once: true });
+        img.addEventListener("error", ko, { once: true });
+      }
+    });
+  }
+
+  function tuneLogo(img) {
+    var key = img.getAttribute("src") || "";
+    var r = LOGO_TUNE[key];
+    if (!r) {
+      r = { box: null, dark: false };
+      try {
+        var w = Math.max(1, Math.min(160, img.naturalWidth));
+        var h = Math.max(1, Math.round(img.naturalHeight * w / Math.max(1, img.naturalWidth)));
+        var c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        var ctx = c.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, w, h);
+        var d = ctx.getImageData(0, 0, w, h).data;
+        var minX = w, minY = h, maxX = -1, maxY = -1, opaque = 0, dark = 0;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var k = (y * w + x) * 4;
+            if (d[k + 3] <= 24) { continue; }
+            opaque++;
+            if (0.2126 * d[k] + 0.7152 * d[k + 1] + 0.0722 * d[k + 2] < 60) { dark++; }
+            if (x < minX) { minX = x; }
+            if (x > maxX) { maxX = x; }
+            if (y < minY) { minY = y; }
+            if (y > maxY) { maxY = y; }
+          }
+        }
+        if (maxX >= 0) {
+          var pad = 0.01;
+          r.box = [
+            Math.max(0, minY / h - pad), Math.max(0, 1 - (maxX + 1) / w - pad),
+            Math.max(0, 1 - (maxY + 1) / h - pad), Math.max(0, minX / w - pad)
+          ];
+          r.dark = opaque > 0 && dark / opaque > 0.5;
+        }
+      } catch (e) { /* analyse impossible : logo affiché tel quel */ }
+      LOGO_TUNE[key] = r;
+    }
+    var canTrim = false;
+    try { canTrim = !!(window.CSS && CSS.supports && CSS.supports("object-view-box", "inset(0px)")); } catch (e2) { canTrim = false; }
+    if (r.box && canTrim) {
+      img.style.objectViewBox = "inset(" + r.box.map(function (v) { return (v * 100).toFixed(2) + "%"; }).join(" ") + ")";
+    }
+    img.classList.toggle("is-dark", !!r.dark);
+  }
+
+  function logoHtml(id, cls) {
+    if (artHas(id, "logo") === false) { return ""; }
+    return '<img class="glogo' + (cls ? " " + cls : "") + '" src="' + esc(artUrl(id, "logo")) +
+      '" alt="" draggable="false" decoding="async" data-logo>';
+  }
+
+  function storeChipHtml(g) {
+    var label = storeLabel(g.store);
+    return label ? '<span class="gchip">' + esc(label) + "</span>" : "";
+  }
+
+  function detectedChipHtml() {
+    return '<span class="gchip gchip-ok"><span class="gchip-dot" aria-hidden="true"></span>' + esc(t("badge_detected")) + "</span>";
+  }
+
+  /** Jaquette de la bibliothèque (inclinaison 3D + spot : motion.js via .game-card/.card). */
+  function posterHtml(g) {
+    var sel = state.selectedGame === g.id;
+    var label = tf("game_open_aria", { name: g.name }) + " · " + storeLabel(g.store) + " · " +
+      t(g.installed ? "badge_detected" : "badge_not_detected");
+    /* Jaquette Steam d'origine : logo du jeu imprimé dessus (le titre HTML
+       n'apparaît alors qu'au survol). Jaquettes Riot (art sans logo) ou
+       personnalisées : titre toujours affiché. */
+    var info = artKnown(g.id);
+    var printed = !!(info && info.source === "steam" && (info.custom || []).indexOf("cover") < 0);
+    return '<div class="card game-card gposter' + (sel ? " selected" : "") + (g.installed ? " is-installed" : "") +
+      (printed ? " gposter-logo" : "") +
+      '" data-game="' + esc(g.id) + '" tabindex="0" role="button" aria-expanded="' + (sel ? "true" : "false") +
+      '" aria-controls="game-detail-area" aria-label="' + esc(label) + '">' +
+      artBoxHtml(g.id, "poster", g.name, true) +
+      '<span class="gposter-shade" aria-hidden="true"></span>' +
+      '<span class="gglare" aria-hidden="true"></span>' +
+      (g.installed ? '<span class="gposter-top" aria-hidden="true">' + detectedChipHtml() + "</span>" : "") +
+      '<span class="gposter-info" aria-hidden="true"><span class="card-title gposter-title">' + esc(g.name) + "</span>" +
+      '<span class="gposter-meta">' + storeChipHtml(g).replace('class="gchip"', 'class="gchip gchip-sm"') +
+      '<span class="gposter-cta">' + esc(t("game_cta")) + icon("right") + "</span></span></span>" +
+      "</div>";
+  }
+
+  /** Parallaxe du bandeau CS2 : le visuel et le logo glissent sur deux plans. */
+  function bindFeatureParallax(el) {
+    var raf = 0, rect = null, gx = 0, gy = 0;
+    function fxOk() {
+      var r = document.documentElement;
+      return r.getAttribute("data-motion") === "max" && !r.hasAttribute("data-motion-paused");
+    }
+    function frame() {
+      raf = 0;
+      el.style.setProperty("--gx", gx.toFixed(3));
+      el.style.setProperty("--gy", gy.toFixed(3));
+    }
+    el.addEventListener("pointerenter", function () { rect = el.getBoundingClientRect(); });
+    el.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "touch" || !fxOk()) { return; }
+      if (!rect) { rect = el.getBoundingClientRect(); }
+      if (!rect.width || !rect.height) { return; }
+      gx = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2));
+      gy = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2));
+      el.classList.add("is-live");
+      if (!raf) { raf = requestAnimationFrame(frame); }
+    });
+    el.addEventListener("pointerleave", function () {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      rect = null;
+      el.classList.remove("is-live");
+      el.style.removeProperty("--gx");
+      el.style.removeProperty("--gy");
+    });
   }
 
   /* ---- Encart « Latence estimée » ---- */
@@ -3966,13 +4547,27 @@
     var game = null;
     (state.games || []).forEach(function (g) { if (g.id === state.selectedGame) { game = g; } });
     if (!game) { area.innerHTML = ""; return; }
+    /* La fiche s'ouvre là où l'on a cliqué : sous la carte CS2 « à la une »,
+       sinon sous la bibliothèque. */
+    var anchor = game.id === "cs2" ? byId("cs2-hero") : $("#games-area .games-credit");
+    if (anchor && anchor.nextElementSibling !== area) { anchor.insertAdjacentElement("afterend", area); }
 
-    var html = '<div class="card game-detail">' +
-      '<div class="game-detail-head"><div><h2>' + esc(game.name) + "</h2>" +
-      '<span class="muted small">' + esc(storeLabel(game.store)) +
-      (game.installed && game.install_path ? ' · <span class="mono mono-inline">' + esc(game.install_path) + "</span>" : "") +
-      "</span></div>" +
-      '<button class="btn btn-ghost btn-sm" id="btn-game-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>";
+    /* Bandeau d'en-tête : visuel « hero » + logo (sinon le nom en grand). */
+    var hasLogo = artHas(game.id, "logo") !== false;
+    var html = '<div class="card game-detail has-banner" data-detail-game="' + esc(game.id) + '">' +
+      '<div class="gd-banner">' + artBoxHtml(game.id, "wide", game.name) +
+      '<span class="gd-veil" aria-hidden="true"></span>' +
+      /* Personnage détouré (ex. Valorant) posé à droite du bandeau. */
+      (artHas(game.id, "portrait") ? '<img class="gd-portrait" src="' + esc(artUrl(game.id, "portrait")) +
+        '" alt="" decoding="async" draggable="false" data-portrait>' : "") +
+      '<div class="gd-banner-body' + (hasLogo ? " has-logo" : "") + '">' + logoHtml(game.id, "gd-logo") +
+      "<h2 class=\"gd-name\">" + esc(game.name) + "</h2>" +
+      '<div class="gd-meta">' + storeChipHtml(game) +
+      (game.installed ? detectedChipHtml() : '<span class="gchip gchip-muted">' + esc(t("badge_not_detected")) + "</span>") +
+      "</div></div>" +
+      '<button class="btn btn-ghost btn-sm gd-close" id="btn-game-close" type="button" aria-label="' + esc(t("close")) + '">' + icon("x") + "</button></div>" +
+      (game.installed && game.install_path ?
+        '<div class="gd-path muted small"><span class="mono mono-inline">' + esc(game.install_path) + "</span></div>" : "");
 
     if (game.launch_options) {
       html += '<div class="group-label">' + esc(t("launch_options")) + "</div>" +
@@ -4000,10 +4595,14 @@
     area.innerHTML = html;
 
     byId("btn-game-close").addEventListener("click", function () {
-      state.selectedGame = null;
-      buildGamesArea(seq);
+      var closedId = state.selectedGame;
+      selectGame(null, seq, false);
+      /* Focus rendu à la jaquette (ou au bouton « Voir la fiche » de CS2). */
+      var back = $('#games-grid .game-card[data-game="' + closedId + '"]') || $('[data-open-game="' + closedId + '"]');
+      if (back) { try { back.focus(); } catch (eF) { /* focus impossible : sans effet */ } }
     });
     bindCopyButtons(area);
+    mountArt(area);
 
     if (game.id === "cs2") { loadCs2Panel(seq); }
   }
@@ -4498,17 +5097,30 @@
 
   /* ---- Bandeau « Boost CS2 » en tête de la page Jeux ---- */
 
+  /* Vague 7 : grande carte « à la une » (visuel hero + logo CS2, parallaxe)
+     qui garde le bouton Boost CS2 (#btn-cs2-boost) et l'encart AMD. */
   function cs2HeroHtml() {
-    return '<div class="card cs2-hero" id="cs2-hero">' +
-      '<div class="cs2-hero-main">' +
-      '<span class="cs2-hero-ic" aria-hidden="true">' + icon("crosshair") + "</span>" +
-      '<div class="cs2-hero-text">' +
-      '<div class="cs2-hero-kicker">Counter-Strike 2</div>' +
+    var g = findGame("cs2") || { id: "cs2", name: "Counter-Strike 2", store: "steam", installed: false };
+    var sel = state.selectedGame === "cs2";
+    var hasLogo = artHas("cs2", "logo") !== false;
+    return '<div class="card cs2-hero has-art" id="cs2-hero">' +
+      '<div class="gfeat' + (sel ? " selected" : "") + '" data-game="cs2">' +
+      artBoxHtml("cs2", "wide", g.name) +
+      '<span class="gfeat-veil" aria-hidden="true"></span>' +
+      '<span class="gglare" aria-hidden="true"></span>' +
+      '<div class="gfeat-chips">' + storeChipHtml(g) + (g.installed ? detectedChipHtml() : "") + "</div>" +
+      '<div class="gfeat-body">' +
+      '<div class="gfeat-brand' + (hasLogo ? " has-logo" : "") + '">' + logoHtml("cs2", "gfeat-logo") +
+      '<span class="gfeat-name">' + esc(g.name) + "</span></div>" +
+      '<div class="cs2-hero-kicker">' + esc(t("games_featured")) + " · " + esc(g.name) + "</div>" +
       '<h2 class="cs2-hero-title">' + esc(t("cs2b_hero_title")) + "</h2>" +
-      '<p class="cs2-hero-sub">' + esc(t("cs2b_hero_sub")) + "</p></div>" +
+      '<p class="cs2-hero-sub">' + esc(t("cs2b_hero_sub")) + "</p>" +
+      '<div class="gfeat-actions">' +
       '<button class="btn btn-primary cs2-boost-btn" id="btn-cs2-boost" type="button">' +
       icon("zap") + " " + esc(t("cs2b_btn")) + "</button>" +
-      "</div>" +
+      '<button class="btn gfeat-open" type="button" data-open-game="cs2" aria-controls="game-detail-area" aria-expanded="' +
+      (sel ? "true" : "false") + '">' + esc(t("game_open")) + " " + icon("right") + "</button>" +
+      "</div></div></div>" +
       '<div id="amd-area">' + amdSectionHtml() + "</div></div>";
   }
 
@@ -5764,6 +6376,7 @@
     } catch (e) {
       state.schedule = null;
     }
+    await loadArtInfo(true);   /* silencieux, ne lève jamais */
     if (!alive(seq)) { return; }
     buildSettingsArea(seq);
   }
@@ -5984,6 +6597,215 @@
     });
   }
 
+  /* ---- Réglages : images des jeux (vague 7) ----
+     Aperçu par jeu + « Choisir une image… » (fichier → data URL → POST
+     /api/art/<jeu>/<type>/custom) et « Réinitialiser » (DELETE). */
+
+  var ART_EDIT_KINDS = ["cover", "hero", "logo"];
+  var ART_MIME = ["image/png", "image/jpeg", "image/webp"];
+  var ART_MAX_BYTES = 8 * 1024 * 1024;
+
+  function artEditKind() {
+    return ART_EDIT_KINDS.indexOf(state.artKind) >= 0 ? state.artKind : "cover";
+  }
+
+  /** Jeux à lister : catalogue des visuels (/api/art), sinon liste des jeux. */
+  function artGameList() {
+    var info = state.artInfo || {};
+    var ids = Object.keys(info).filter(function (id) { return artKnown(id); });
+    if (ids.length) { return ids.map(function (id) { return { id: id, name: info[id].name || id }; }); }
+    return (state.games || []).map(function (g) { return { id: g.id, name: g.name }; });
+  }
+
+  function artTilesHtml(kind) {
+    var list = artGameList();
+    if (!list.length) { return '<p class="muted small art-empty">' + esc(t("art_unavailable")) + "</p>"; }
+    var use = kind === "cover" ? "poster" : (kind === "logo" ? "logo" : "wide");
+    return list.map(function (g) {
+      var info = artKnown(g.id);
+      var custom = !!(info && (info.custom || []).indexOf(kind) >= 0);
+      var avail = info ? !!info.kinds[kind] : true;
+      var src = info ? (info.source ? t("art_src_" + info.source) : t("art_src_none")) : "";
+      /* Type absent : composé à partir des autres visuels, nom en texte (logo)
+         ou visuel de secours dessiné. */
+      var missing = kind === "logo" ? t("art_state_nologo") :
+        (artStages(g.id, use)[0] !== "fallback" ? t("art_state_composed") : t("art_state_missing"));
+      var status = custom ?
+        '<span class="badge badge-blue">' + esc(t("art_state_custom")) + "</span>" +
+        '<button class="btn btn-sm btn-ghost art-reset" type="button" data-art-reset="' + esc(g.id) + '" aria-label="' +
+        esc(tf("art_reset_aria", { name: g.name })) + '">' + icon("refresh") + " " + esc(t("art_reset")) + "</button>" :
+        '<span class="art-src">' + esc(avail ? src : missing) + "</span>";
+      return '<div class="art-tile' + (custom ? " is-custom" : "") + '" data-art-tile="' + esc(g.id) + '">' +
+        '<div class="art-thumb art-thumb-' + kind + '">' + artBoxHtml(g.id, use, g.name, true) + "</div>" +
+        '<div class="art-tile-info">' +
+        '<div class="art-tile-name" title="' + esc(g.name) + '">' + esc(g.name) + "</div>" +
+        '<div class="art-tile-state">' + status + "</div>" +
+        '<div class="art-tile-actions">' +
+        '<button class="btn btn-sm" type="button" data-art-pick="' + esc(g.id) + '" aria-label="' +
+        esc(tf("art_pick_aria", { name: g.name })) + '">' + icon("image") + " " + esc(t("art_pick")) + "</button>" +
+        "</div></div></div>";
+    }).join("");
+  }
+
+  function artSettingsHtml() {
+    var kind = artEditKind();
+    return '<div class="group-label">' + esc(t("art_group")) + "</div>" +
+      '<div class="card art-card" id="art-card">' +
+      '<div class="settings-row">' +
+      '<div class="set-info"><div class="set-name">' + esc(t("art_name")) + "</div>" +
+      '<div class="set-status">' + esc(t("art_desc")) + "</div></div>" +
+      '<div class="set-controls"><div class="seg" data-seg="artkind" role="group" aria-label="' + esc(t("art_kind_aria")) + '">' +
+      ART_EDIT_KINDS.map(function (k) {
+        var on = k === kind;
+        return '<button type="button" data-art-kind="' + k + '" aria-pressed="' + (on ? "true" : "false") + '"' +
+          (on ? ' class="active"' : "") + ">" + esc(t("art_kind_" + k)) + "</button>";
+      }).join("") +
+      "</div></div></div>" +
+      '<div class="art-grid art-grid-' + kind + '" id="art-grid">' + artTilesHtml(kind) + "</div>" +
+      '<p class="muted small art-hint">' + esc(t("art_drop_hint")) + "</p>" +
+      '<input type="file" id="art-file" accept="image/png,image/jpeg,image/webp" hidden>' +
+      "</div>";
+  }
+
+  function refreshArtGrid() {
+    var grid = byId("art-grid");
+    if (!grid) { return; }
+    var kind = artEditKind();
+    grid.className = "art-grid art-grid-" + kind;
+    grid.innerHTML = artTilesHtml(kind);
+    mountArt(grid);
+  }
+
+  /** Après re-rendu de la grille, le focus revient sur « Choisir une image… » du jeu. */
+  function artRefocus(id) {
+    var btn = $('#art-grid [data-art-pick="' + id + '"]');
+    if (btn) { try { btn.focus({ preventScroll: true }); } catch (e) { /* sans effet */ } }
+  }
+
+  /** POST / DELETE d'une image personnalisée ; message serveur FR/EN en cas d'échec. */
+  async function artCustomRequest(method, id, kind, body) {
+    var init = { method: method, headers: {} };
+    if (body) {
+      init.headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(body);
+    }
+    var res;
+    try {
+      res = await fetch("/api/art/" + encodeURIComponent(id) + "/" + encodeURIComponent(kind) + "/custom", init);
+    } catch (e) {
+      showBanner(t("err_conn"), "error");
+      return null;
+    }
+    var data = null;
+    try { data = await res.json(); } catch (e2) { data = null; }
+    if (!res.ok || (data && data.ok === false)) {
+      var msg = data ? (LANG === "en" ? (data.detail_en || data.message_en) : (data.detail || data.message)) : "";
+      showBanner(typeof msg === "string" && msg ? msg : t("art_save_err"), "error");
+      return null;
+    }
+    return data || {};
+  }
+
+  /** Prévient les autres modules (accueil) qu'un visuel a changé. */
+  function emitArtChanged(id, kind) {
+    try {
+      window.dispatchEvent(new CustomEvent("overdrive:art-changed", { detail: { game: id, kind: kind } }));
+    } catch (e) { /* navigateur ancien : l'accueil relit /api/art à chaque rendu */ }
+  }
+
+  /** Lit un fichier image (type et taille vérifiés) puis l'envoie au serveur. */
+  function artUpload(id, kind, file, btn) {
+    if (!file) { return; }
+    if (ART_MIME.indexOf(file.type) < 0) { showBanner(t("art_bad_type"), "error"); return; }
+    if (file.size > ART_MAX_BYTES) { showBanner(t("art_too_big"), "error"); return; }
+    var reader = new FileReader();
+    setBusy(btn, t("saving"));
+    reader.onerror = function () {
+      clearBusy(btn);
+      showBanner(t("art_read_err"), "error");
+    };
+    reader.onload = async function () {
+      var res = await artCustomRequest("POST", id, kind, { data_url: String(reader.result || "") });
+      if (!res) { clearBusy(btn); return; }
+      emitArtChanged(id, kind);
+      await loadArtInfo(true);
+      refreshArtGrid();
+      artRefocus(id);
+      showBanner(t("art_saved"), "ok");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function bindArtSettings() {
+    var card = byId("art-card");
+    var input = byId("art-file");
+    if (!card || !input) { return; }
+    var pending = null;
+
+    $all("[data-art-kind]", card).forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.artKind = b.dataset.artKind;
+        $all("[data-art-kind]", card).forEach(function (x) {
+          var on = x === b;
+          x.classList.toggle("active", on);
+          x.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        refreshArtGrid();
+      });
+    });
+
+    card.addEventListener("click", async function (e) {
+      if (!e.target.closest) { return; }
+      var pick = e.target.closest("[data-art-pick]");
+      var reset = e.target.closest("[data-art-reset]");
+      if (pick && !pick.disabled) {
+        pending = { id: pick.dataset.artPick, kind: artEditKind(), btn: pick };
+        input.value = "";
+        input.click();
+      } else if (reset && !reset.disabled) {
+        setBusy(reset, t("art_reset"));
+        var res = await artCustomRequest("DELETE", reset.dataset.artReset, artEditKind(), null);
+        if (!res) { clearBusy(reset); return; }
+        var resetId = reset.dataset.artReset;
+        emitArtChanged(resetId, artEditKind());
+        await loadArtInfo(true);
+        refreshArtGrid();
+        artRefocus(resetId);
+        showBanner(t("art_reset_done"), "ok");
+      }
+    });
+
+    input.addEventListener("change", function () {
+      var job = pending;
+      pending = null;
+      var file = input.files && input.files[0];
+      if (job && file) { artUpload(job.id, job.kind, file, job.btn); }
+    });
+
+    /* Glisser-déposer une image directement sur un jeu. */
+    card.addEventListener("dragover", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (!tile) { return; }
+      e.preventDefault();
+      $all(".art-tile.is-drop", card).forEach(function (x) { if (x !== tile) { x.classList.remove("is-drop"); } });
+      tile.classList.add("is-drop");
+    });
+    card.addEventListener("dragleave", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (tile && !tile.contains(e.relatedTarget)) { tile.classList.remove("is-drop"); }
+    });
+    card.addEventListener("drop", function (e) {
+      var tile = e.target.closest && e.target.closest("[data-art-tile]");
+      if (!tile) { return; }
+      e.preventDefault();
+      tile.classList.remove("is-drop");
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) { artUpload(tile.dataset.artTile, artEditKind(), file, $("[data-art-pick]", tile)); }
+    });
+
+    mountArt(card);
+  }
+
   function buildSettingsArea(seq) {
     var area = byId("settings-area");
     if (!area) { return; }
@@ -6052,6 +6874,8 @@
       '<button type="button" data-lang="en" lang="en" aria-pressed="' + (LANG === "en" ? "true" : "false") + '"' +
       (LANG === "en" ? ' class="active"' : "") + ">English</button>" +
       "</div></div></div></div>" +
+
+      artSettingsHtml() +
 
       '<div class="group-label">' + esc(t("report_group")) + "</div>" +
       '<div class="card"><div class="settings-row">' +
@@ -6248,6 +7072,7 @@
     }
 
     byId("btn-redo-quiz").addEventListener("click", function () { openQuiz(false); });
+    bindArtSettings();
   }
 
   /* ------------------------------------------------------------------ */
@@ -6277,10 +7102,10 @@
     return out;
   }
 
-  async function openQuiz(firstRun) {
+  async function openQuiz(firstRun, dataP) {
     var data;
     try {
-      data = await api("/api/quiz");
+      data = dataP ? await dataP : await api("/api/quiz");
     } catch (e) {
       return;
     }
@@ -6681,6 +7506,30 @@
   /* Initialisation                                                      */
   /* ------------------------------------------------------------------ */
 
+  /** Exécute fn dès que l'intro COMMENCE à sortir (tout de suite sans intro) :
+      le QCM du premier lancement se monte sous l'overlay qui se dissout
+      directement dans le questionnaire, sans montrer l'accueil entre-temps. */
+  function atIntroExit(fn) {
+    var intro = window.OverdriveIntro;
+    var waiting = false;
+    try {
+      waiting = !!(intro && typeof intro.isActive === "function" && intro.isActive() &&
+        !(typeof intro.isLeaving === "function" && intro.isLeaving()));
+    } catch (e) { waiting = false; }
+    if (!waiting) { fn(); return; }
+    var ran = false;
+    function once() {
+      if (ran) { return; }
+      ran = true;
+      window.removeEventListener("overdrive:intro-exit", once);
+      window.removeEventListener("overdrive:intro-done", once);
+      fn();
+    }
+    window.addEventListener("overdrive:intro-exit", once);
+    window.addEventListener("overdrive:intro-done", once);
+    setTimeout(once, 6000);   /* filet : l'intro dure ~2,5 s */
+  }
+
   async function init() {
     applyStaticI18n();
     initDialogA11y();
@@ -6742,7 +7591,12 @@
       }
 
       render();
-      if (st.first_run) { openQuiz(true); }
+      /* Premier lancement : le QCM s'ouvre APRÈS l'intro animée (intro.js),
+         monté sous l'overlay dès le début de sa sortie (questions préchargées). */
+      if (st.first_run) {
+        var quizP = api("/api/quiz").catch(function () { return null; });
+        atIntroExit(function () { openQuiz(true, quizP); });
+      }
     } catch (e) { /* bandeau déjà affiché, l'interface reste utilisable */ }
   }
 

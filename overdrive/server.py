@@ -5,12 +5,13 @@ import logging
 import os
 import sys
 import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 log = logging.getLogger("overdrive.server")
@@ -146,9 +147,40 @@ def _require_ids(payload: Any) -> list[str]:
     return ids
 
 
+def _start_art_prefetch() -> None:
+    """Lance le préchargement des visuels de jeux (fil démon, jamais d'exception)."""
+    try:
+        from .core.gameart import prefetch
+
+        prefetch()
+    except Exception:  # noqa: BLE001 — le serveur démarre quoi qu'il arrive
+        log.exception("Préchargement des visuels de jeux impossible")
+
+
+@asynccontextmanager
+async def _lifespan(_application: FastAPI):
+    """Cycle de vie : préchargement des visuels de jeux au démarrage du serveur.
+
+    Lancé ici et non dans le corps de ``create_app`` (exécuté à l'import du
+    module) : les modes --widget et --clean-safe importent aussi ce module et
+    ne doivent rien télécharger. ``prefetch()`` rend la main immédiatement.
+    """
+    _start_art_prefetch()
+    yield
+
+
+def _art_error(status: int, code: str, fr: str, en: str) -> JSONResponse:
+    """Réponse d'erreur des routes /api/art (``detail`` FR + ``detail_en``)."""
+    return JSONResponse(
+        status_code=status,
+        content={"ok": False, "error": code, "detail": fr, "detail_en": en},
+    )
+
+
 def create_app() -> FastAPI:
     """Construit et retourne l'application FastAPI d'Overdrive."""
-    application = FastAPI(title=APP_NAME, version=VERSION, docs_url=None, redoc_url=None)
+    application = FastAPI(title=APP_NAME, version=VERSION, docs_url=None, redoc_url=None,
+                          lifespan=_lifespan)
 
     # Warm-up matériel : la détection (cpu_percent 0,2 s + PowerShell GPU,
     # timeout 10 s) tourne en arrière-plan dès le démarrage, pour que
@@ -435,6 +467,103 @@ def create_app() -> FastAPI:
             sensitivity=float(sensitivity) if sensitivity is not None else None,
             zoom_ratio=float(zoom_ratio) if zoom_ratio is not None else None,
         )
+
+    # -------------------------------------------------- visuels des jeux (v7)
+    # Images téléchargées depuis les CDN des éditeurs / API communautaires et
+    # mises en cache (overdrive.core.gameart). Import tardif : le serveur
+    # démarre même si le module venait à manquer.
+
+    @application.get("/api/art")
+    def api_art() -> dict:
+        """Visuels disponibles par jeu (sans réseau) : source, types, perso."""
+        from .core.gameart import art_info
+
+        return art_info()
+
+    @application.get("/api/art/{game_id}/{kind}")
+    def api_art_image(game_id: str, kind: str, request: Request):
+        """Image d'un jeu (cover, header, hero, logo, portrait) ou 404 JSON.
+
+        Ne bloque JAMAIS sur le réseau : cache servi tout de suite (même
+        périmé, rafraîchi en fond), sinon téléchargement attendu 1 s au plus
+        puis 404 (le téléchargement continue en fond ; le front relit
+        /api/art plus tard). Avec ``?v=<rev>`` égal à la révision du fichier
+        servi : cache navigateur d'un an (URL propre au contenu) ; sinon 24 h.
+        ``If-None-Match`` → 304 sans renvoyer le fichier.
+        """
+        from .core.gameart import file_rev, is_valid_target, media_type, serve_art
+
+        if not is_valid_target(game_id, kind):
+            raise HTTPException(status_code=404, detail="Jeu ou type d'image inconnu.")
+        path = serve_art(game_id, kind)
+        if path is None:
+            raise HTTPException(status_code=404, detail="Image indisponible.")
+        try:
+            st = path.stat()
+        except OSError:
+            raise HTTPException(status_code=404, detail="Image indisponible.") from None
+        etag = f'"{st.st_size:x}-{st.st_mtime_ns:x}"'
+        wanted = request.query_params.get("v")
+        if wanted is None:
+            cache = "public, max-age=86400"
+        elif wanted == str(file_rev(path)):
+            cache = "public, max-age=31536000, immutable"
+        else:
+            # Révision périmée côté front : revalidation à chaque affichage.
+            cache = "no-cache"
+        headers = {
+            "Cache-Control": cache,
+            "ETag": etag,
+            "X-Content-Type-Options": "nosniff",
+        }
+        inm = request.headers.get("if-none-match") or ""
+        if etag in [t.strip().removeprefix("W/") for t in inm.split(",")]:
+            return Response(status_code=304, headers=headers)
+        return FileResponse(path, media_type=media_type(path), headers=headers)
+
+    @application.post("/api/art/{game_id}/{kind}/custom")
+    def api_art_custom_set(game_id: str, kind: str, payload: Any = Body(...)):
+        """Image personnalisée : corps ``{"data_url": "data:image/...;base64,..."}``.
+
+        PNG, JPEG ou WebP de 8 Mo maximum (octets magiques vérifiés).
+        """
+        from .core.gameart import is_valid_target, parse_data_url, set_custom
+
+        if not is_valid_target(game_id, kind):
+            return _art_error(404, "unknown_target", "Jeu ou type d'image inconnu.",
+                              "Unknown game or image type.")
+        raw, error = parse_data_url(_require_dict(payload).get("data_url"))
+        if error == "too_large":
+            return _art_error(400, "too_large", "Image trop lourde (8 Mo maximum).",
+                              "Image too large (8 MB maximum).")
+        if raw is None:
+            return _art_error(
+                400, "invalid_image",
+                "Image invalide : data URL PNG, JPEG ou WebP (8 Mo maximum) attendue.",
+                "Invalid image: a PNG, JPEG or WebP data URL (8 MB maximum) is expected.",
+            )
+        result = set_custom(game_id, kind, raw)
+        if not result.get("ok"):
+            status = 500 if result.get("error") == "io" else 400
+            return _art_error(status, str(result.get("error") or "invalid_image"),
+                              str(result.get("message") or ""),
+                              str(result.get("message_en") or ""))
+        return result
+
+    @application.delete("/api/art/{game_id}/{kind}/custom")
+    def api_art_custom_delete(game_id: str, kind: str):
+        """Supprime l'image personnalisée (retour au visuel téléchargé)."""
+        from .core.gameart import delete_custom, is_valid_target
+
+        if not is_valid_target(game_id, kind):
+            return _art_error(404, "unknown_target", "Jeu ou type d'image inconnu.",
+                              "Unknown game or image type.")
+        result = delete_custom(game_id, kind)
+        if not result.get("ok"):
+            return _art_error(500, str(result.get("error") or "io"),
+                              str(result.get("message") or ""),
+                              str(result.get("message_en") or ""))
+        return result
 
     # --------------------------------------------------------------- programs
 

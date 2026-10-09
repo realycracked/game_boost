@@ -1609,30 +1609,8 @@ html.od-fx .sens-stat:hover::before { opacity: 1; }
 
 /* ---------- Jeux ---------- */
 
-.game-card {
-  cursor: pointer;
-  /* Sous-grille : en-tête (titre + boutique), badge et chemin partagent les
-     mêmes lignes sur toute la rangée (un titre sur 2 lignes ne décale plus
-     le badge de sa carte). */
-  display: grid;
-  grid-row: span 3;
-  grid-template-rows: subgrid;
-  row-gap: 8px;
-  align-content: start;
-  background-image:
-    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--accent-2) 9%, transparent), transparent 55%),
-    linear-gradient(180deg, rgba(255, 255, 255, .022), rgba(255, 255, 255, 0) 60%);
-}
-.game-card .card-title { font-size: 14.5px; }
-.game-card .game-store { color: var(--text-2); font-size: 12.5px; }
-.game-card .game-head { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.game-card .game-badge { align-self: end; }
-.game-card .game-path { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.game-card.selected {
-  border-color: var(--accent-line);
-  background-color: color-mix(in srgb, var(--accent) 7%, var(--surface));
-  box-shadow: 0 0 0 3px var(--accent-soft), 0 16px 36px -22px var(--glow), var(--highlight);
-}
+/* Cartes de jeux : jaquettes 2:3, carte CS2 « à la une » et bandeau de fiche
+   → voir la section « Vague 7 : page Jeux avec visuels » en fin de fichier. */
 
 .game-detail { margin-top: 18px; padding: 24px 26px; }
 .game-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
@@ -2556,8 +2534,10 @@ html.od-vt-page::view-transition-new(od-page) { animation: none; }
 html.od-vt-theme::view-transition-old(root) { animation: od-overlay-out 320ms var(--ease-out) both; }
 html.od-vt-theme::view-transition-new(root) { animation: od-overlay-in 320ms var(--ease-out) both; }
 
-/* QCM : entrée de l'overlay, rebond de sélection, barre de progression. */
-.quiz-overlay.od-enter { animation: od-overlay-in 280ms var(--ease-out) both; }
+/* QCM : entrée, rebond de sélection, barre de progression. Le fond est
+   opaque dès la 1re image (aucun fondu d'opacité de l'overlay : pas de
+   double exposition avec la page dessous) ; seul le contenu monte. */
+.quiz-overlay.od-enter { animation: none; }
 .quiz-overlay.od-enter .quiz-inner { animation: od-rise 520ms var(--ease-out) both; }
 .od-pop .opt-mark { animation: od-mark-pop 420ms var(--ease-spring); }
 @keyframes od-mark-pop {
@@ -3545,3 +3525,651 @@ html[data-theme="daylight"] #theme-toggle .icon-moon,
 html[data-theme="light"] #theme-toggle .icon-moon { display: none; }
 html[data-theme="daylight"] #theme-toggle .icon-sun,
 html[data-theme="light"] #theme-toggle .icon-sun { display: inline-flex; }
+
+/* ==========================================================================
+   Vague 7 : page Jeux avec visuels (jaquettes, carte « à la une », fiche)
+   et section Réglages > Images des jeux.
+   Visuels servis par /api/art ; .gart = emplacement d'image rempli par
+   app.js (squelette shimmer → fondu de l'image, sinon visuel de secours).
+   Les visuels gardent un rendu « média » sombre dans tous les thèmes : le
+   texte posé dessus est donc toujours clair, sur voile dégradé.
+   On n'anime que transform / opacity (aucun travail continu une fois chargé).
+   ========================================================================== */
+
+/* ---- Emplacement d'image générique ---- */
+.gart {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #12121a;
+}
+/* Même fond sombre en thème clair : pas de saut clair → sombre au chargement. */
+html[data-theme="daylight"] .gart,
+html[data-theme="light"] .gart { background: #1f1f2a; }
+/* Squelette : reflet qui balaie l'emplacement tant que l'image charge. */
+.gart::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, .07) 50%, transparent 75%);
+  transform: translateX(-100%);
+  animation: gart-shimmer 1.5s var(--ease-in-out) infinite;
+}
+.gart.is-loaded::before,
+.gart.is-fallback::before { content: none; }
+@keyframes gart-shimmer { to { transform: translateX(100%); } }
+
+.gart-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, 50% 50%);
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 560ms var(--ease-out), transform 900ms var(--ease-out);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.gart.is-loaded .gart-img[data-primary] { opacity: 1; transform: none; }
+
+/* Composition (jeu sans jaquette mais avec personnage détouré) :
+   carte du jeu floutée et voilée + personnage au premier plan. */
+.gart.is-compose {
+  background:
+    radial-gradient(110% 70% at 50% 100%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%),
+    linear-gradient(180deg, #17151f, #0a0a10);
+}
+.gart-bg { filter: blur(2px) saturate(1.15) brightness(.5); transform: scale(1.18); }
+.gart-bg.is-in { opacity: 1; }
+.gart .gart-fg {
+  top: 3%;
+  height: 128%;
+  object-position: var(--pfocus, 58% 0%);
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 82%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 82%);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .45));
+}
+.gart.is-loaded .gart-fg[data-primary] { transform: none; }
+
+/* Recadrage d'un visuel paysage en portrait (jeu sans jaquette). */
+.gart-crop { filter: saturate(1.05); }
+
+/* Visuel de secours : dégradé aux couleurs du thème + monogramme. */
+.gart-fb {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(95% 60% at 15% 8%, color-mix(in srgb, var(--accent) 58%, transparent), transparent 70%),
+    radial-gradient(85% 60% at 92% 96%, color-mix(in srgb, var(--accent-2) 48%, transparent), transparent 72%),
+    linear-gradient(var(--turn, 160deg), #1a1726, #0b0b12);
+}
+.gart-fb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 11px);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 40%, #000, transparent 85%);
+  mask-image: radial-gradient(120% 90% at 50% 40%, #000, transparent 85%);
+}
+/* Anneaux concentriques (rappel du logo Overdrive) derrière le monogramme. */
+.gart-fb::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 41%;
+  width: 150%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(255, 255, 255, .07) 0 1px, transparent 1.5px 18px);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 62%);
+  mask-image: radial-gradient(circle, #000 0%, transparent 62%);
+}
+.gart-fb-mono {
+  position: relative;
+  z-index: 1;
+  margin-top: -18%;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(180deg, #fff 20%, color-mix(in srgb, var(--accent) 45%, #fff) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, .35));
+}
+/* Bandeaux : le nom est déjà écrit en grand, le monogramme devient un filigrane à droite. */
+.gart-wide .gart-fb::before { left: 78%; top: 50%; width: 70%; }
+.gart-wide .gart-fb-mono {
+  position: absolute;
+  right: 7%;
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+  font-size: 150px;
+  opacity: .16;
+  filter: none;
+}
+
+/* Logos détourés (bandeaux) : ombre portée ; logos sombres passés en blanc. */
+.glogo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 280px;
+  max-height: 76px;
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(6px);
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, .55));
+  transition: opacity 600ms var(--ease-out), transform 700ms var(--ease-out);
+}
+.glogo.is-in { opacity: 1; transform: none; }
+.glogo.is-dark,
+.gart-logo.is-dark { filter: brightness(0) invert(1) drop-shadow(0 6px 22px rgba(0, 0, 0, .5)); }
+
+/* Puces posées sur les visuels (plateforme, « Détecté »). */
+.gchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 21px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 620;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, .92);
+  background: rgba(8, 8, 14, .62);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+}
+.gchip-ok { color: #e9fff3; background: rgba(10, 30, 22, .72); border-color: rgba(95, 211, 154, .38); }
+.gchip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5fd39a;
+  box-shadow: 0 0 0 3px rgba(95, 211, 154, .18);
+}
+.gchip-muted { color: rgba(255, 255, 255, .7); }
+
+/* Reflet : halo qui suit le curseur (--mx/--my posés par motion.js sur
+   .card) + bande lumineuse qui traverse une fois au survol. */
+.gglare {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 55%);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out);
+}
+.gglare::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: -70%;
+  width: 55%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, .16) 50%, transparent 100%);
+  transform: skewX(-14deg);
+  opacity: 0;
+}
+html.od-fx .gposter:hover .gglare,
+html.od-fx .gfeat:hover .gglare { opacity: 1; }
+html.od-fx .gposter:hover .gglare::after { animation: gglare-sweep 1100ms var(--ease-out) 1 both; }
+@keyframes gglare-sweep {
+  0% { opacity: 0; transform: translateX(0) skewX(-14deg); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(380%) skewX(-14deg); }
+}
+
+/* ---- Bibliothèque : grille de jaquettes 2:3 ---- */
+.games-lib-label .badge { margin-left: 2px; }
+.games-note { margin: -4px 0 14px; }
+.games-lib {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 18px 16px;
+}
+.card.game-card.gposter {
+  position: relative;
+  display: block;
+  padding: 0;
+  aspect-ratio: 2 / 3;
+  cursor: pointer;
+  border-radius: 14px;
+  background: #12121a;
+  background-image: none;
+  isolation: isolate;
+  outline-offset: 3px;
+}
+.gposter .gart { border-radius: 13px; }
+.gposter:hover .gart.is-loaded .gart-img[data-primary] { transform: scale(1.06); }
+.gposter:hover .gart.is-compose .gart-fg[data-primary] { transform: scale(1.04) translateY(-1%); }
+.gposter-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 13px;
+  pointer-events: none;
+  /* Bande de légende quasi opaque : le titre ne se mélange pas au logo
+     souvent imprimé en bas des jaquettes. */
+  background: linear-gradient(0deg, rgba(6, 6, 11, .97) 0%, rgba(6, 6, 11, .93) 21%, rgba(6, 6, 11, .62) 35%, rgba(6, 6, 11, .16) 47%, rgba(6, 6, 11, 0) 57%);
+  transition: opacity 400ms var(--ease-out);
+}
+.is-installed .gposter-shade::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(6, 6, 11, .5) 0%, rgba(6, 6, 11, 0) 22%);
+}
+.gposter-top {
+  position: absolute;
+  z-index: 3;
+  top: 9px;
+  left: 9px;
+  right: 9px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  pointer-events: none;
+}
+.gposter-info {
+  position: absolute;
+  z-index: 3;
+  left: 12px;
+  right: 12px;
+  bottom: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+}
+.card-title.gposter-title {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .6);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  transition: transform 420ms var(--ease-out);
+}
+.gposter-meta { position: relative; display: flex; align-items: center; min-height: 18px; }
+.gchip.gchip-sm {
+  height: 18px;
+  padding: 0 7px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, .78);
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(255, 255, 255, .12);
+  transition: opacity 260ms var(--ease-out), transform 360ms var(--ease-out);
+}
+/* Au survol, la puce de plateforme laisse la place à « Optimiser → ». */
+.gposter-cta {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 640;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--accent) 35%, #fff);
+  opacity: 0;
+  transform: translateY(calc(-50% + 6px));
+  transition: opacity 300ms var(--ease-out), transform 420ms var(--ease-out);
+}
+.gposter-cta svg.icon { width: 14px; height: 14px; transition: transform 320ms var(--ease-out); }
+.gposter:hover .gposter-cta,
+.gposter:focus-visible .gposter-cta,
+.gposter.selected .gposter-cta { opacity: 1; transform: translateY(-50%); }
+.gposter:hover .gchip-sm,
+.gposter:focus-visible .gchip-sm,
+.gposter.selected .gchip-sm { opacity: 0; transform: translateY(-6px); }
+.gposter:hover .gposter-cta svg.icon { transform: translateX(2px); }
+/* Vraie jaquette Steam (logo du jeu déjà imprimé) : pas de titre HTML par-dessus
+   au repos. Titre, plateforme et « Optimiser » apparaissent au survol, au
+   focus ou sur la carte choisie, sur un dégradé plus haut. Les cartes
+   composées (portrait, visuel recadré) et de secours gardent leur titre. */
+.gposter-shade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(0deg, rgba(5, 5, 10, .92) 0%, rgba(5, 5, 10, .66) 30%, rgba(5, 5, 10, 0) 55%);
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out);
+}
+.gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded) .gposter-shade { background: none; }
+.gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded) .gposter-info {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 260ms var(--ease-out), transform 420ms var(--ease-out);
+}
+.gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded):is(:hover, :focus-visible, .selected) .gposter-shade::after { opacity: 1; }
+.gposter.gposter-logo:has(.gart[data-mode="cover"].is-loaded):is(:hover, :focus-visible, .selected) .gposter-info { opacity: 1; transform: none; }
+.card.game-card.gposter.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 18px 40px -20px var(--glow), var(--highlight);
+}
+.card.game-card.gposter.is-installed:not(.selected) { border-color: rgba(95, 211, 154, .28); }
+/* L'inclinaison de motion.js (.od-tilting) garde l'ombre portée profonde. */
+.card.game-card.gposter.od-tilting { box-shadow: var(--shadow-3), 0 24px 46px -24px var(--glow); }
+
+/* ---- Carte CS2 « à la une » (grand bandeau + Boost CS2 + encart AMD) ---- */
+.card.cs2-hero.has-art { padding: 0; }
+html .card.cs2-hero.has-art { background-image: none; }
+.gfeat {
+  position: relative;
+  display: block;
+  min-height: 300px;
+  overflow: hidden;
+  isolation: isolate;
+  cursor: pointer;
+  color: #fff;
+  border-radius: 11px 11px 0 0;
+}
+.cs2-hero.has-art:has(#amd-area:empty) .gfeat { border-radius: 11px; }
+.gfeat .gart { border-radius: inherit; }
+.gfeat .gart.is-loaded .gart-img[data-primary] {
+  transform: scale(1.06) translate3d(calc(var(--gx, 0) * -1.1%), calc(var(--gy, 0) * -1.4%), 0);
+  transition: opacity 600ms var(--ease-out), transform 1200ms var(--ease-out);
+}
+.gfeat.is-live .gart.is-loaded .gart-img[data-primary] { transition: opacity 600ms var(--ease-out), transform 260ms ease-out; }
+.gfeat-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(6, 6, 11, .95) 0%, rgba(6, 6, 11, .86) 26%, rgba(6, 6, 11, .42) 52%, rgba(6, 6, 11, 0) 74%),
+    linear-gradient(0deg, rgba(6, 6, 11, .6) 0%, rgba(6, 6, 11, 0) 46%),
+    radial-gradient(60% 130% at 0% 100%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 62%);
+}
+.gfeat .gglare { background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .1), rgba(255, 255, 255, 0) 60%); }
+.gfeat-chips {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+}
+.gfeat-body {
+  position: relative;
+  z-index: 3;
+  max-width: 560px;
+  padding: 30px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.gfeat-brand {
+  display: flex;
+  align-items: flex-end;
+  min-height: 40px;
+  margin-bottom: 16px;
+  transform: translate3d(calc(var(--gx, 0) * 5px), calc(var(--gy, 0) * 3px), 0);
+  transition: transform 1200ms var(--ease-out);
+}
+.gfeat.is-live .gfeat-brand { transition: transform 260ms ease-out; }
+.gfeat-brand.has-logo { min-height: 68px; }
+.gfeat-logo { max-width: 270px; max-height: 68px; }
+.gfeat-name {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 780;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  color: #fff;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, .5);
+}
+.has-logo > .gfeat-name,
+.has-logo > .gd-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.gfeat .cs2-hero-kicker { color: color-mix(in srgb, var(--accent) 38%, #fff); margin-bottom: 4px; }
+.gfeat .cs2-hero-title { color: #fff; font-size: 24px; margin-bottom: 6px; text-shadow: 0 2px 16px rgba(0, 0, 0, .45); }
+.gfeat .cs2-hero-sub { color: rgba(255, 255, 255, .8); max-width: min(56%, 46ch); line-height: 1.55; }
+.gfeat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.btn.gfeat-open {
+  height: 46px;
+  padding: 0 18px;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.btn.gfeat-open:hover { background: rgba(255, 255, 255, .17); border-color: rgba(255, 255, 255, .3); color: #fff; }
+.btn.gfeat-open svg.icon { transition: transform 320ms var(--ease-out); }
+.btn.gfeat-open[aria-expanded="true"] svg.icon { transform: rotate(90deg); }
+.gfeat.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.cs2-hero.has-art #amd-area { padding: 2px 20px 16px; }
+.cs2-hero.has-art .amd-fold { margin-top: 14px; }
+
+/* ---- Fiche d'un jeu : bandeau visuel + logo ---- */
+.gd-portrait {
+  position: absolute;
+  z-index: 1;
+  right: 2%;
+  top: -4%;
+  height: 205%;
+  width: auto;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(14px);
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, .5));
+  -webkit-mask-image: linear-gradient(180deg, #000 34%, transparent 50%);
+  mask-image: linear-gradient(180deg, #000 34%, transparent 50%);
+  transition: opacity 700ms var(--ease-out), transform 900ms var(--ease-out);
+}
+.gd-portrait.is-in { opacity: 1; transform: none; }
+.game-detail.has-banner { padding-top: 0; scroll-margin-top: 16px; }
+.gd-banner {
+  position: relative;
+  height: 216px;
+  margin: 0 -26px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  border-radius: 11px 11px 0 0;
+}
+.gd-banner .gart { border-radius: inherit; }
+/* Cadrage propre au bandeau (très large) : logo imprimé en haut du visuel
+   Fortnite et casques des personnages CS2 gardés dans le cadre. */
+.gd-banner .gart-img { object-position: var(--bfocus, var(--focus, 50% 50%)); }
+.gd-banner .gart[data-art-game="fortnite"] { --bfocus: 40% 8%; }
+.gd-banner .gart[data-art-game="cs2"] { --bfocus: 50% 16%; }
+.gd-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, rgba(6, 6, 11, .9) 0%, rgba(6, 6, 11, .5) 42%, rgba(6, 6, 11, .08) 100%),
+    linear-gradient(90deg, rgba(6, 6, 12, .85) 0%, rgba(6, 6, 12, .4) 40%, rgba(6, 6, 12, 0) 65%);
+}
+.gd-banner-body {
+  position: absolute;
+  z-index: 2;
+  left: 26px;
+  right: 80px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.gd-logo { max-width: 300px; max-height: 80px; }
+.gd-banner h2.gd-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 760;
+  letter-spacing: -.025em;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, .55);
+}
+.gd-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn.btn-ghost.btn-sm.gd-close#btn-game-close {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  background: rgba(8, 8, 14, .55);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 10px;
+}
+.btn.btn-ghost.btn-sm.gd-close#btn-game-close:hover { background: rgba(8, 8, 14, .78); color: #fff; }
+.gd-path { margin-top: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.games-credit { margin: 14px 0 0; font-size: 11.5px; color: var(--text-3); }
+
+/* ---- Réglages > Images des jeux ---- */
+.art-card .settings-row { padding-top: 0; }
+.art-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.art-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 10px 12px 10px 10px;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  transition: border-color var(--dur-2) ease, background-color var(--dur-2) ease;
+}
+.art-tile:hover { border-color: var(--border-strong); }
+.art-tile.is-custom { border-color: color-mix(in srgb, var(--blue) 35%, var(--border)); }
+.art-tile.is-drop { border-color: var(--accent); background: var(--accent-soft); }
+.art-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.art-thumb .gart { border-radius: 8px; }
+.art-thumb-cover { width: 58px; aspect-ratio: 2 / 3; }
+.art-thumb-hero,
+.art-thumb-logo { width: 124px; aspect-ratio: 16 / 7; }
+.art-thumb-logo .gart { background: #121219; }
+.art-thumb .gart-fb-mono { margin-top: 0; font-size: 19px; }
+.art-thumb .gart-fb::after { display: none; }
+.gart .gart-logo { inset: 10%; width: 80%; height: 80%; object-fit: contain; }
+.art-tile-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.art-tile-name { font-size: 13.5px; font-weight: 620; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.art-tile-state { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-height: 21px; }
+.art-src {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-3);
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.btn.btn-sm.art-reset { height: 23px; padding: 0 7px; font-size: 12px; gap: 4px; }
+.btn.btn-sm.art-reset svg.icon { width: 12px; height: 12px; }
+.art-tile-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.art-hint { margin: 12px 0 0; }
+.art-empty { margin: 14px 0 0; }
+
+/* ---- Niveaux d'animation et pause pendant le jeu ---- */
+html[data-motion="reduced"] .gart::before,
+html[data-motion="off"] .gart::before,
+html[data-motion-paused] .gart::before { animation: none; transform: none; opacity: .35; }
+html[data-motion="reduced"] .gart-img,
+html[data-motion="reduced"] .gd-portrait,
+html[data-motion="reduced"] .glogo { transform: none !important; transition: opacity 300ms ease-out; }
+html[data-motion="reduced"] .gfeat-brand,
+html[data-motion="off"] .gfeat-brand { transform: none; }
+html[data-motion="off"] .gart-img,
+html[data-motion="off"] .gd-portrait,
+html[data-motion="off"] .glogo,
+html[data-motion="off"] .gposter-title { transform: none !important; transition: none; }
+html[data-motion="off"] .gposter-cta,
+html[data-motion="off"] .gchip-sm { transition: none; }
+html[data-motion-paused] .gart-img,
+html[data-motion-paused] .gd-portrait,
+html[data-motion-paused] .glogo,
+html[data-motion-paused] .gfeat-brand { transition: none; }
+html[data-motion-paused] .gglare::after { animation: none; }
+
+/* Barre de navigation collante en haut (≤ 900 px) : la fiche s'arrête dessous. */
+@media (max-width: 900px) {
+  .game-detail.has-banner { scroll-margin-top: 72px; }
+}
+
+@media (max-width: 760px) {
+  .gfeat { min-height: 0; }
+  .gfeat-veil {
+    background:
+      linear-gradient(0deg, rgba(6, 6, 11, .94) 0%, rgba(6, 6, 11, .8) 55%, rgba(6, 6, 11, .4) 100%),
+      radial-gradient(80% 90% at 0% 100%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 65%);
+  }
+  .gfeat-body { padding: 22px 20px; }
+  .gfeat-chips { top: 12px; right: 12px; }
+  .gfeat .cs2-hero-title { font-size: 20px; }
+  .games-lib { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 12px; }
+  .game-detail.has-banner { padding-left: 18px; padding-right: 18px; }
+  .gd-banner { height: 180px; margin: 0 -18px; }
+  .gd-banner-body { left: 18px; right: 60px; }
+  .gd-logo { max-width: 220px; max-height: 64px; }
+  .gd-portrait { display: none; }
+}
